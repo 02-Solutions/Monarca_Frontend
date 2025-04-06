@@ -1,13 +1,11 @@
 :root {
   /* Media Queries Breakpoints */
-  --phone: 480px;
+  /* --phone: 480px;
   --tablet: 768px;
   --desktop: 1024px;
-  --xl_desktop: 1450px;
+  --xl_desktop: 1450px; */
 
   /* Colors */
-
-
 
   /* General Colors */
   --red: #b91f13;
@@ -16,48 +14,47 @@
   --white: #f9f9f9;
   --black: #0a0303;
 
-
   /* Fonts Weights */
-  --thin: 300;
+  /* --thin: 300;
   --regular: 400;
-  --bold: 700;
+  --bold: 700; */
 
   /* Fonts Families */
-  --primary: 'Arial', sans-serif;
-  --secondary: 'Arial', sans-serif;
-  --heading: 'Arial', sans-serif;
-  --tc: 'Arial', sans-serif;
+  --primary: "Arial", sans-serif;
+  --secondary: "Arial", sans-serif;
+  --heading: "Arial", sans-serif;
+  --tc: "Arial", sans-serif;
 
   /* General Styles */
   font-family: var(--primary);
 }
 
-html {
+/* html {
   font-size: 62.5%;
   box-sizing: border-box;
   height: 100%;
-}
+} */
 
-*,
+/* *,
 *:before,
 *:after {
   box-sizing: inherit;
-}
+} */
 
-body {
+/* body {
   font-size: 1.8rem;
   height: 100vh;
   margin: 0;
-}
+} */
 
 a {
   text-decoration: none;
 }
 
-img {
+/* img {
   width: 100%;
   height: auto;
-}
+} */
 
 ::-webkit-scrollbar {
   display: none;
