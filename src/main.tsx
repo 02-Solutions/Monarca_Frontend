@@ -11,7 +11,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Example from "./pages/Example.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
-import { ProtectedRoute, RoleProtectedRoute } from "./hooks/auth/authContext";
+import {
+  ProtectedRoute,
+  PermissionProtectedRoute,
+} from "./hooks/auth/authContext";
 
 const router = createBrowserRouter([
   // Basic protected routes (requires only authentication)
@@ -27,11 +30,12 @@ const router = createBrowserRouter([
         path: "/dashboard",
         element: <Dashboard />,
       },
-
-      // Routes protected for specific roles (n1, n2, SOI)
+      // Routes protected by specific permissions
       {
         path: "/approval",
-        element: <RoleProtectedRoute allowedRoles={["n1", "n2", "SOI"]} />,
+        element: (
+          <PermissionProtectedRoute requiredPermissions={["approve_trip"]} />
+        ),
         children: [
           {
             path: "",
@@ -39,14 +43,26 @@ const router = createBrowserRouter([
           },
           {
             path: "history",
-            element: <div>Approval History</div>, // Replace with your actual component
+            element: (
+              <PermissionProtectedRoute
+                requiredPermissions={["view_approval_history"]}
+              />
+            ),
+            children: [
+              {
+                path: "",
+                element: <div>Approval History</div>, // Replace with your actual component
+              },
+            ],
           },
         ],
       },
-      // Routes protected for agency role only
+      // Routes protected for booking permission
       {
         path: "/booking",
-        element: <RoleProtectedRoute allowedRoles={["agency"]} />,
+        element: (
+          <PermissionProtectedRoute requiredPermissions={["book_trip"]} />
+        ),
         children: [
           {
             path: "",
@@ -54,13 +70,22 @@ const router = createBrowserRouter([
           },
           {
             path: "history",
-            element: <div>Booking History</div>, // Replace with your actual component
+            element: (
+              <PermissionProtectedRoute
+                requiredPermissions={["view_booking_history"]}
+              />
+            ),
+            children: [
+              {
+                path: "",
+                element: <div>Booking History</div>, // Replace with your actual component
+              },
+            ],
           },
         ],
       },
     ],
   },
-
   // Public routes (no authentication required)
   {
     path: "/example",
@@ -70,7 +95,6 @@ const router = createBrowserRouter([
     path: "/unauthorized",
     element: <Unauthorized />,
   },
-
   // Catch-all route for non-existent pages
   {
     path: "*",
