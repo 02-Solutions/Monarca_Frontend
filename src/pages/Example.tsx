@@ -1,4 +1,3 @@
-import Layout from "../components/Layout";
 import { useTodos } from "../hooks/example/useTodos";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -9,7 +8,7 @@ function Example() {
   const notify = () => toast("Prueba");
 
   return (
-    <Layout>
+    <div>
       <div>
         <ToastContainer />
         <button
@@ -40,7 +39,7 @@ function Example() {
           ))}
         </div>
       )}
-    </Layout>
+    </div>
   );
 }
 

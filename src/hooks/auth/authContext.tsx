@@ -1,6 +1,7 @@
 // src/hooks/auth/authContext.tsx
 import React, { createContext, useContext, ReactNode } from "react";
 import { Navigate, Outlet } from "react-router-dom";
+import Layout from "../../components/Layout"; // Import your Layout component
 
 // Define user roles
 export type UserRole = "n2" | "n1" | "SOI" | "requester" | "agency";
@@ -20,7 +21,7 @@ export const getAuthState = (): AuthState => {
   return {
     isAuthenticated: true,
     userId: "user123",
-    userRole: "agency", // Change this to test different roles
+    userRole: "SOI", // Change this to test different roles
   };
 };
 
@@ -44,7 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   );
 };
 
-// Basic protected route wrapper component
+// Basic protected route wrapper component with Layout
 export const ProtectedRoute: React.FC = () => {
   const { isAuthenticated } = getAuthState();
 
@@ -54,12 +55,14 @@ export const ProtectedRoute: React.FC = () => {
 
   return (
     <AuthProvider>
-      <Outlet />
+      <Layout>
+        <Outlet />
+      </Layout>
     </AuthProvider>
   );
 };
 
-// Role-based protected route component
+// Role-based protected route component with Layout
 interface RoleProtectedRouteProps {
   allowedRoles: UserRole[];
 }
@@ -79,7 +82,7 @@ export const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // If authenticated and authorized, render the route
+  // If authenticated and authorized, render the route with Layout
   return (
     <AuthProvider>
       <Outlet />
