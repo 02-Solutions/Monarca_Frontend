@@ -29,34 +29,34 @@
   font-family: var(--primary);
 }
 
-/* html {
+html {
   font-size: 62.5%;
   box-sizing: border-box;
   height: 100%;
-} */
+}
 
-/* *,
+*,
 *:before,
 *:after {
   box-sizing: inherit;
-} */
+} 
 
-/* body {
+body {
   font-size: 1.8rem;
   height: 100vh;
   margin: 0;
-} */
+} 
 
 a {
   text-decoration: none;
 }
 
 /* img {
-  width: 100%;
-  height: auto;
+width: 100%;
+height: auto;
 } */
 
 ::-webkit-scrollbar {
-  display: none;
-  /* Hide scrollbar in WebKit browsers */
+display: none;
+/* Hide scrollbar in WebKit browsers */
 }
