@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Example from "./pages/Example.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
+import Expenses from "./pages/Expenses.tsx";
 import {
   ProtectedRoute,
   PermissionProtectedRoute,
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <Dashboard />,
+      },
+      {
+        path: "/expenses",
+        element: <Expenses />,
       },
       // Routes protected by specific permissions
       {

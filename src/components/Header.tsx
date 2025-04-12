@@ -1,14 +1,18 @@
 
 
 
-function Header() {
+interface HeaderProps {
+  title?: string;
+}
+
+function Header({ title = "* titulo dinámico aquí *" }: HeaderProps) {
   return (
     <nav className="fixed top-0 z-50 w-full bg-[var(--dark-blue)] text-[var(--white)]">
       <div className="px-3 py-5 lg:px-5 lg:pl-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center justify-start rtl:justify-end">
             <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
-            * titulo dinámico aquí *
+            {title}
             </span>
           </div>
           <div className="flex items-center">
