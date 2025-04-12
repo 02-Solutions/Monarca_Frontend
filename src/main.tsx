@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Example from "./pages/Example.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
+import Login from "./pages/Login.tsx";
 import {
   ProtectedRoute,
   PermissionProtectedRoute,
@@ -87,6 +88,10 @@ const router = createBrowserRouter([
     ],
   },
   // Public routes (no authentication required)
+  {
+    path: "/login",
+    element: <Login />,
+  },
   {
     path: "/example",
     element: <Example />,
