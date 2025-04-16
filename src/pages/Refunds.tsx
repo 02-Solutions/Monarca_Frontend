@@ -28,16 +28,16 @@ export const Refunds = () => {
     ...trip,
     action: (
       <Button
-        label="Solicitar reembolso" 
+        label="Comprobar" 
         onClickFunction={() => alert(`Botón de la fila ${trip.id} presionado`)}
       />
     )
   }));
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-blue-600 mb-6">
-        Seleccione un viaje para reembolso
+    <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
+      <h2 className="text-2xl font-bold text-[#0a2c6d] mb-3">
+        Historial de viajes
       </h2>
       <Table
         columns={[

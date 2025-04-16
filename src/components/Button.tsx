@@ -22,7 +22,7 @@ interface ButtonProps {
  */
 const Button: React.FC<ButtonProps> = ({
     label,
-    className = 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded',
+    className = 'bg-white hover:bg-gray-300 hover:cursor-pointer p-2 text-[#0a2c6d] font-bold rounded-md shadow-md',
     disabled = false,
     onClickFunction,
 }) => {

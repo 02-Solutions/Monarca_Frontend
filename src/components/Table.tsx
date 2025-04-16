@@ -2,7 +2,7 @@
  * Generic table component that renders data in a customizable table format.
  * Supports various data types including strings, numbers, booleans, and React nodes.
  * 
- * Last edit: April 15, 2025
+ * Last edit: April 16, 2025
  * Authors: José Manuel García Zumaya
  */
 import React, { ReactNode } from 'react';
@@ -42,12 +42,19 @@ interface TableProps {
 const Table: React.FC<TableProps> = ({ columns, data }) => {
   return (
     <div className="relative overflow-x-auto">
-      <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <tr>
+      <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
+        <thead>
+          <tr className="text-xs text-white uppercase bg-[#0a2c6d] border-b-8 border-violet-200">
             {/* Contruct the headers of the table, based on colum property */}
             {columns.map((column, index) => (
-              <th key={index} className="px-6 py-3">
+              <th 
+                key={index} 
+                className={`px-4 py-2 text-center ${
+                  index === 0 ? 'rounded-tl-lg rounded-bl-lg' : ''
+                } ${
+                  index === columns.length - 1 ? 'rounded-tr-lg rounded-br-lg' : ''
+                }`}
+              >
                 {column.header}
               </th>
             ))}
@@ -59,16 +66,27 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
           {data.map((row, rowIndex) => (
             <tr
               key={rowIndex}
-              className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+              className={`bg-[#4C6997] text-white text-center`}
             >
             {/* And then we use another map function to iterate over each column */}
             {/* in the columns array to create the cells data of the table */}
               {columns.map((column, cellIndex) => (
-                <td key={cellIndex} className="px-6 py-4">
+                <td 
+                  key={cellIndex} 
+                  className={`px-4 py-3 ${
+                    cellIndex === 0 ? 'rounded-l-lg' : ''
+                  } ${
+                    cellIndex === columns.length - 1 ? 'rounded-r-lg' : ''
+                  }`}
+                >
                     {/* Check if the data for this cell is defined, if not show N/A */}
                   {row[column.key] !== undefined && row[column.key] !== null
                     ? (
-                       /* Render the data, that might be number, string, boolean or ReactNode */
+                       /* Render the data, that might be number, string, boolean or ReactNode.
+                        * Note here access the data through the key property of the column object
+                        * to get the value from the row object. This is important because we are
+                        * using the key property to access the data dynamically in our object data. 
+                       */
                         row[column.key]
                       )
                     : 'N/A'}
