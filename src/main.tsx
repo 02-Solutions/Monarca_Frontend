@@ -84,6 +84,10 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: "/refunds",
+        element: <Dashboard />,
+      }
     ],
   },
   // Public routes (no authentication required)
