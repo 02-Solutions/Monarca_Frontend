@@ -1,12 +1,45 @@
-import React from "react";
+import React, {useState} from "react";
 import { useNavigate } from "react-router-dom";
+import { postRequest } from "../utils/apiService";
+
+interface User {
+  email: string;
+  password: string;
+}
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [user, setUser] = useState<User>({
+    email: "",
+    password: ""
+  });
+  const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate("/dashboard");
+    if (!user.email || !user.password) {
+      alert("El Usuario y la Contraseña son obligatorios")
+      return
+    }
+    // Send request to API
+    try {
+      const result = await postRequest("/login", {...user})
+      if (result.status) {
+        navigate("/dashboard")
+      }
+      else {
+        alert("Error al iniciar sesion")
+      }
+    } catch (error) {
+      console.log(error)
+      alert("Error")
+    }
   };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUser({
+      ...user,
+      [event.target.name]: event.target.value
+    })
+  }
 
   return (
     <div className="flex h-screen font-[Montserrat, sans-serif]">
@@ -20,12 +53,16 @@ export default function LoginPage() {
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col max-w-[490px] text-[#001D3D]">
           <input
+            onChange={handleChange}
+            name="email"
             type="email"
             placeholder="Correo"
             required
             className="p-4 border border-[#E0E0E0] rounded-[0.5rem] bg-[#F0F3F4] shadow-[0_2px_1px_rgba(0,0,0,0.3)] text-[1.2rem] mb-8"
           />
           <input
+            onChange={handleChange}
+            name="password"
             type="password"
             placeholder="Contraseña"
             required

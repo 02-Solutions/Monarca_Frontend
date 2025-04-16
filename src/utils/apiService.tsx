@@ -5,7 +5,7 @@ import axios from "axios";
 // Configuración de la instancia de Axios
 const api = axios.create({
   // Utiliza la URL base definida en variables de entorno o un valor por defecto
-  baseURL: "http://localhost:3000",
+  baseURL: import.meta.env.VITE_API_URL,
   timeout: 5000, // Tiempo máximo de espera en milisegundos
   headers: {
     "Content-Type": "application/json",
