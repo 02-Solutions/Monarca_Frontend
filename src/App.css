@@ -6,13 +6,18 @@
   --xl_desktop: 1450px; */
 
   /* Colors */
+  --dark-blue: #001D3D;
+  --blue: #00296B;
+  --light-blue: #00509D;
+  --ultra-light-blue: #0466CB;
 
   /* General Colors */
   --red: #b91f13;
   --green: #057505dc;
   --yellow: #eac704;
-  --white: #f9f9f9;
-  --black: #0a0303;
+  --white: #FEFEFE;
+  --gray: #F0F3F4;
+  --black: #000000;
 
   /* Fonts Weights */
   /* --thin: 300;
