@@ -10,6 +10,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Incluye cookies y credenciales en cada petición
 });
 
 // Interceptor de solicitud para añadir el token de autenticación (si existe)
@@ -28,7 +29,6 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Puedes manejar distintos códigos de error aquí, por ejemplo:
     if (error.response) {
       console.error("Error en la respuesta de la API:", error.response);
       if (error.response.status === 401) {
