@@ -10,7 +10,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Example from "./pages/Example.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
-import { Refunds } from "./pages/Refunds.tsx";
+import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 import {
   ProtectedRoute,
@@ -88,7 +88,7 @@ const router = createBrowserRouter([
       {
         path: "/refunds",
         element: <Refunds />,
-      }
+      },
     ],
   },
   // Public routes (no authentication required)
@@ -114,5 +114,5 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>
-  </StrictMode>,
+  </StrictMode>
 );
