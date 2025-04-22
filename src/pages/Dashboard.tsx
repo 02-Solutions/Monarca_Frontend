@@ -1,69 +1,49 @@
-// src/main.tsx (updated with permissions)
-
-// src/pages/Dashboard.tsx
-import { useAuth } from "../hooks/auth/authContext";
 
 export const Dashboard = () => {
-  const { userPermissions, userId, userName } = useAuth();
-
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      {/* Dashboard Header */}
-      <div className="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-          Dashboard
-        </h1>
-        <div className="mt-2">
-          <p className="text-gray-600 dark:text-gray-400">
-            Welcome, {userName} (ID: {userId})
-          </p>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {userPermissions.map((permission) => (
-            <span
-              key={permission}
-              className="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded-full text-sm"
+    <div className="flex justify-start items-start gap-10 py-10 px-1 ml-0">
+      {[
+        {
+          title: "Crear solicitud de viaje",
+          iconPath:
+            "M16.5 9.75V6a2.25 2.25 0 00-2.25-2.25h-4.5A2.25 2.25 0 007.5 6v3.75M3.75 9.75h16.5M6 9.75v10.5h12V9.75",
+        },
+        {
+          title: "Historial de viajes",
+          iconPath:
+            "M8.25 6.75v-1.5a.75.75 0 01.75-.75h6a.75.75 0 01.75.75v1.5m-8.25 0h9A2.25 2.25 0 0119.5 9v8.25A2.25 2.25 0 0117.25 19.5H6.75A2.25 2.25 0 014.5 17.25V9a2.25 2.25 0 012.25-2.25zm5.25 3v4.5",
+        },
+        {
+          title: "Solicitud de reembolso",
+          iconPath:
+            "M15.75 2.25v6M12 4.5h7.5M18 9.75V21a.75.75 0 01-.75.75H6.75A.75.75 0 016 21V3a.75.75 0 01.75-.75H12",
+        },
+      ].map(({ title, iconPath }, idx) => (
+        <div
+          key={idx}
+          className="relative bg-[#F4F6F8] w-64 h-30 rounded-2xl shadow-md flex items-end justify-center pt-12 hover:shadow-lg transition-shadow duration-300 ease-in-out"
+        >
+          <div className="absolute -top-8 bg-[#2C64C6] w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="white"
+              className="w-9 h-9"
             >
-              {permission.replace(/_/g, " ")}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Permission-specific panels */}
-      {userPermissions.includes("approve_trip") && (
-        <div className="p-5 bg-white dark:bg-gray-800 rounded-lg shadow mb-5 border-l-4 border-blue-500">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Trips to Approve
-          </h2>
-          <p className="text-gray-700 dark:text-gray-300">
-            This section is only visible to users with the "approve_trip"
-            permission
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d={iconPath}
+              />
+            </svg>
+          </div>
+          <p className="text-center text-[#001233] font-extrabold text-base pb-3 leading-tight px-2">
+            {title}
           </p>
         </div>
-      )}
-
-      {userPermissions.includes("book_trip") && (
-        <div className="p-5 bg-white dark:bg-gray-800 rounded-lg shadow mb-5 border-l-4 border-green-500">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Trips to Book
-          </h2>
-          <p className="text-gray-700 dark:text-gray-300">
-            This section is only visible to users with the "book_trip"
-            permission
-          </p>
-        </div>
-      )}
-
-      {/* Common section visible to all authenticated users */}
-      <div className="p-5 bg-white dark:bg-gray-800 rounded-lg shadow border-l-4 border-purple-500">
-        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-          My Profile
-        </h2>
-        <p className="text-gray-700 dark:text-gray-300">
-          This section is visible to all authenticated users
-        </p>
-      </div>
+      ))}
     </div>
   );
 };
