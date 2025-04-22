@@ -20,6 +20,7 @@ import "./App.css";
 
 // ****************** Pages ******************
 import Login from "./pages/Login.tsx";
+import Register from "./pages/Register.tsx";
 import Requests from "./pages/Requests.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
@@ -105,6 +106,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
   },
   {
     path: "/unauthorized",
