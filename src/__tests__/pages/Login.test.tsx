@@ -162,5 +162,9 @@ describe("LoginPage", () => {
       expect(submitButton).toBeEnabled();
       expect(submitButton).not.toBeDisabled();
     });
+    //TODO: Edid will add a test here , chose one from here:
+    //
+    //Forgot password link has correct href
+    //Form maintains state between component re-renders
   });
 });
