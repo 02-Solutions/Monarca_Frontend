@@ -1,24 +1,61 @@
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
-import LoginPage from "../../pages/Login";
+import { describe, it, expect } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { BrowserRouter } from 'react-router-dom'
+import LoginPage from '../../pages/Login'
 
-describe("LoginPage", () => {
-  it("renders login form elements", () => {
-    render(
-      <BrowserRouter>
-        <LoginPage />
-      </BrowserRouter>,
-    );
+describe('LoginPage', () => {
+  describe('Basic Rendering Tests', () => {
+    it('renders login form elements', () => {
+      render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      )
+      
+      expect(screen.getByText('INICIO DE SESIÓN')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('Correo')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('Contraseña')).toBeInTheDocument()
+      expect(screen.getByText('Continuar')).toBeInTheDocument()
+    })
 
-    // Check if page title is displayed
-    expect(screen.getByText("INICIO DE SESIÓN")).toBeInTheDocument();
+    it('renders MONARCA logo text', () => {
+      render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      )
+      
+      expect(screen.getByText('M')).toBeInTheDocument()
+      expect(screen.getByText('ONARCA')).toBeInTheDocument()
+    })
 
-    // Check if input fields exist
-    expect(screen.getByPlaceholderText("Correo")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Contraseña")).toBeInTheDocument();
+    it('renders forgot password link', () => {
+      render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      )
+      
+      const forgotPasswordLink = screen.getByText('¿Olvidaste tu contraseña?')
+      expect(forgotPasswordLink).toBeInTheDocument()
+      expect(forgotPasswordLink).toHaveAttribute('href', '/forgot-password')
+    })
 
-    // Check if submit button exists
-    expect(screen.getByText("Continuar")).toBeInTheDocument();
-  });
-});
+    it('renders background image container', () => {
+      render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      )
+      
+      const backgroundDiv = document.querySelector('[class*="bg-"][class*="imageLogin.png"]')
+      expect(backgroundDiv).toBeInTheDocument()
+    })
+  })
+
+  describe('Form Interaction Tests', () => {
+    // ... tests for input changes, etc.
+  })
+
+
+})
