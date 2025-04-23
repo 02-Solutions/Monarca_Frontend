@@ -3,40 +3,32 @@ name: Check PR Target Branch
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
-    branches:
-      - main # Only run this action for PRs targeting main
 
 jobs:
-  check-target:
+  check-target-branch:
     runs-on: ubuntu-latest
     steps:
-      - name: Check source branch
+      - name: Check PR target
         run: |
-          # Get the head branch (source) and base branch (target)
-          HEAD_BRANCH="${{ github.head_ref }}"
-          BASE_BRANCH="${{ github.base_ref }}"
+          # Get PR details using github.event context
+          TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
+          SOURCE_BRANCH="${{ github.event.pull_request.head.ref }}"
 
-          echo "PR from $HEAD_BRANCH to $BASE_BRANCH"
+          echo "Pull Request from $SOURCE_BRANCH to $TARGET_BRANCH"
 
-          # Only proceed with checks if this PR is targeting main
-          if [[ "$BASE_BRANCH" == "main" ]]; then
-            # Check if head branch is allowed to target main
-            if [[ "$HEAD_BRANCH" == "develop" || "$HEAD_BRANCH" == release/* || "$HEAD_BRANCH" == hotfix/* ]]; then
-              echo "✅ Valid PR: $HEAD_BRANCH can target main"
+          # Check if this is a PR to main from an invalid branch
+          if [[ "$TARGET_BRANCH" == "main" ]]; then
+            if [[ "$SOURCE_BRANCH" == "develop" || "$SOURCE_BRANCH" == release/* || "$SOURCE_BRANCH" == hotfix/* ]]; then
+              echo "✅ Valid PR: $SOURCE_BRANCH can target main"
             else
-              echo "::error::❌ BRANCH TARGET ERROR: Invalid PR from '$HEAD_BRANCH' to 'main'"
-              echo "::error::This PR is coming from '$HEAD_BRANCH', which is not allowed to target 'main' directly."
-              echo ""
-              echo "According to our GitFlow process:"
-              echo "✅ ALLOWED: PRs to 'main' can ONLY come from:"
-              echo "   - develop (for planned releases)"
-              echo "   - release/* (for version preparations)"
-              echo "   - hotfix/* (for urgent production fixes)"
-              echo ""
-              echo "❓ SOLUTION: Please close this PR and create a new one targeting 'develop' instead."
-              echo "   If this is a feature or bugfix, it must be integrated into 'develop' first."
+              echo "::error::❌ BRANCH TARGET ERROR: Invalid PR from '$SOURCE_BRANCH' to 'main'"
+              echo "::error::According to our GitFlow process, PRs to 'main' can ONLY come from:"
+              echo "::error::- develop (for planned releases)"
+              echo "::error::- release/* (for version preparations)"
+              echo "::error::- hotfix/* (for urgent production fixes)"
+              echo "::error::Please close this PR and create a new one targeting 'develop' instead."
               exit 1
             fi
           else
-            echo "✅ This PR is not targeting main, skipping branch restriction checks"
+            echo "✅ This PR is targeting '$TARGET_BRANCH', no restrictions apply"
           fi
