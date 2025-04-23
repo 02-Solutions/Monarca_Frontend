@@ -1,0 +1,33 @@
+name: Check PR Target Branch
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+jobs:
+  check-target-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR target
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          echo "PR #$PR_NUMBER: From $HEAD_REF to $BASE_REF"
+
+          # Check if this is a PR to main
+          if [[ "$BASE_REF" == "main" ]]; then
+            # Check if source branch is allowed to target main
+            if [[ "$HEAD_REF" == "develop" || "$HEAD_REF" =~ ^release/ || "$HEAD_REF" =~ ^hotfix/ ]]; then
+              echo "✅ PR #$PR_NUMBER: Valid PR from $HEAD_REF to main"
+            else
+              echo "::error::❌ PR #$PR_NUMBER: BRANCH TARGET ERROR: Invalid PR from '$HEAD_REF' to 'main'"
+              echo "::error::According to our GitFlow process, PRs to 'main' can ONLY come from:"
+              echo "::error::- develop (for planned releases)"
+              echo "::error::- release/* (for version preparations)"
+              echo "::error::- hotfix/* (for urgent production fixes)"
+              echo "::error::Please close this PR and create a new one targeting 'develop' instead."
+              exit 1
+            fi
+          else
+            echo "✅ PR #$PR_NUMBER: This PR is targeting '$BASE_REF', no restrictions apply"
+          fi
