@@ -9,8 +9,8 @@ function Sidebar() {
     >
       <div className="h-full px-3 pb-4 overflow-y-auto">
         <div>
-            * logo aqui *
-            <img src="" alt="" />
+          * logo aqui *
+          <img src="" alt="" />
         </div>
         <ul className="space-y-2 font-medium">
           <li>
