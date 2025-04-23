@@ -1,0 +1,42 @@
+name: Check PR Target Branch
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches:
+      - main # Only run this action for PRs targeting main
+
+jobs:
+  check-target:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check source branch
+        run: |
+          # Get the head branch (source) and base branch (target)
+          HEAD_BRANCH="${{ github.head_ref }}"
+          BASE_BRANCH="${{ github.base_ref }}"
+
+          echo "PR from $HEAD_BRANCH to $BASE_BRANCH"
+
+          # Only proceed with checks if this PR is targeting main
+          if [[ "$BASE_BRANCH" == "main" ]]; then
+            # Check if head branch is allowed to target main
+            if [[ "$HEAD_BRANCH" == "develop" || "$HEAD_BRANCH" == release/* || "$HEAD_BRANCH" == hotfix/* ]]; then
+              echo "✅ Valid PR: $HEAD_BRANCH can target main"
+            else
+              echo "::error::❌ BRANCH TARGET ERROR: Invalid PR from '$HEAD_BRANCH' to 'main'"
+              echo "::error::This PR is coming from '$HEAD_BRANCH', which is not allowed to target 'main' directly."
+              echo ""
+              echo "According to our GitFlow process:"
+              echo "✅ ALLOWED: PRs to 'main' can ONLY come from:"
+              echo "   - develop (for planned releases)"
+              echo "   - release/* (for version preparations)"
+              echo "   - hotfix/* (for urgent production fixes)"
+              echo ""
+              echo "❓ SOLUTION: Please close this PR and create a new one targeting 'develop' instead."
+              echo "   If this is a feature or bugfix, it must be integrated into 'develop' first."
+              exit 1
+            fi
+          else
+            echo "✅ This PR is not targeting main, skipping branch restriction checks"
+          fi
