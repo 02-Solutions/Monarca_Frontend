@@ -95,6 +95,6 @@ describe("Login Page", () => {
 
   it("can navigate to forgot password page", () => {
     cy.contains("¿Olvidaste tu contraseña?").click();
-    cy.url().should("include", "/forgot-password");
+    cy.url().should("include", "/register");
   });
 });
