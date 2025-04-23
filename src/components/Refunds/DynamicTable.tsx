@@ -4,7 +4,7 @@
  * Last edit: April 21, 2025
  * Authors: José Manuel García Zumaya
  */
-import React, { useState } from "react";
+import React, { useState, ReactNode } from "react";
 
 /*
  * Column interface SCHEMA to define the structure of each column in the table.
@@ -29,7 +29,9 @@ interface Column {
   defaultValue?: string | number | boolean | null | undefined | ReactNode;
   renderCell?: (
     value: string | number | boolean | null | undefined | ReactNode,
-    handleFieldChange: Function
+    handleFieldChange: (
+      newValue: string | number | boolean | null | undefined | ReactNode
+    ) => void
   ) => React.ReactNode;
 }
 
@@ -40,10 +42,15 @@ interface Column {
  * onDataChange: A callback function that is called when the data changes,
  * it helps to notify the parent component of the change and need to render the table again.
  */
+/* Interface for table row data structure */
+interface TableRow {
+  [key: string]: string | number | boolean | null | undefined | ReactNode;
+}
+
 interface DynamicTableProps {
   columns: Column[];
-  initialData?: [];
-  onDataChange?: (data: []) => void;
+  initialData?: TableRow[];
+  onDataChange?: (data: TableRow[]) => void;
 }
 
 /*
@@ -60,18 +67,22 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
    * The initial data is set to the initialData prop, or an empty array if not provided.
    * This is useful if there are data that is already loaded in the table.
    */
-  const [tableData, setTableData] = useState(initialData);
+  const [tableData, setTableData] = useState<TableRow[]>(
+    initialData as TableRow[]
+  );
 
   /*
    * Function to handle changes in the table data.
    * It receives the row index, column key, and new value.
-   * It updates the corresponding cell in the tableData state,
-   * with an optional callback to notify the parent component of the change.
-   * Using inmutable data structure to avoid mutating the state directly.
-   * This is important to avoid bugs and unexpected behavior in React.
+   * Using TableRow interface defined above
    */
-  const handleFieldChange = (rowIndex, columnKey, newValue) => {
-    const updatedData = [...tableData];
+
+  const handleFieldChange = (
+    rowIndex: number,
+    columnKey: string,
+    newValue: string | number | boolean | null | undefined | ReactNode
+  ): void => {
+    const updatedData = [...tableData] as TableRow[];
 
     updatedData[rowIndex] = {
       ...updatedData[rowIndex],
@@ -96,7 +107,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
    */
   const addItem = () => {
     /* Create a new row object using reduce to iterate over the columns */
-    const defaultRow = columns.reduce((obj, column) => {
+    const defaultRow = columns.reduce((obj: TableRow, column) => {
       /* Remember that in TS we can create or access properties by using
        * the bracket notation, this is useful to create dynamic properties
        * in an object, so although the initial object is empty, we can
@@ -105,7 +116,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
        */
       obj[column.key] = column.defaultValue || "";
       return obj;
-    }, {});
+    }, {} as TableRow);
 
     /* Add the new row to the tableData state */
     const updatedData = [...tableData, defaultRow];

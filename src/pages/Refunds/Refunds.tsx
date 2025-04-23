@@ -4,12 +4,12 @@
  * When a refund is requested, a form is displayed with fields for entering details about the refund request.
  */
 
-import React, { useState } from "react";
+import { useState, ReactNode } from "react";
 import Table from "../../components/Refunds/Table";
 import DynamicTable from "../../components/Refunds/DynamicTable";
 import Button from "../../components/Refunds/Button";
 import InputField from "../../components/Refunds/InputField";
-import Dropdown from "../../components/Refunds/Dropdown";
+import Dropdown from "../../components/Refunds/DropDown";
 import { tripData, spendOptions, taxIndicatorOptions } from "./local/dummyData";
 
 export const Refunds = () => {
@@ -23,14 +23,37 @@ export const Refunds = () => {
    * State to manage the current trip for which the refund is being requested.
    * This is set when the user clicks the action button in the table.
    */
-  const [currentRefundTrip, setCurrentRefundTrip] = useState(null);
+  interface Trip {
+    id: number | string;
+    tripName: string;
+    amount: number;
+    status: string;
+    date: string;
+    destination: string;
+    duration: number;
+    passengers: number;
+    transportation: string;
+    requestDate: string;
+  }
+
+  const [currentRefundTrip, setCurrentRefundTrip] = useState<Trip | null>(null);
 
   /*
    * State to manage the form data for the refund request.
    * This is an array of objects, each object represents a row in the dynamic table
    * for entering expenses related to the refund request.
    */
-  const [formData, setFormData] = useState([]);
+  interface FormDataRow {
+    spentClass: string;
+    amount: number;
+    taxIndicator: string;
+    date: string;
+    XML: string;
+    PDF: string;
+    [key: string]: string | number | null | undefined | ReactNode;
+  }
+
+  const [formData, setFormData] = useState<FormDataRow[]>([]);
 
   /*
    * State to manage the comment field for the refund request.
@@ -45,7 +68,7 @@ export const Refunds = () => {
    * It also sets the currentRefundTrip state to the trip object that corresponds to the clicked button.
    * This allows the form to display the details of the selected trip.
    */
-  const handleRequestRefund = (tripId) => {
+  const handleRequestRefund = (tripId: string | number) => {
     setVisibleRequestForm(true);
     const trip = tripData.find((trip) => trip.id === tripId);
     if (trip) {
@@ -132,11 +155,14 @@ export const Refunds = () => {
        *   column in the row with the new value selected in the dropdown.
        *
        */
-      renderCell: (value, onChangeComponentFunction) => (
+      renderCell: (
+        value: ReactNode,
+        onChangeComponentFunction: (newValue: ReactNode) => void
+      ) => (
         <Dropdown
           required={true}
           options={spendOptions}
-          value={value}
+          value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder="Seleccione el tipo de gasto"
         />
@@ -145,12 +171,15 @@ export const Refunds = () => {
     {
       key: "amount",
       header: "Monto MXN",
-      defaultValue: 100,
-      renderCell: (value, onChangeComponentFunction) => (
+      defaultValue: 0,
+      renderCell: (
+        value: ReactNode,
+        onChangeComponentFunction: (newValue: ReactNode) => void
+      ) => (
         <InputField
           required={true}
           type="number"
-          value={value}
+          value={value as string}
           onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
           placeholder="Ingrese monto del comprobante"
         />
@@ -160,11 +189,14 @@ export const Refunds = () => {
       key: "taxIndicator",
       header: "Indicador de impuesto",
       defaultValue: "",
-      renderCell: (value, onChangeComponentFunction) => (
+      renderCell: (
+        value: ReactNode,
+        onChangeComponentFunction: (newValue: ReactNode) => void
+      ) => (
         <Dropdown
           required={true}
           options={taxIndicatorOptions}
-          value={value}
+          value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder="Seleccione el indicador de impuesto"
         />
@@ -174,11 +206,14 @@ export const Refunds = () => {
       key: "date",
       header: "Fecha del comprobante",
       defaultValue: "",
-      renderCell: (value, onChangeComponentFunction) => (
+      renderCell: (
+        value: ReactNode,
+        onChangeComponentFunction: (newValue: ReactNode) => void
+      ) => (
         <InputField
           required={true}
           type="date"
-          value={value}
+          value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder="Fecha del comprobante"
         />
@@ -188,11 +223,14 @@ export const Refunds = () => {
       key: "XML",
       header: "Archivo XML",
       defaultValue: "",
-      renderCell: (value, onChangeComponentFunction) => (
+      renderCell: (
+        value: ReactNode,
+        onChangeComponentFunction: (newValue: ReactNode) => void
+      ) => (
         <InputField
           required={true}
           type="file"
-          value={value}
+          value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder="Subir archivo XML"
         />
@@ -202,11 +240,14 @@ export const Refunds = () => {
       key: "PDF",
       header: "Archivo PDF",
       defaultValue: "",
-      renderCell: (value, onChangeComponentFunction) => (
+      renderCell: (
+        value: ReactNode,
+        onChangeComponentFunction: (newValue: ReactNode) => void
+      ) => (
         <InputField
           required={true}
           type="file"
-          value={value}
+          value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder="Subir archivo PDF"
         />
@@ -214,9 +255,21 @@ export const Refunds = () => {
     },
   ];
 
-  const handleFormDataChange = (newData) => {
+  // Import the TableRow type or define it locally if not already imported
+  interface TableRow {
+    [key: string]: string | number | null | undefined | ReactNode;
+  }
+
+  const handleFormDataChange = (newData: FormDataRow[]) => {
     setFormData(newData);
     console.log("Datos del formulario actualizados:", newData);
+  };
+
+  // Wrapper function to handle the type conversion
+  const handleDynamicTableDataChange = (data: TableRow[]) => {
+    // Convert TableRow[] to FormDataRow[]
+    const formDataRows = data as unknown as FormDataRow[];
+    handleFormDataChange(formDataRows);
   };
 
   return (
@@ -277,11 +330,7 @@ export const Refunds = () => {
               </p>
             </div>
 
-            <h3 className="text-lg font-bold text-[#0a2c6d] mb-3">
-              Comprobantes de gastos
-            </h3>
             {/*
-             * Display a dynamic table to add the expenses, with the columnsSchemaVauchers array,
              * which contains the schema of the table.
              * The table is created initially with initially empty data,
              * and the user can add new rows to the table.
@@ -292,7 +341,7 @@ export const Refunds = () => {
             <DynamicTable
               columns={columnsSchemaVauchers}
               initialData={formData}
-              onDataChange={handleFormDataChange}
+              onDataChange={handleDynamicTableDataChange}
             />
 
             {/*
