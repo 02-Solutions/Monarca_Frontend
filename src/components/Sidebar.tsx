@@ -1,9 +1,7 @@
 // ***************** images *****************
 import logo from "../assets/logo.png";
-
 // ***************** components *****************
 import SidebarOption from "./SiderbarOption";
-
 
 function Sidebar() {
   return (

@@ -13,6 +13,7 @@ import {
   ProtectedRoute,
   PermissionProtectedRoute,
 } from "./hooks/auth/authContext";
+import "flowbite";
 
 // ******************* Styles ******************
 import "./index.css";
@@ -130,5 +131,5 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>
-  </StrictMode>
+  </StrictMode>,
 );
