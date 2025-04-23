@@ -4,31 +4,28 @@ on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
     branches:
-      - main
+      - main # This specifies the action only runs on PRs targeting main
 
 jobs:
   check-target:
     runs-on: ubuntu-latest
     steps:
       - name: Check if PR to main is from allowed branches
-        if: |
-          github.base_ref == 'main' && 
-          github.head_ref != 'develop' && 
-          !startsWith(github.head_ref, 'release/') && 
-          !startsWith(github.head_ref, 'hotfix/')
         run: |
-          echo "::error::❌ BRANCH TARGET ERROR: Invalid PR from '${GITHUB_HEAD_REF}' to 'main'"
-          echo "::error::This PR is coming from '${GITHUB_HEAD_REF}', which is not allowed to target 'main' directly."
-          echo ""
-          echo "According to our GitFlow process:"
-          echo "✅ ALLOWED: PRs to 'main' can ONLY come from:"
-          echo "   - develop (for planned releases)"
-          echo "   - release/* (for version preparations)"
-          echo "   - hotfix/* (for urgent production fixes)"
-          echo ""
-          echo "❓ SOLUTION: Please close this PR and create a new one targeting 'develop' instead."
-          echo "   If this is a feature or bugfix, it must be integrated into 'develop' first."
-          exit 1
-        env:
-          GITHUB_HEAD_REF: ${{ github.head_ref }}
-          GITHUB_BASE_REF: ${{ github.base_ref }}
+          if [[ "${{ github.base_ref }}" == "main" && 
+                "${{ github.head_ref }}" != "develop" && 
+                "${{ github.head_ref }}" != release/* && 
+                "${{ github.head_ref }}" != hotfix/* ]]; then
+            echo "::error::❌ BRANCH TARGET ERROR: Invalid PR from '${{ github.head_ref }}' to 'main'"
+            echo "::error::This PR is coming from '${{ github.head_ref }}', which is not allowed to target 'main' directly."
+            echo ""
+            echo "According to our GitFlow process:"
+            echo "✅ ALLOWED: PRs to 'main' can ONLY come from:"
+            echo "   - develop (for planned releases)"
+            echo "   - release/* (for version preparations)"
+            echo "   - hotfix/* (for urgent production fixes)"
+            echo ""
+            echo "❓ SOLUTION: Please close this PR and create a new one targeting 'develop' instead."
+            echo "   If this is a feature or bugfix, it must be integrated into 'develop' first."
+            exit 1
+          fi
