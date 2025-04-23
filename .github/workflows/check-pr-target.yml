@@ -16,8 +16,9 @@ jobs:
 
           echo "Pull Request from $SOURCE_BRANCH to $TARGET_BRANCH"
 
-          # Check if this is a PR to main from an invalid branch
+          # Check if this is a PR to main
           if [[ "$TARGET_BRANCH" == "main" ]]; then
+            # Check if source branch is allowed to target main
             if [[ "$SOURCE_BRANCH" == "develop" || "$SOURCE_BRANCH" == release/* || "$SOURCE_BRANCH" == hotfix/* ]]; then
               echo "✅ Valid PR: $SOURCE_BRANCH can target main"
             else
