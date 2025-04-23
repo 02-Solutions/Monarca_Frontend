@@ -27,6 +27,8 @@ import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 
+
+
 const router = createBrowserRouter([
   // Basic protected routes (requires only authentication)
   {
@@ -41,10 +43,7 @@ const router = createBrowserRouter([
         path: "/requests",
         element: <Requests />,
       },
-      {
-        path: "/refunds",
-        element: <Refunds />,
-      },
+      // Routes protected by specific permissions
       {
         path: "/approval",
         element: (
@@ -53,7 +52,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: <div>Trips to Approve</div>,
+            element: <div>Trips to Approve</div>, // Replace with your actual component
           },
           {
             path: "history",
@@ -65,21 +64,45 @@ const router = createBrowserRouter([
             children: [
               {
                 path: "",
-                element: <div>Approval History</div>,
+                element: <div>Approval History</div>, // Replace with your actual component
               },
             ],
           },
         ],
       },
+      // Routes protected for booking permission
+      {
+        path: "/booking",
+        element: (
+          <PermissionProtectedRoute requiredPermissions={["book_trip"]} />
+        ),
+        children: [
+          {
+            path: "",
+            element: <div>Trips to Book</div>, // Replace with your actual component
+          },
+          {
+            path: "history",
+            element: (
+              <PermissionProtectedRoute
+                requiredPermissions={["view_booking_history"]}
+              />
+            ),
+            children: [
+              {
+                path: "",
+                element: <div>Booking History</div>, // Replace with your actual component
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: "/refunds",
+        element: <Refunds />,
+      },
     ],
   },
-
-  // ✅ Public route for Bookings — temp dev only (no auth)
-  {
-    path: "/bookings",
-    element: <Bookings />,
-  },
-
   // Public routes (no authentication required)
   {
     path: "/login",
@@ -93,8 +116,8 @@ const router = createBrowserRouter([
     path: "/unauthorized",
     element: <Unauthorized />,
   },
-
   // Catch-all route for non-existent pages
+  // TODO: Add a 404 page
   {
     path: "*",
     element: <Navigate to="/login" replace />,
