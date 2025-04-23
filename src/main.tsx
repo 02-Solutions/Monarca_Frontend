@@ -16,6 +16,7 @@ import {
   ProtectedRoute,
   PermissionProtectedRoute,
 } from "./hooks/auth/authContext";
+import "flowbite";
 
 const router = createBrowserRouter([
   // Basic protected routes (requires only authentication)
@@ -114,5 +115,5 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>
-  </StrictMode>
+  </StrictMode>,
 );
