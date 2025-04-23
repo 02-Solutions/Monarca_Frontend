@@ -6,12 +6,43 @@ jobs:
   check-target-branch:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug GitHub context
+        run: |
+          echo "==== DEBUGGING GITHUB CONTEXT ===="
+          echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
+          echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
+          echo "GITHUB_HEAD_REF: $GITHUB_HEAD_REF"
+          echo "github.event.pull_request.base.ref: ${{ github.event.pull_request.base.ref }}"
+          echo "github.event.pull_request.head.ref: ${{ github.event.pull_request.head.ref }}"
+          echo "github.base_ref: ${{ github.base_ref }}"
+          echo "github.head_ref: ${{ github.head_ref }}"
+
       - name: Check PR target
         run: |
-          # Get PR details using github.event context
+          # Try all possible ways to get branch information
+          TARGET_BRANCH1="${GITHUB_BASE_REF}"
+          TARGET_BRANCH2="${{ github.event.pull_request.base.ref }}"
+          TARGET_BRANCH3="${{ github.base_ref }}"
+
+          SOURCE_BRANCH1="${GITHUB_HEAD_REF}"
+          SOURCE_BRANCH2="${{ github.event.pull_request.head.ref }}"
+          SOURCE_BRANCH3="${{ github.head_ref }}"
+
+          echo "==== BRANCH VARIABLES ===="
+          echo "TARGET_BRANCH1 (GITHUB_BASE_REF): $TARGET_BRANCH1"
+          echo "TARGET_BRANCH2 (github.event.pull_request.base.ref): $TARGET_BRANCH2"
+          echo "TARGET_BRANCH3 (github.base_ref): $TARGET_BRANCH3"
+          echo "SOURCE_BRANCH1 (GITHUB_HEAD_REF): $SOURCE_BRANCH1"
+          echo "SOURCE_BRANCH2 (github.event.pull_request.head.ref): $SOURCE_BRANCH2"
+          echo "SOURCE_BRANCH3 (github.head_ref): $SOURCE_BRANCH3"
+
+          # Use the most reliable method based on debugging output
           TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
           SOURCE_BRANCH="${{ github.event.pull_request.head.ref }}"
-          echo "Pull Request from $SOURCE_BRANCH to $TARGET_BRANCH"
+
+          echo "==== FINAL BRANCH SELECTION ===="
+          echo "TARGET_BRANCH: $TARGET_BRANCH"
+          echo "SOURCE_BRANCH: $SOURCE_BRANCH"
 
           # Check if this is a PR to main
           if [[ "$TARGET_BRANCH" == "main" ]]; then
