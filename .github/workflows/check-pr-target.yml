@@ -1,9 +1,7 @@
 name: Check PR Target Branch
-
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
-
 jobs:
   check-target-branch:
     runs-on: ubuntu-latest
@@ -13,20 +11,17 @@ jobs:
           # Get PR details using github.event context
           TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
           SOURCE_BRANCH="${{ github.event.pull_request.head.ref }}"
-
           echo "Pull Request from $SOURCE_BRANCH to $TARGET_BRANCH"
 
           # Check if this is a PR to main
           if [[ "$TARGET_BRANCH" == "main" ]]; then
-            # Check if source branch is allowed to target main
-            if [[ "$SOURCE_BRANCH" == "develop" ]] || [[ "$SOURCE_BRANCH" =~ ^release/ ]] || [[ "$SOURCE_BRANCH" =~ ^hotfix/ ]]; then
+            # Check if source branch is allowed to target main (only develop)
+            if [[ "$SOURCE_BRANCH" == "develop" ]]; then
               echo "✅ Valid PR: $SOURCE_BRANCH can target main"
             else
               echo "::error::❌ BRANCH TARGET ERROR: Invalid PR from '$SOURCE_BRANCH' to 'main'"
               echo "::error::According to our GitFlow process, PRs to 'main' can ONLY come from:"
               echo "::error::- develop (for planned releases)"
-              echo "::error::- release/* (for version preparations)"
-              echo "::error::- hotfix/* (for urgent production fixes)"
               echo "::error::Please close this PR and create a new one targeting 'develop' instead."
               exit 1
             fi
