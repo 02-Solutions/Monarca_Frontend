@@ -6,56 +6,28 @@ jobs:
   check-target-branch:
     runs-on: ubuntu-latest
     steps:
-      - name: Debug PR Information
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_EVENT_PATH: ${{ github.event_path }}
-        run: |
-          # Print the actual event payload for debugging
-          echo "Contents of event payload:"
-          cat $GITHUB_EVENT_PATH
-
-          # Get PR number from the event payload
-          PR_NUMBER=$(jq -r .pull_request.number $GITHUB_EVENT_PATH)
-          REPO="${{ github.repository }}"
-
-          echo "PR Number: $PR_NUMBER"
-          echo "Repo: $REPO"
-
-          # Get PR data directly from GitHub API
-          PR_DATA=$(gh api repos/$REPO/pulls/$PR_NUMBER)
-
-          # Extract base and head branch names using jq
-          BASE_BRANCH=$(echo "$PR_DATA" | jq -r .base.ref)
-          HEAD_BRANCH=$(echo "$PR_DATA" | jq -r .head.ref)
-
-          echo "API BASE_BRANCH: $BASE_BRANCH"
-          echo "API HEAD_BRANCH: $HEAD_BRANCH"
-
-          # Set these as outputs for the next step
-          echo "base_branch=$BASE_BRANCH" >> $GITHUB_OUTPUT
-          echo "head_branch=$HEAD_BRANCH" >> $GITHUB_OUTPUT
-        id: pr_info
-
       - name: Check PR target
         env:
-          TARGET_BRANCH: ${{ steps.pr_info.outputs.base_branch }}
-          SOURCE_BRANCH: ${{ steps.pr_info.outputs.head_branch }}
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          echo "Pull Request from $SOURCE_BRANCH to $TARGET_BRANCH"
+          echo "PR #$PR_NUMBER: From $HEAD_REF to $BASE_REF"
 
           # Check if this is a PR to main
-          if [[ "$TARGET_BRANCH" == "main" ]]; then
-            # Check if source branch is allowed to target main (only develop)
-            if [[ "$SOURCE_BRANCH" == "develop" ]]; then
-              echo "✅ Valid PR: $SOURCE_BRANCH can target main"
+          if [[ "$BASE_REF" == "main" ]]; then
+            # Check if source branch is allowed to target main
+            if [[ "$HEAD_REF" == "develop" || "$HEAD_REF" =~ ^release/ || "$HEAD_REF" =~ ^hotfix/ ]]; then
+              echo "✅ PR #$PR_NUMBER: Valid PR from $HEAD_REF to main"
             else
-              echo "::error::❌ BRANCH TARGET ERROR: Invalid PR from '$SOURCE_BRANCH' to 'main'"
+              echo "::error::❌ PR #$PR_NUMBER: BRANCH TARGET ERROR: Invalid PR from '$HEAD_REF' to 'main'"
               echo "::error::According to our GitFlow process, PRs to 'main' can ONLY come from:"
               echo "::error::- develop (for planned releases)"
+              echo "::error::- release/* (for version preparations)"
+              echo "::error::- hotfix/* (for urgent production fixes)"
               echo "::error::Please close this PR and create a new one targeting 'develop' instead."
               exit 1
             fi
           else
-            echo "✅ This PR is targeting '$TARGET_BRANCH', no restrictions apply"
+            echo "✅ PR #$PR_NUMBER: This PR is targeting '$BASE_REF', no restrictions apply"
           fi
