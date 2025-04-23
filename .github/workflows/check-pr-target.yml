@@ -9,9 +9,16 @@ jobs:
       - name: Debug PR Information
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          REPO: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: |
+          # Print the actual event payload for debugging
+          echo "Contents of event payload:"
+          cat $GITHUB_EVENT_PATH
+
+          # Get PR number from the event payload
+          PR_NUMBER=$(jq -r .pull_request.number $GITHUB_EVENT_PATH)
+          REPO="${{ github.repository }}"
+
           echo "PR Number: $PR_NUMBER"
           echo "Repo: $REPO"
 
@@ -24,10 +31,6 @@ jobs:
 
           echo "API BASE_BRANCH: $BASE_BRANCH"
           echo "API HEAD_BRANCH: $HEAD_BRANCH"
-
-          # Compare with context values
-          echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
-          echo "GITHUB_HEAD_REF: $GITHUB_HEAD_REF"
 
           # Set these as outputs for the next step
           echo "base_branch=$BASE_BRANCH" >> $GITHUB_OUTPUT
