@@ -9,7 +9,7 @@ import Table from "../../components/Refunds/Table";
 import DynamicTable from "../../components/Refunds/DynamicTable";
 import Button from "../../components/Refunds/Button";
 import InputField from "../../components/Refunds/InputField";
-import Dropdown from "../../components/Refunds/Dropdown";
+import Dropdown from "../../components/Refunds/DropDown";
 import { tripData, spendOptions, taxIndicatorOptions } from "./local/dummyData";
 
 export const Refunds = () => {
