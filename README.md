@@ -54,6 +54,6 @@ npm run dev
 Crear un archivo `.env` con el contenido especificado en el `.env.example`:
 
 ```bash
-
+VITE_API_URL=
 ```
 
