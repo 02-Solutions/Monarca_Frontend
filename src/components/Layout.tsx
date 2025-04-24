@@ -13,7 +13,7 @@ function Layout({ children }: LayoutProps) {
       <div className="flex flex-col min-h-screen">
         <div className="flex flex-1">
           <Sidebar />
-          <div className="px-16 pt-32 sm:ml-64 flex-1">{children}</div>
+          <div className="px-16 pt-32 pb-24 flex-1">{children}</div>
         </div>
         <Footer />
       </div>
