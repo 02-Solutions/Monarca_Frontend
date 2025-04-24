@@ -4,12 +4,13 @@ import Footer from "./Footer";
 
 interface LayoutProps {
   children: React.ReactNode;
+  title?: string;
 }
 
-function Layout({ children }: LayoutProps) {
+function Layout({ children, title }: LayoutProps) {
   return (
     <div>
-      <Header />
+      <Header title={title} />
       <div className="flex flex-col min-h-screen">
         <div className="flex flex-1">
           <Sidebar />
@@ -20,4 +21,5 @@ function Layout({ children }: LayoutProps) {
     </div>
   );
 }
+
 export default Layout;

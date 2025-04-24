@@ -1,8 +1,9 @@
 /*
  * DynamicTable component that renders a table with dynamic rows and columns.
-
- * Last edit: April 21, 2025
+ *
+ * Last edit: April 24, 2025
  * Authors: José Manuel García Zumaya
+ * Le agregue para que se pueda desplegar la tabla (josefina)
  */
 import React, { useState } from "react";
 
@@ -26,10 +27,11 @@ import React, { useState } from "react";
 interface Column {
   key: string;
   header: string;
-  defaultValue?: string | number | boolean | null | undefined | ReactNode;
+  defaultValue?: string | number | boolean | null | undefined | React.ReactNode;
   renderCell?: (
-    value: string | number | boolean | null | undefined | ReactNode,
-    handleFieldChange: Function
+    value: string | number | boolean | null | undefined | React.ReactNode,
+    handleFieldChange: Function,
+    rowIndex?: number
   ) => React.ReactNode;
 }
 
@@ -39,11 +41,15 @@ interface Column {
  * initialData: An optional initial data array to populate the table.
  * onDataChange: A callback function that is called when the data changes,
  * it helps to notify the parent component of the change and need to render the table again.
+ * expandedRows: (NUEVO) Índices de filas expandidas.
+ * renderExpandedRow: (NUEVO) Función que renderiza el contenido expandido debajo de la fila.
  */
 interface DynamicTableProps {
   columns: Column[];
   initialData?: [];
   onDataChange?: (data: []) => void;
+  expandedRows?: number[];
+  renderExpandedRow?: (index: number) => React.ReactNode;
 }
 
 /*
@@ -54,22 +60,11 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   columns,
   initialData = [],
   onDataChange,
+  expandedRows = [],
+  renderExpandedRow,
 }) => {
-  /*
-   * State to manage the table data.
-   * The initial data is set to the initialData prop, or an empty array if not provided.
-   * This is useful if there are data that is already loaded in the table.
-   */
   const [tableData, setTableData] = useState(initialData);
 
-  /*
-   * Function to handle changes in the table data.
-   * It receives the row index, column key, and new value.
-   * It updates the corresponding cell in the tableData state,
-   * with an optional callback to notify the parent component of the change.
-   * Using inmutable data structure to avoid mutating the state directly.
-   * This is important to avoid bugs and unexpected behavior in React.
-   */
   const handleFieldChange = (rowIndex, columnKey, newValue) => {
     const updatedData = [...tableData];
 
@@ -78,40 +73,22 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       [columnKey]: newValue,
     };
 
-    /* Update the local state data with the new data */
     setTableData(updatedData);
 
-    /* Notify the parent component of the change
-     * This is useful if you want to update the data in the parent component
-     */
     if (onDataChange) {
       onDataChange(updatedData);
     }
   };
 
-  /*
-   * Function to add a new row to the table.
-   * It creates a new row object with default values for each column or component
-   * and adds it to the tableData array which renders the table.
-   */
   const addItem = () => {
-    /* Create a new row object using reduce to iterate over the columns */
     const defaultRow = columns.reduce((obj, column) => {
-      /* Remember that in TS we can create or access properties by using
-       * the bracket notation, this is useful to create dynamic properties
-       * in an object, so although the initial object is empty, we can
-       * create properties dynamically using the column.key as the property name
-       * and the defaultValue as the value to assign to that property.
-       */
       obj[column.key] = column.defaultValue || "";
       return obj;
     }, {});
 
-    /* Add the new row to the tableData state */
     const updatedData = [...tableData, defaultRow];
     setTableData(updatedData);
 
-    /* Notify the parent component of the change */
     if (onDataChange) {
       onDataChange(updatedData);
     }
@@ -120,13 +97,8 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   return (
     <div className="relative">
       <div className="overflow-x-auto mb-4">
-        {/* Table component */}
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
           <thead>
-            {/*
-             * Contruct the headers of the table, based on colum property
-             * Use the index to rounded the borders of the cell.
-             */}
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {columns.map((column, index) => (
                 <th
@@ -141,24 +113,9 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
             </tr>
           </thead>
           <tbody>
-            {
-              /*
-               * Contruct the rows of the table, based on tableData array,
-               * tableData is the data array based on the current page
-               *
-               * THE LOGIC IS for each row of data in the tableItems array,
-               * we create a new row in the table, and then for each colum (headers)
-               * in the colums array, we create a new cell in the current row, finally
-               * access the data by colum.key in the row data, to display in the correct place.
-               */
-              tableData.map((row, rowIndex) => (
-                <tr
-                  key={rowIndex}
-                  className="bg-[#4C6997] text-white text-center"
-                >
-                  {/*
-                   * Use the index to rounded the borders of the cell.
-                   */}
+            {tableData.map((row, rowIndex) => (
+              <React.Fragment key={rowIndex}>
+                <tr className="bg-[#4C6997] text-white text-center">
                   {columns.map((column, cellIndex) => (
                     <td
                       key={cellIndex}
@@ -168,27 +125,28 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                         cellIndex === columns.length - 1 ? "rounded-r-lg" : ""
                       }`}
                     >
-                      {
-                        /*
-                         * Here render the cell data, if the column has a renderCell function (that means a component)
-                         * we call it and pass the parameters to it, the value for the component to display it and an
-                         * anonymous function to update the state of the data localy, please see the definition of the
-                         * column interface to understand why an value and a function are passed to the renderCell function.
-                         * If there is no renderCell function, we just display the value of the cell like a static text.
-                         *
-                         * This can be a tricky of understanding, so please reach me José Manuel García Zumaya if you have any question about this.
-                         */
-                        column.renderCell
-                          ? column.renderCell(row[column.key], (newValue) =>
-                              handleFieldChange(rowIndex, column.key, newValue)
-                            )
-                          : row[column.key]
-                      }
+                      {column.renderCell
+                        ? column.renderCell(
+                            row[column.key],
+                            (newValue) =>
+                              handleFieldChange(rowIndex, column.key, newValue),
+                            rowIndex
+                          )
+                        : row[column.key]}
                     </td>
                   ))}
                 </tr>
-              ))
-            }
+
+                {/* Expanded row (optional) */}
+                {expandedRows.includes(rowIndex) && renderExpandedRow && (
+                  <tr className="bg-[#f4f6f8] text-black">
+                    <td colSpan={columns.length} className="px-6 py-4">
+                      {renderExpandedRow(rowIndex)}
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
           </tbody>
         </table>
       </div>
