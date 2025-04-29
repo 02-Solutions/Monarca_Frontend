@@ -13,7 +13,6 @@ import {
   ProtectedRoute,
   PermissionProtectedRoute,
 } from "./hooks/auth/authContext";
-
 // ******************* Styles ******************
 import "./index.css";
 import "./App.css";
@@ -22,6 +21,8 @@ import "./App.css";
 import Login from "./pages/Login.tsx";
 import Requests from "./pages/Requests.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
+import Error from "./pages/Error.tsx";
+
 
 
 
@@ -106,6 +107,10 @@ const router = createBrowserRouter([
   },
   // Catch-all route for non-existent pages
   // TODO: Add a 404 page
+  {
+    path: "/404",
+    element: <Error />,
+  },
   {
     path: "*",
     element: <Navigate to="/login" replace />,
