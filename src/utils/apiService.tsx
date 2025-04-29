@@ -44,12 +44,8 @@ api.interceptors.response.use(
 
 // Función para peticiones GET
 export const getRequest = async (url: string, params = {}) => {
-  try {
-    const response = await api.get(url, { params });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.get(url, { params });
+  return response.data;
 };
 
 // Función para peticiones POST (JSON o FormData)
@@ -58,46 +54,32 @@ export const postRequest = async (
   data: Record<string, unknown> | FormData,
   config: AxiosRequestConfig = {}
 ) => {
-  try {
-    const isForm = data instanceof FormData;
-    const headers = {
-      ...config.headers,
-      ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
-    };
-    const response = await api.post(url, data, { ...config, headers });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const isForm = data instanceof FormData;
+  const headers = {
+    ...config.headers,
+    ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
+  };
+  const response = await api.post(url, data, { ...config, headers });
+  return response.data;
 };
 
-// Función para peticiones PUT (JSON o FormData)
+// Función para peticiones PUT
 export const putRequest = async (
   url: string,
   data: Record<string, unknown> | FormData,
   config: AxiosRequestConfig = {}
 ) => {
-  try {
-    const isForm = data instanceof FormData;
-    const headers = {
-      ...config.headers,
-      ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
-    };
-    const response = await api.put(url, data, { ...config, headers });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const isForm = data instanceof FormData;
+  const headers = {
+    ...config.headers,
+    ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
+  };
+  const response = await api.put(url, data, { ...config, headers });
+  return response.data;
 };
 
 // Función para peticiones DELETE
 export const deleteRequest = async (url: string) => {
-  try {
-    const response = await api.delete(url);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.delete(url);
+  return response.data;
 };
-
-export default api;

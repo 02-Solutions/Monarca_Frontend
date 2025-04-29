@@ -22,12 +22,10 @@ import "./App.css";
 // ****************** Pages ******************
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
-import Requests from "./pages/Requests.tsx";
+// import Requests from "./pages/Requests.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
-
-
 
 const router = createBrowserRouter([
   // Basic protected routes (requires only authentication)
@@ -39,10 +37,10 @@ const router = createBrowserRouter([
         path: "/dashboard",
         element: <Dashboard />,
       },
-      {
-        path: "/requests",
-        element: <Requests />,
-      },
+      // {
+      //   path: "/requests",
+      //   element: <Requests />,
+      // },
       // Routes protected by specific permissions
       {
         path: "/approval",
@@ -131,5 +129,5 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>
-  </StrictMode>,
+  </StrictMode>
 );

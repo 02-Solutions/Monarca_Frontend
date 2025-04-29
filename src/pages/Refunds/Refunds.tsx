@@ -27,12 +27,8 @@ export const Refunds = () => {
     id: number | string;
     tripName: string;
     amount: number;
-    status: string;
     date: string;
     destination: string;
-    duration: number;
-    passengers: number;
-    transportation: string;
     requestDate: string;
   }
 
@@ -118,12 +114,8 @@ export const Refunds = () => {
     { key: "tripName", header: "Nombre del viaje" },
     { key: "date", header: "Fecha viaje" },
     { key: "destination", header: "Destino" },
-    { key: "duration", header: "Días" },
-    { key: "passengers", header: "Pasajeros" },
-    { key: "transportation", header: "Transporte" },
     { key: "amount", header: "Monto" },
     { key: "requestDate", header: "Fecha solicitud" },
-    { key: "status", header: "Estado" },
     { key: "action", header: "" },
   ];
 
@@ -164,7 +156,7 @@ export const Refunds = () => {
           options={spendOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Seleccione el tipo de gasto"
+          placeholder="Seleccione"
         />
       ),
     },
@@ -181,7 +173,7 @@ export const Refunds = () => {
           type="number"
           value={value as string}
           onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
-          placeholder="Ingrese monto del comprobante"
+          placeholder="Ingrese"
         />
       ),
     },
@@ -198,7 +190,7 @@ export const Refunds = () => {
           options={taxIndicatorOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Seleccione el indicador de impuesto"
+          placeholder="Seleccione"
         />
       ),
     },
@@ -215,7 +207,7 @@ export const Refunds = () => {
           type="date"
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Fecha del comprobante"
+          placeholder="DD/MM/AAAA"
         />
       ),
     },
