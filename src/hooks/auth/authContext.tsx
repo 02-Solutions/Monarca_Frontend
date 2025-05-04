@@ -1,10 +1,9 @@
 // src/hooks/auth/authContext.tsx
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
-import { useNavigate, Outlet ,Navigate} from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 
 import Layout from "../../components/Layout";
-import {getRequest} from "../../utils/apiService";
- 
+import { getRequest, postRequest } from "../../utils/apiService";
 
 // Define permissions
 export type Permission =
@@ -17,9 +16,11 @@ export type Permission =
   | "view_approval_history"
   | "view_booking_history";
 
-export interface ContextType{
+export interface ContextType {
   authState: AuthState;
   setAuthState: React.Dispatch<React.SetStateAction<AuthState>>;
+  loadingProfile: Boolean;
+  handleLogout: () => Promise<void>;
 }
 // Auth state interface
 export interface AuthState {
@@ -32,8 +33,6 @@ export interface AuthState {
 
 // Create the auth context with proper typing
 export const AuthContext = createContext<ContextType | undefined>(undefined);
-
-
 
 // Custom hook to use the auth context
 export const useAuth = (): ContextType => {
@@ -48,6 +47,7 @@ export const useAuth = (): ContextType => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const [loadingProfile, setLoadingProfile] = React.useState<Boolean>(true);
   const [authState, setAuthState] = React.useState<AuthState>({
     isAuthenticated: false,
     userId: "",
@@ -55,7 +55,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     userRole: "",
     userPermissions: [],
   });
-  const navigate = useNavigate();
+
+
   useEffect(() => {
     const getAuthState = async () => {
       getRequest("/login/profile")
@@ -68,12 +69,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
               userRole: response.user.role.name,
               userPermissions: response.user.role.permissions,
             });
+            setLoadingProfile(false);
           } else {
             setAuthState((prevState) => ({
               ...prevState,
               isAuthenticated: false,
             }));
-            navigate("/login", { replace: true });
+            setLoadingProfile(false);
           }
         })
         .catch((error) => {
@@ -82,20 +84,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
             ...prevState,
             isAuthenticated: false,
           }));
-          navigate("/login", { replace: true });
+          setLoadingProfile(false);
+        });
+    };
 
-        });    
-    }
-    getAuthState()
+    getAuthState();
+    
   }, []);
+
+  const handleLogout = async () => {
+    const response = await postRequest("/login/logout", {});
+    if (response.status) {
+      setAuthState({
+        isAuthenticated: false,
+        userId: "",
+        userName: "",
+        userRole: "",
+        userPermissions: [],
+      });
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{authState,setAuthState}}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ 
+      authState, 
+      setAuthState,
+      loadingProfile,
+      handleLogout
+    }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 
 // Basic protected route wrapper component with Layout
 export const ProtectedRoute: React.FC = () => {
-  
   return (
     <AuthProvider>
       <Layout>
@@ -114,7 +137,7 @@ interface PermissionProtectedRouteProps {
 export const PermissionProtectedRoute: React.FC<
   PermissionProtectedRouteProps
 > = ({ requiredPermissions, requireAll = true }) => {
-  const { authState} = useAuth();
+  const { authState } = useAuth();
 
   // First check authentication
   if (!authState.isAuthenticated) {
@@ -124,10 +147,10 @@ export const PermissionProtectedRoute: React.FC<
   // Then check permissions
   const hasPermission = requireAll
     ? requiredPermissions.every((permission) =>
-      authState.userPermissions.includes(permission),
+        authState.userPermissions.includes(permission)
       )
     : requiredPermissions.some((permission) =>
-      authState.userPermissions.includes(permission),
+        authState.userPermissions.includes(permission)
       );
 
   if (!hasPermission) {
