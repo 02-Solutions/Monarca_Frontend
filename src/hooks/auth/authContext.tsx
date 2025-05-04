@@ -4,6 +4,7 @@ import { Outlet, Navigate } from "react-router-dom";
 
 import Layout from "../../components/Layout";
 import { getRequest, postRequest } from "../../utils/apiService";
+import { AppProvider } from "../app/appContext";
 
 // Define permissions
 export type Permission =
@@ -27,6 +28,8 @@ export interface AuthState {
   isAuthenticated: boolean;
   userId: string;
   userName: string;
+  userLastName: string;
+  userEmail: string,
   userPermissions: Permission[];
   userRole: string;
 }
@@ -52,7 +55,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     isAuthenticated: false,
     userId: "",
     userName: "",
+    userLastName: "",
     userRole: "",
+    userEmail: "",
     userPermissions: [],
   });
 
@@ -66,8 +71,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
               isAuthenticated: true,
               userId: response.user.id,
               userName: response.user.name,
+              userLastName: response.user.last_name,
               userRole: response.user.role.name,
               userPermissions: response.user.role.permissions,
+              userEmail: response.user.email,
             });
             setLoadingProfile(false);
           } else {
@@ -99,7 +106,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         isAuthenticated: false,
         userId: "",
         userName: "",
+        userLastName: "",
         userRole: "",
+        userEmail: "",
         userPermissions: [],
       });
     }
@@ -121,9 +130,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 export const ProtectedRoute: React.FC = () => {
   return (
     <AuthProvider>
+      <AppProvider>
       <Layout>
         <Outlet />
       </Layout>
+      </AppProvider>
     </AuthProvider>
   );
 };

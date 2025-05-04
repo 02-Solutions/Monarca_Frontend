@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "../hooks/auth/authContext";
+import { useApp } from "../hooks/app/appContext";
 
 function Header() {
-  const { handleLogout } = useAuth();
+  const { handleLogout ,authState } = useAuth();
+  const { pageTitle } = useApp();
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
@@ -11,7 +14,7 @@ function Header() {
         <div className="flex items-center justify-between">
           <div className="flex items-center justify-start rtl:justify-end">
             <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
-              * titulo dinámico aquí *
+              {pageTitle}
             </span>
           </div>
           <div className="flex items-center">
@@ -25,7 +28,7 @@ function Header() {
                   className="flex text-sm bg-[var(--ultra-light-blue)] p-2 rounded-full"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
-                  NS
+                  {authState.userName[0].toUpperCase()}{authState.userLastName[0].toUpperCase()}
                 </button>
               </div>
               {dropdownOpen &&
@@ -34,10 +37,15 @@ function Header() {
                 >
                   <div className="px-4 py-3">
                     <p className="text-sm text-[var(--gray)]">
-                      Neil Sims
+                    {authState.userName} {authState.userLastName}
                     </p>
                     <p className="text-sm font-medium text-[var(--gray)] truncate">
-                      neil.sims@flowbite.com
+                     {authState.userEmail}
+
+                    </p>
+                    <p className="text-sm font-medium text-[var(--gray)] truncate">
+                     {authState.userRole}
+
                     </p>
                   </div>
                   <ul className="py-1">
