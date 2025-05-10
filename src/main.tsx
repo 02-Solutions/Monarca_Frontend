@@ -8,7 +8,6 @@ import {
 } from "react-router-dom";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Example from "./pages/Example.tsx";
 import CreateTravelRequest from "./pages/CreateTravelRequest.tsx";
 
 import {
@@ -39,7 +38,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/dashboard",
-        element: <Dashboard />,
+        element: <Dashboard title="Inicio" />,
       },
       {
         path: "/requests",
