@@ -1,5 +1,5 @@
 /*
- * DynamicTable component that renders a table with dynamic rows and columns.
+ * DynamicTableExpand component that renders a table with dynamic rows and columns.
  *
  * Last edit: April 24, 2025
  * Authors: José Manuel García Zumaya
@@ -36,7 +36,7 @@ interface Column {
 }
 
 /*
- * DynamicTableProps interface to define the structure of the props for the DynamicTable component.
+ * DynamicTableExpandProps interface to define the structure of the props for the DynamicTableExpand component.
  * columns: An array of Column objects defining the table's columns.
  * initialData: An optional initial data array to populate the table.
  * onDataChange: A callback function that is called when the data changes,
@@ -44,7 +44,7 @@ interface Column {
  * expandedRows: (NUEVO) Índices de filas expandidas.
  * renderExpandedRow: (NUEVO) Función que renderiza el contenido expandido debajo de la fila.
  */
-interface DynamicTableProps {
+interface DynamicTableExpandProps {
   columns: Column[];
   initialData?: [];
   onDataChange?: (data: []) => void;
@@ -53,10 +53,10 @@ interface DynamicTableProps {
 }
 
 /*
- * DynamicTable component that renders a table with dynamic rows and columns.
+ * DynamicTableExpand component that renders a table with dynamic rows and columns.
  * It allows adding new rows and updating existing ones.
  */
-const DynamicTable: React.FC<DynamicTableProps> = ({
+const DynamicTableExpand: React.FC<DynamicTableExpandProps> = ({
   columns,
   initialData = [],
   onDataChange,
@@ -162,4 +162,4 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   );
 };
 
-export default DynamicTable;
+export default DynamicTableExpand;

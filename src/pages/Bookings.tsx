@@ -11,7 +11,7 @@ const Bookings = () => {
     {
       key: "estado",
       header: "Estado",
-      renderCell: (_value, _onChange, rowIndex) => (
+      renderCell: (_value: unknown, _onChange: (value: unknown) => void) => (
         <div className="w-4 h-4 rounded-full bg-white border-2 border-blue-900 mx-auto" />
       ),
     },
@@ -19,7 +19,7 @@ const Bookings = () => {
       key: "viaje",
       header: "Viaje",
       defaultValue: "0001",
-      renderCell: (value, onChange) => (
+      renderCell: (value: string, onChange: (value: string) => void) => (
         <InputField value={value} onChange={(e) => onChange(e.target.value)} />
       ),
     },
@@ -27,7 +27,7 @@ const Bookings = () => {
       key: "fechaSalida",
       header: "Fecha Salida",
       defaultValue: "2024-09-14",
-      renderCell: (value, onChange) => (
+      renderCell: (value: string, onChange: (value: string) => void) => (
         <InputField
           type="date"
           value={value}
@@ -39,7 +39,7 @@ const Bookings = () => {
       key: "poblacion",
       header: "Población",
       defaultValue: "Cancún",
-      renderCell: (value, onChange) => (
+      renderCell: (value: string, onChange: (value: string) => void) => (
         <InputField value={value} onChange={(e) => onChange(e.target.value)} />
       ),
     },
@@ -47,7 +47,7 @@ const Bookings = () => {
       key: "pais",
       header: "País",
       defaultValue: "MX",
-      renderCell: (value, onChange) => (
+      renderCell: (value: string, onChange: (value: string) => void) => (
         <InputField value={value} onChange={(e) => onChange(e.target.value)} />
       ),
     },
@@ -55,7 +55,7 @@ const Bookings = () => {
       key: "razon",
       header: "Razón",
       defaultValue: "Viaje",
-      renderCell: (value, onChange) => (
+      renderCell: (value: string, onChange: (value: string) => void) => (
         <InputField value={value} onChange={(e) => onChange(e.target.value)} />
       ),
     },
@@ -63,7 +63,7 @@ const Bookings = () => {
       key: "autorizacion",
       header: "Autorización",
       defaultValue: "Autorizado",
-      renderCell: (value, onChange) => (
+      renderCell: (value: string, onChange: (value: string) => void) => (
         <Dropdown
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -80,7 +80,7 @@ const Bookings = () => {
     {
       key: "accion",
       header: "",
-      renderCell: (_value, _onChange, rowIndex) => (
+      renderCell: (_value: unknown, _onChange: (value: unknown) => void, rowIndex: number) => (
         <div className="flex gap-2 justify-end pr-2">
           <Dropdown
             value=""
@@ -108,7 +108,7 @@ const Bookings = () => {
     },
   ];
 
-  const handleFormDataChange = (newData) => {
+  const handleFormDataChange = (newData: any[]) => {
     setFormData(newData);
   };
 
