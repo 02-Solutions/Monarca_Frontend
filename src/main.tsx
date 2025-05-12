@@ -26,6 +26,7 @@ import Register from "./pages/Register.tsx";
 import Requests from "./pages/Requests.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
+import Bookings from "./pages/Bookings.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 
 
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: "/bookings",
+        element: <Bookings />,
+      },
       // Routes protected for booking permission
       {
         path: "/booking",
@@ -78,10 +83,6 @@ const router = createBrowserRouter([
           <PermissionProtectedRoute requiredPermissions={["book_trip"]} />
         ),
         children: [
-          {
-            path: "",
-            element: <div>Trips to Book</div>, // Replace with your actual component
-          },
           {
             path: "history",
             element: (
