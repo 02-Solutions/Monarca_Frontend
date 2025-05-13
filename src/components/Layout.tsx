@@ -1,3 +1,7 @@
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/auth/authContext";
+
+// ****************** components ******************
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
@@ -7,7 +11,7 @@ interface LayoutProps {
   title?: string;
 }
 
-function Layout({ children, title }: LayoutProps) {
+function Layout({ children }: LayoutProps) {
   return (
     <div>
       <Header title={title} />

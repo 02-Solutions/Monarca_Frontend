@@ -8,11 +8,13 @@ import {
 } from "react-router-dom";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import CreateTravelRequest from "./pages/CreateTravelRequest.tsx";
 
 import {
   ProtectedRoute,
   PermissionProtectedRoute,
 } from "./hooks/auth/authContext";
+import "flowbite";
 
 // ******************* Styles ******************
 import "./index.css";
@@ -25,6 +27,7 @@ import Requests from "./pages/Requests.tsx";
 import Bookings from "./pages/Bookings.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
+import Bookings from "./pages/Bookings.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 
 const router = createBrowserRouter([
@@ -35,7 +38,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/dashboard",
-        element: <Dashboard />,
+        element: <Dashboard title="Inicio" />,
       },
       {
         path: "/requests",
@@ -68,6 +71,45 @@ const router = createBrowserRouter([
                 element: <div>Approval History</div>,
               },
             ],
+          },
+        ],
+      },
+      {
+        path: "/bookings",
+        element: <Bookings />,
+      },
+      // Routes protected for booking permission
+      {
+        path: "/booking",
+        element: (
+          <PermissionProtectedRoute requiredPermissions={["book_trip"]} />
+        ),
+        children: [
+          {
+            path: "history",
+            element: (
+              <PermissionProtectedRoute
+                requiredPermissions={["view_booking_history"]}
+              />
+            ),
+            children: [
+              {
+                path: "",
+                element: <div>Booking History</div>, // Replace with your actual component
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: "/travel-requests",
+        element: (
+          <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
+        ),
+        children: [
+          {
+            path: "create", // full URL = /travel-requests/create
+            element: <CreateTravelRequest />,
           },
         ],
       },

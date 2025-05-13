@@ -44,7 +44,7 @@ const InputField: React.FC<InputFieldProps> = ({
   type = "text",
   value,
   placeholder = "",
-  className = "p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#0a2c6d] hover:cursor-pointer",
+  className = "p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#0a2c6d] hover:cursor-text",
   disabled = false,
   required = false,
   label,
