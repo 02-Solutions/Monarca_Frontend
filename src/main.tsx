@@ -29,7 +29,7 @@ import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 
-
+import "react-toastify/dist/ReactToastify.css";
 
 const router = createBrowserRouter([
   // Basic protected routes (requires only authentication)

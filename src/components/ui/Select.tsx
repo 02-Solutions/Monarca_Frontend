@@ -7,7 +7,7 @@ import {
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 type Option = {
-  id: number | string | boolean;
+  id: number | string;
   name: string;
 };
 

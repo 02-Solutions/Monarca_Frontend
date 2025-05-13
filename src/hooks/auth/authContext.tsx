@@ -31,7 +31,12 @@ export const getAuthState = (): AuthState => {
     isAuthenticated: true,
     userId: "user123",
     userName: "John Doe",
-    userPermissions: ["view_dashboard", "create_trip", "approve_trip"], // Example permissions
+    userPermissions: [
+      "view_dashboard",
+      "create_trip",
+      "approve_trip",
+      "view_approval_history",
+    ], // Example permissions
   };
 };
 
@@ -88,10 +93,10 @@ export const PermissionProtectedRoute: React.FC<
   // Then check permissions
   const hasPermission = requireAll
     ? requiredPermissions.every((permission) =>
-        userPermissions.includes(permission),
+        userPermissions.includes(permission)
       )
     : requiredPermissions.some((permission) =>
-        userPermissions.includes(permission),
+        userPermissions.includes(permission)
       );
 
   if (!hasPermission) {
