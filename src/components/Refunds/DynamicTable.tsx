@@ -1,61 +1,34 @@
-/*
- * DynamicTable component that renders a table with dynamic rows and columns.
- *
- * Last edit: April 24, 2025
- * Authors: José Manuel García Zumaya
- * Le agregue para que se pueda desplegar la tabla (josefina)
- */
 import React, { useState } from "react";
 
 /*
  * Column interface SCHEMA to define the structure of each column in the table.
- * key: The key in the data object that corresponds to this column, this is very
- * important due allows to access the data dynamically in our object data.
+ * key: The key in the data object that corresponds to this column.
  * header: The header text to display for this column.
- * defaultValue: The default value to display in the cell or inside the component
- * that you want to use to render the cell, if not provided, it will be empty.
- * renderCell: (VERY IMPORTANT) A function that helps to render custom components
- * inside the cell, this function receives a value to show in the component and a
- * function to handle the change of that component, this function is used to update
- * the component from child to parent, this function is optional, if not provided,
- * the default value will be used, for example if you want to show a static value
- * or a simple text, you can see that returns an object of type ReactNode, so it
- * should be used to render components like InputField, Dropdown, etc.
- *
- * You can reach an example of how to use this in the src/pages/Refunds/Refunds.tsx file.
+ * defaultValue: The default value to display in the cell or inside the component.
+ * renderCell: A function that helps to render custom components inside the cell.
  */
+
 interface Column {
   key: string;
   header: string;
-  defaultValue?: string | number | boolean | null | undefined | React.ReactNode;
+  defaultValue?: string | number | boolean | null | undefined;
   renderCell?: (
-    value: string | number | boolean | null | undefined | React.ReactNode,
-    handleFieldChange: Function,
+    value: string | number | boolean | null | undefined, // Changed from ReactNode
+    handleFieldChange: (newValue: string | number | boolean | null | undefined) => void,
     rowIndex?: number
   ) => React.ReactNode;
 }
-
 /*
  * DynamicTableProps interface to define the structure of the props for the DynamicTable component.
- * columns: An array of Column objects defining the table's columns.
- * initialData: An optional initial data array to populate the table.
- * onDataChange: A callback function that is called when the data changes,
- * it helps to notify the parent component of the change and need to render the table again.
- * expandedRows: (NUEVO) Índices de filas expandidas.
- * renderExpandedRow: (NUEVO) Función que renderiza el contenido expandido debajo de la fila.
  */
 interface DynamicTableProps {
   columns: Column[];
-  initialData?: [];
-  onDataChange?: (data: []) => void;
+  initialData?: any[]; // Add proper typing here if known
+  onDataChange?: (data: any[]) => void;
   expandedRows?: number[];
   renderExpandedRow?: (index: number) => React.ReactNode;
 }
 
-/*
- * DynamicTable component that renders a table with dynamic rows and columns.
- * It allows adding new rows and updating existing ones.
- */
 const DynamicTable: React.FC<DynamicTableProps> = ({
   columns,
   initialData = [],
@@ -63,9 +36,9 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   expandedRows = [],
   renderExpandedRow,
 }) => {
-  const [tableData, setTableData] = useState(initialData);
+  const [tableData, setTableData] = useState<any[]>(initialData); // Replace any[] with the proper type if possible
 
-  const handleFieldChange = (rowIndex, columnKey, newValue) => {
+  const handleFieldChange = (rowIndex: number, columnKey: string, newValue: any) => {
     const updatedData = [...tableData];
 
     updatedData[rowIndex] = {
@@ -84,7 +57,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     const defaultRow = columns.reduce((obj, column) => {
       obj[column.key] = column.defaultValue || "";
       return obj;
-    }, {});
+    }, {} as Record<string, any>); // Ensure proper typing of the default row
 
     const updatedData = [...tableData, defaultRow];
     setTableData(updatedData);
@@ -128,7 +101,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                       {column.renderCell
                         ? column.renderCell(
                             row[column.key],
-                            (newValue) =>
+                            (newValue: string | number | boolean | null | undefined) =>
                               handleFieldChange(rowIndex, column.key, newValue),
                             rowIndex
                           )
