@@ -4,59 +4,83 @@
  * When a refund is requested, a form is displayed with fields for entering details about the refund request.
  */
 
-import { useState, ReactNode } from "react";
+import { useState, useEffect } from "react";
 import Table from "../../components/Refunds/Table";
-import DynamicTable from "../../components/Refunds/DynamicTable";
+import DynamicTable, {
+  TableRow as DynamicTableRow,
+  CellValueType,
+} from "../../components/Refunds/DynamicTable";
 import Button from "../../components/Refunds/Button";
 import InputField from "../../components/Refunds/InputField";
 import Dropdown from "../../components/Refunds/DropDown";
-import { tripData, spendOptions, taxIndicatorOptions } from "./local/dummyData";
+import { spendOptions, taxIndicatorOptions } from "./local/dummyData";
+import { getRequest, postRequest } from "../../utils/apiService";
+
+interface Trip {
+  id: number | string;
+  tripName: string;
+  amount: number;
+  date: string;
+  destination: string;
+  requestDate: string;
+}
+
+interface FormDataRow extends DynamicTableRow {
+  spentClass: string;
+  amount: number;
+  taxIndicator: string;
+  date: string;
+  XMLFile?: File;
+  PDFFile?: File;
+}
+
+// interface RefundRequest {
+//   tripId: number | string;
+//   expenses: FormDataRow[];
+//   comment: string;
+//   requestDate: string;
+// }
+
+const API_ENDPOINTS = {
+  TRIPS: "https://680ff5f827f2fdac240fe541.mockapi.io/monarca/trips",
+  REFUND_REQUESTS: "/monarca/refundRequests",
+};
 
 export const Refunds = () => {
-  /*
-   * State to manage the visibility of the request form and the current trip
-   * for which the refund is being requested.
-   */
-  const [visibleRequestForm, setVisibleRequestForm] = useState(false);
-
-  /*
-   * State to manage the current trip for which the refund is being requested.
-   * This is set when the user clicks the action button in the table.
-   */
-  interface Trip {
-    id: number | string;
-    tripName: string;
-    amount: number;
-    date: string;
-    destination: string;
-    requestDate: string;
-  }
-
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [visibleRequestForm, setVisibleRequestForm] = useState<boolean>(false);
   const [currentRefundTrip, setCurrentRefundTrip] = useState<Trip | null>(null);
-
-  /*
-   * State to manage the form data for the refund request.
-   * This is an array of objects, each object represents a row in the dynamic table
-   * for entering expenses related to the refund request.
-   */
-  interface FormDataRow {
-    spentClass: string;
-    amount: number;
-    taxIndicator: string;
-    date: string;
-    XML: string;
-    PDF: string;
-    [key: string]: string | number | null | undefined | ReactNode;
-  }
-
   const [formData, setFormData] = useState<FormDataRow[]>([]);
-
-  /*
-   * State to manage the comment field for the refund request.
-   * This is a string that contains the comment entered by the user.
-   */
   const [commentDescriptionOfSpend, setCommentDescriptionOfSpend] =
-    useState("");
+    useState<string>("");
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTrips = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await getRequest(API_ENDPOINTS.TRIPS);
+        setTrips(response);
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Error desconocido al cargar los viajes"
+        );
+
+        console.error("Error al cargar viajes: ", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTrips();
+  }, []);
 
   /*
    * Function to handle the "Comprobar" button click in the table.
@@ -66,7 +90,7 @@ export const Refunds = () => {
    */
   const handleRequestRefund = (tripId: string | number) => {
     setVisibleRequestForm(true);
-    const trip = tripData.find((trip) => trip.id === tripId);
+    const trip = trips.find((trip) => trip.id === tripId);
     if (trip) {
       setCurrentRefundTrip(trip);
 
@@ -78,6 +102,57 @@ export const Refunds = () => {
     }
   };
 
+  const handleSubmitRefund = async () => {
+    if (!currentRefundTrip) return;
+    try {
+      setSubmitting(true);
+      setSubmitError(null);
+      setSubmitSuccess(null);
+
+      let i = 0;
+      for (const rowData of formData) {
+        const formDataToSend = new FormData();
+
+        formDataToSend.append("tripId", currentRefundTrip.id.toString());
+        formDataToSend.append("comment", commentDescriptionOfSpend);
+        formDataToSend.append(
+          "requestDate",
+          new Date().toISOString().split("T")[0]
+        );
+        formDataToSend.append("spentClass", rowData.spentClass);
+        formDataToSend.append("amount", rowData.amount.toString());
+        formDataToSend.append("taxIndicator", rowData.taxIndicator);
+        formDataToSend.append("date", rowData.date);
+        if (rowData.XMLFile) {
+          formDataToSend.append("XMLFile", rowData.XMLFile);
+        }
+        if (rowData.PDFFile) {
+          formDataToSend.append("PDFFile", rowData.PDFFile);
+        }
+
+        await postRequest(API_ENDPOINTS.REFUND_REQUESTS, formDataToSend);
+
+        i++;
+        setSubmitSuccess(
+          `Solicitud de reembolso ${i} enviada con éxito de ${formData.length}`
+        );
+        setVisibleRequestForm(false);
+      }
+
+      const updatedTrips = await getRequest(API_ENDPOINTS.TRIPS);
+      setTrips(updatedTrips);
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error
+          ? err.message
+          : "Error desconocido al enviar la solicitud de reembolso"
+      );
+      console.error("Error al enviar la solicitud de reembolso: ", err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   /* Array of trip data with an action button to request a refund.
    * This is created by mapping over the tripData array and adding an action property
    * to each trip object. The action property contains a Button component that
@@ -86,7 +161,7 @@ export const Refunds = () => {
    * which trip the user is requesting a refund for.
    * The tripData array is imported from the local/dummyData file.
    */
-  const dataWithActions = tripData.map((trip) => ({
+  const dataWithActions = trips.map((trip) => ({
     ...trip,
     action: (
       <Button
@@ -148,8 +223,8 @@ export const Refunds = () => {
        *
        */
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: CellValueType,
+        onChangeComponentFunction: (newValue: CellValueType) => void
       ) => (
         <Dropdown
           required={true}
@@ -165,8 +240,8 @@ export const Refunds = () => {
       header: "Monto MXN",
       defaultValue: 0,
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: CellValueType,
+        onChangeComponentFunction: (newValue: CellValueType) => void
       ) => (
         <InputField
           required={true}
@@ -182,8 +257,8 @@ export const Refunds = () => {
       header: "Indicador de impuesto",
       defaultValue: "",
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: CellValueType,
+        onChangeComponentFunction: (newValue: CellValueType) => void
       ) => (
         <Dropdown
           required={true}
@@ -199,15 +274,14 @@ export const Refunds = () => {
       header: "Fecha del comprobante",
       defaultValue: "",
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: CellValueType,
+        onChangeComponentFunction: (newValue: CellValueType) => void
       ) => (
         <InputField
           required={true}
           type="date"
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="DD/MM/AAAA"
         />
       ),
     },
@@ -216,14 +290,29 @@ export const Refunds = () => {
       header: "Archivo XML",
       defaultValue: "",
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: CellValueType,
+        onChangeComponentFunction: (newValue: CellValueType) => void,
+        rowIndex?: number
       ) => (
         <InputField
           required={true}
           type="file"
           value={value as string}
-          onChange={(e) => onChangeComponentFunction(e.target.value)}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              onChangeComponentFunction(e.target.value);
+
+              // Make sure rowIndex is defined before using it
+              if (rowIndex !== undefined) {
+                const updatedFormData = [...formData];
+                if (updatedFormData[rowIndex]) {
+                  updatedFormData[rowIndex].XMLFile = file;
+                  setFormData(updatedFormData);
+                }
+              }
+            }
+          }}
           placeholder="Subir archivo XML"
         />
       ),
@@ -233,24 +322,34 @@ export const Refunds = () => {
       header: "Archivo PDF",
       defaultValue: "",
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: CellValueType,
+        onChangeComponentFunction: (newValue: CellValueType) => void,
+        rowIndex?: number
       ) => (
         <InputField
           required={true}
           type="file"
           value={value as string}
-          onChange={(e) => onChangeComponentFunction(e.target.value)}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              onChangeComponentFunction(e.target.value);
+
+              // Make sure rowIndex is defined before using it
+              if (rowIndex !== undefined) {
+                const updatedFormData = [...formData];
+                if (updatedFormData[rowIndex]) {
+                  updatedFormData[rowIndex].PDFFile = file;
+                  setFormData(updatedFormData);
+                }
+              }
+            }
+          }}
           placeholder="Subir archivo PDF"
         />
       ),
     },
   ];
-
-  // Import the TableRow type or define it locally if not already imported
-  interface TableRow {
-    [key: string]: string | number | null | undefined | ReactNode;
-  }
 
   const handleFormDataChange = (newData: FormDataRow[]) => {
     setFormData(newData);
@@ -258,11 +357,31 @@ export const Refunds = () => {
   };
 
   // Wrapper function to handle the type conversion
-  const handleDynamicTableDataChange = (data: TableRow[]) => {
-    // Convert TableRow[] to FormDataRow[]
-    const formDataRows = data as unknown as FormDataRow[];
-    handleFormDataChange(formDataRows);
+  const handleDynamicTableDataChange = (data: DynamicTableRow[]) => {
+    // Convert DynamicTableRow[] to FormDataRow[]
+    handleFormDataChange(data as FormDataRow[]);
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
+        <p className="text-center">Cargando datos de viajes...</p>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
+        <p className="text-center text-red-500">Error: {error}</p>
+        <button
+          className="mt-4 px-4 py-2 bg-[#0a2c6d] text-white rounded-md hover:bg-[#0d3d94] mx-auto block"
+          onClick={() => window.location.reload()}
+        >
+          Reintentar
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -278,6 +397,11 @@ export const Refunds = () => {
             <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
               Historial de viajes
             </h2>
+            {submitSuccess && (
+              <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
+                {submitSuccess}
+              </div>
+            )}
             <Table
               columns={columnsSchemaTrips}
               data={dataWithActions}
@@ -301,6 +425,11 @@ export const Refunds = () => {
             <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
               Formato de solicitud de reembolso
             </h2>
+            {submitError && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                Error: {submitError}
+              </div>
+            )}
             <div className="mb-4">
               {/*
                * Display general information about the trip, such as ID, name, destination,
@@ -356,6 +485,7 @@ export const Refunds = () => {
               <button
                 className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors hover:cursor-pointer"
                 onClick={() => setVisibleRequestForm(false)}
+                disabled={submitting}
               >
                 Cancelar
               </button>
@@ -364,10 +494,12 @@ export const Refunds = () => {
                 onClick={() => {
                   console.log("Form data:", formData);
                   console.log("Comment:", commentDescriptionOfSpend);
+                  handleSubmitRefund();
                   setVisibleRequestForm(false);
                 }}
+                disabled={submitting}
               >
-                Enviar solicitud
+                {submitting ? "Enviando..." : "Enviar solicitud"}
               </button>
             </div>
           </div>

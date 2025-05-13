@@ -1,10 +1,20 @@
 /*
  * DynamicTable component that renders a table with dynamic rows and columns.
 
- * Last edit: April 21, 2025
+ * Last edit: April 29, 2025
  * Authors: José Manuel García Zumaya
  */
 import React, { useState, ReactNode } from "react";
+
+// Define a type for all possible cell values including File objects
+export type CellValueType =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | ReactNode
+  | File;
 
 /*
  * Column interface SCHEMA to define the structure of each column in the table.
@@ -23,15 +33,14 @@ import React, { useState, ReactNode } from "react";
  *
  * You can reach an example of how to use this in the src/pages/Refunds/Refunds.tsx file.
  */
-interface Column {
+export interface Column {
   key: string;
   header: string;
-  defaultValue?: string | number | boolean | null | undefined | ReactNode;
+  defaultValue?: CellValueType;
   renderCell?: (
-    value: string | number | boolean | null | undefined | ReactNode,
-    handleFieldChange: (
-      newValue: string | number | boolean | null | undefined | ReactNode
-    ) => void
+    value: CellValueType,
+    handleFieldChange: (newValue: CellValueType) => void,
+    rowIndex?: number
   ) => React.ReactNode;
 }
 
@@ -43,11 +52,11 @@ interface Column {
  * it helps to notify the parent component of the change and need to render the table again.
  */
 /* Interface for table row data structure */
-interface TableRow {
-  [key: string]: string | number | boolean | null | undefined | ReactNode;
+export interface TableRow {
+  [key: string]: CellValueType;
 }
 
-interface DynamicTableProps {
+export interface DynamicTableProps {
   columns: Column[];
   initialData?: TableRow[];
   onDataChange?: (data: TableRow[]) => void;
@@ -67,22 +76,19 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
    * The initial data is set to the initialData prop, or an empty array if not provided.
    * This is useful if there are data that is already loaded in the table.
    */
-  const [tableData, setTableData] = useState<TableRow[]>(
-    initialData as TableRow[]
-  );
+  const [tableData, setTableData] = useState<TableRow[]>(initialData);
 
   /*
    * Function to handle changes in the table data.
    * It receives the row index, column key, and new value.
    * Using TableRow interface defined above
    */
-
   const handleFieldChange = (
     rowIndex: number,
     columnKey: string,
-    newValue: string | number | boolean | null | undefined | ReactNode
+    newValue: CellValueType
   ): void => {
-    const updatedData = [...tableData] as TableRow[];
+    const updatedData = [...tableData];
 
     updatedData[rowIndex] = {
       ...updatedData[rowIndex],
@@ -126,6 +132,23 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     if (onDataChange) {
       onDataChange(updatedData);
     }
+  };
+
+  // Function to render cell content safely
+  const renderCellContent = (value: CellValueType): React.ReactNode => {
+    if (value instanceof File) {
+      return value.name; // Show the filename instead of the File object
+    }
+
+    if (value === null || value === undefined) {
+      return "";
+    }
+
+    if (typeof value === "object" && !React.isValidElement(value)) {
+      return JSON.stringify(value);
+    }
+
+    return value;
   };
 
   return (
@@ -190,10 +213,17 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                          * This can be a tricky of understanding, so please reach me José Manuel García Zumaya if you have any question about this.
                          */
                         column.renderCell
-                          ? column.renderCell(row[column.key], (newValue) =>
-                              handleFieldChange(rowIndex, column.key, newValue)
+                          ? column.renderCell(
+                              row[column.key],
+                              (newValue) =>
+                                handleFieldChange(
+                                  rowIndex,
+                                  column.key,
+                                  newValue
+                                ),
+                              rowIndex
                             )
-                          : row[column.key]
+                          : renderCellContent(row[column.key])
                       }
                     </td>
                   ))}
