@@ -68,13 +68,12 @@ export const Refunds = () => {
         const response = await getRequest(API_ENDPOINTS.TRIPS);
         setTrips(response);
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Error desconocido al cargar los viajes"
-        );
+        setError("Error desconocido al cargar los viajes");
 
-        console.error("Error al cargar viajes: ", err);
+        console.error(
+          "Error al cargar viajes: ",
+          err instanceof Error ? err.message : err
+        );
       } finally {
         setLoading(false);
       }
@@ -99,6 +98,7 @@ export const Refunds = () => {
        * This ensures that the form is empty and ready for new input.
        */
       setFormData([]);
+      setCommentDescriptionOfSpend("");
     }
   };
 
@@ -134,20 +134,30 @@ export const Refunds = () => {
 
         i++;
         setSubmitSuccess(
+          `Solicitud de reembolso ${i} enviada con éxito del viaje ${currentRefundTrip.tripName}`
+        );
+        console.log(
           `Solicitud de reembolso ${i} enviada con éxito de ${formData.length}`
         );
-        setVisibleRequestForm(false);
+        console.log("Row submitted:");
+        for (const [key, value] of formDataToSend.entries()) {
+          console.log(
+            `${key}: ${value instanceof File ? `File: ${value.name}` : value}`
+          );
+        }
       }
 
+      setVisibleRequestForm(false);
       const updatedTrips = await getRequest(API_ENDPOINTS.TRIPS);
       setTrips(updatedTrips);
     } catch (err) {
       setSubmitError(
-        err instanceof Error
-          ? err.message
-          : "Error desconocido al enviar la solicitud de reembolso"
+        "Error al enviar la solicitud de reembolso, intente nuevamente"
       );
-      console.error("Error al enviar la solicitud de reembolso: ", err);
+      console.error(
+        "Error al enviar la solicitud de reembolso: ",
+        err instanceof Error ? err.message : err
+      );
     } finally {
       setSubmitting(false);
     }
@@ -303,7 +313,6 @@ export const Refunds = () => {
             if (file) {
               onChangeComponentFunction(e.target.value);
 
-              // Make sure rowIndex is defined before using it
               if (rowIndex !== undefined) {
                 const updatedFormData = [...formData];
                 if (updatedFormData[rowIndex]) {
@@ -335,7 +344,6 @@ export const Refunds = () => {
             if (file) {
               onChangeComponentFunction(e.target.value);
 
-              // Make sure rowIndex is defined before using it
               if (rowIndex !== undefined) {
                 const updatedFormData = [...formData];
                 if (updatedFormData[rowIndex]) {
@@ -402,6 +410,11 @@ export const Refunds = () => {
                 {submitSuccess}
               </div>
             )}
+            {submitError && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                {submitError}
+              </div>
+            )}
             <Table
               columns={columnsSchemaTrips}
               data={dataWithActions}
@@ -425,11 +438,6 @@ export const Refunds = () => {
             <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
               Formato de solicitud de reembolso
             </h2>
-            {submitError && (
-              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-                Error: {submitError}
-              </div>
-            )}
             <div className="mb-4">
               {/*
                * Display general information about the trip, such as ID, name, destination,
