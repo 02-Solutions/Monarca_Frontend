@@ -25,7 +25,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>,
+        </BrowserRouter>
       );
 
       expect(screen.getByText("INICIO DE SESIÓN")).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>,
+        </BrowserRouter>
       );
 
       expect(screen.getByText("M")).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>,
+        </BrowserRouter>
       );
 
       const forgotPasswordLink = screen.getByText("¿Olvidaste tu contraseña?");
@@ -61,11 +61,11 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>,
+        </BrowserRouter>
       );
 
       const backgroundDiv = document.querySelector(
-        '[class*="bg-"][class*="imageLogin.png"]',
+        '[class*="bg-"][class*="imageLogin.png"]'
       );
       expect(backgroundDiv).toBeInTheDocument();
     });
@@ -76,7 +76,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>,
+        </BrowserRouter>
       );
 
       const emailInput = screen.getByPlaceholderText("Correo");
@@ -84,12 +84,19 @@ describe("LoginPage", () => {
 
       expect(emailInput).toHaveValue("test@example.com");
     });
-    //TODO: Edid will add a test here , chose one from here:
-    //
-    //Updates password input when typing
-    //Shows alert when submitting empty form
-    //Shows alert when only email is empty
-    //Shows alert when only password is empty
+
+    it("updates password input when typing", async () => {
+      render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      );
+
+      const passwordInput = screen.getByPlaceholderText("Contraseña");
+      await userEvent.type(passwordInput, "secret123");
+
+      expect(passwordInput).toHaveValue("secret123");
+    });
   });
 
   describe("Form Submission Tests", () => {
@@ -101,7 +108,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>,
+        </BrowserRouter>
       );
 
       // Fill in email and password
@@ -124,12 +131,35 @@ describe("LoginPage", () => {
       // Check if navigation to dashboard occurred
       expect(mockedNavigate).toHaveBeenCalledWith("/dashboard");
     });
-    //TODO: Edid will add a test here , chose one from here:
-    //
-    //Calls postRequest when form is submitted with valid data
-    //Shows error alert when API returns status: false
-    //Shows error alert when API call fails (catch block)
-    //Prevents default form submission behavior
+
+    it("shows error alert when API returns status: false", async () => {
+      // Setup mock for failed login
+      const { postRequest } = await import("../../utils/apiService");
+      vi.mocked(postRequest).mockResolvedValueOnce({ status: false });
+      const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
+
+      render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      );
+
+      // Fill in email and password
+      const emailInput = screen.getByPlaceholderText("Correo");
+      const passwordInput = screen.getByPlaceholderText("Contraseña");
+
+      await userEvent.type(emailInput, "wrong@example.com");
+      await userEvent.type(passwordInput, "badpass");
+
+      // Submit the form
+      const submitButton = screen.getByText("Continuar");
+      await userEvent.click(submitButton);
+
+      // Expect the error alert
+      expect(alertSpy).toHaveBeenCalledWith("Error al iniciar sesion");
+
+      alertSpy.mockRestore();
+    });
   });
 
   describe("Input Validation Tests", () => {
@@ -137,17 +167,26 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>,
+        </BrowserRouter>
       );
 
       const passwordInput = screen.getByPlaceholderText("Contraseña");
       expect(passwordInput).toHaveAttribute("type", "password");
     });
 
-    //TODO: Edid will add a test here , chose one from here:
-    //
-    //Email input has type="email" attribute
-    //Both inputs have required attribute
+    it("both inputs have required attribute", () => {
+      render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      );
+
+      const emailInput = screen.getByPlaceholderText("Correo");
+      const passwordInput = screen.getByPlaceholderText("Contraseña");
+
+      expect(emailInput).toBeRequired();
+      expect(passwordInput).toBeRequired();
+    });
   });
 
   describe("UI State Tests", () => {
@@ -155,16 +194,40 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>,
+        </BrowserRouter>
       );
 
       const submitButton = screen.getByText("Continuar");
       expect(submitButton).toBeEnabled();
       expect(submitButton).not.toBeDisabled();
     });
-    //TODO: Edid will add a test here , chose one from here:
-    //
-    //Forgot password link has correct href
-    //Form maintains state between component re-renders
+
+    it("form maintains state between component re-renders", async () => {
+      const { rerender } = render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      );
+
+      const emailInput = screen.getByPlaceholderText("Correo");
+      const passwordInput = screen.getByPlaceholderText("Contraseña");
+
+      await userEvent.type(emailInput, "persist@example.com");
+      await userEvent.type(passwordInput, "persistpw");
+
+      // Re-render the same component tree
+      rerender(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      );
+
+      expect(screen.getByPlaceholderText("Correo")).toHaveValue(
+        "persist@example.com"
+      );
+      expect(screen.getByPlaceholderText("Contraseña")).toHaveValue(
+        "persistpw"
+      );
+    });
   });
 });

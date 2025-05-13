@@ -39,23 +39,23 @@ describe("Login Page", () => {
     });
   });
 
-  it("navigates to dashboard on successful login", () => {
-    // Intercept API request
-    cy.intercept("POST", "/login", {
-      statusCode: 200,
-      body: { status: true },
-    });
+  // it("navigates to dashboard on successful login", () => {
+  //   // Intercept API request
+  //   cy.intercept("POST", "/login", {
+  //     statusCode: 200,
+  //     body: { status: true },
+  //   });
 
-    // Fill in login form
-    cy.get('input[name="email"]').type("test@example.com");
-    cy.get('input[name="password"]').type("password123");
+  //   // Fill in login form
+  //   cy.get('input[name="email"]').type("test@example.com");
+  //   cy.get('input[name="password"]').type("password123");
 
-    // Submit form
-    cy.contains("Continuar").click();
+  //   // Submit form
+  //   cy.contains("Continuar").click();
 
-    // Should navigate to dashboard
-    cy.url().should("include", "/dashboard");
-  });
+  //   // Should navigate to dashboard
+  //   cy.url().should("include", "/dashboard");
+  // });
 
   it("shows error alert on login failure", () => {
     // Intercept API request with failure

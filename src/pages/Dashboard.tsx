@@ -1,5 +1,16 @@
+import { useEffect } from "react";
+import {useApp} from "../hooks/app/appContext";
 
-export const Dashboard = () => {
+interface DashboardProps {
+  title: string;
+}
+
+export const Dashboard = ({title}:DashboardProps) => {
+  const { setPageTitle } = useApp();
+  // Set the page title when the component mounts
+  useEffect(() => {
+    setPageTitle(title);
+  }, [title, setPageTitle]);
   return (
     <div className="flex justify-start items-start gap-10 py-10 px-1 ml-0">
       {[

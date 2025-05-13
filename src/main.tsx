@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import CreateTravelRequest from "./pages/CreateTravelRequest.tsx";
 
 import {
   ProtectedRoute,
@@ -35,7 +36,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/dashboard",
-        element: <Dashboard />,
+        element: <Dashboard title="Inicio" />,
       },
       // {
       //   path: "/requests",
@@ -96,8 +97,16 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: "/refunds",
-        element: <Refunds />,
+        path: "/travel-requests",
+        element: (
+          <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
+        ),
+        children: [
+          {
+            path: "create", // full URL = /travel-requests/create
+            element: <CreateTravelRequest />,
+          },
+        ],
       },
     ],
   },
