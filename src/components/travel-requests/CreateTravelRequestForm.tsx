@@ -5,6 +5,7 @@ import Switch from "../ui/Switch";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 
@@ -26,7 +27,7 @@ const priorityOptions: Option[] = [
 ];
 
 const destinationSchema = z.object({
-  id_destination: z.string().nonempty({ message: "Selecciona un destino" }),
+  id_destination: z.string().nullable(),
   arrival_date: z.string().nonempty({ message: "Selecciona fecha de llegada" }),
   departure_date: z
     .string()
@@ -38,9 +39,7 @@ const destinationSchema = z.object({
 });
 
 const formSchema = z.object({
-  id_origin_city: z
-    .string()
-    .nonempty({ message: "Selecciona ciudad de origen" }),
+  id_origin_city: z.string().nullable(),
   motive: z.string().nonempty({ message: "Escribe el motivo del viaje" }),
   title: z.string().nonempty({ message: "Escribe el título del viaje" }),
   priority: z.enum(["alta", "media", "baja"]),
@@ -48,9 +47,10 @@ const formSchema = z.object({
   destinations: z.array(destinationSchema).min(1, "Al menos un destino"),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+type RawFormValues = z.infer<typeof formSchema>;
 
 function CreateTravelRequestForm() {
+  const navigate = useNavigate();
   const { destinationOptions, isLoading: isLoadingDestinations } =
     useDestinations();
 
@@ -60,17 +60,17 @@ function CreateTravelRequestForm() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<FormValues>({
+  } = useForm<RawFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id_origin_city: "",
+      id_origin_city: null,
       motive: "",
       title: "",
       priority: "media",
       requirements: "",
       destinations: [
         {
-          id_destination: "",
+          id_destination: null,
           arrival_date: "",
           departure_date: "",
           stay_days: 1,
@@ -89,18 +89,29 @@ function CreateTravelRequestForm() {
     name: "destinations",
   });
 
-  const onSubmit = async (data: FormValues) => {
-    const requests_destinations = data.destinations.map((d, idx, arr) => ({
-      id_destination: d.id_destination,
-      destination_order: idx + 1,
-      stay_days: d.stay_days,
-      arrival_date: dayjs(d.arrival_date).toISOString(),
-      departure_date: dayjs(d.departure_date).toISOString(),
-      is_hotel_required: d.is_hotel_required,
-      is_plane_required: d.is_plane_required,
-      is_last_destination: idx === arr.length - 1,
-      details: d.details,
-    }));
+  const onSubmit = async (data: RawFormValues) => {
+    if (!data.id_origin_city) {
+      toast.error("Selecciona una ciudad de origen");
+      return;
+    }
+
+    const requests_destinations = data.destinations.map((d, idx, arr) => {
+      if (!d.id_destination) {
+        throw new Error("Selecciona un destino");
+      }
+
+      return {
+        id_destination: d.id_destination,
+        destination_order: idx + 1,
+        stay_days: d.stay_days,
+        arrival_date: dayjs(d.arrival_date).toISOString(),
+        departure_date: dayjs(d.departure_date).toISOString(),
+        is_hotel_required: d.is_hotel_required,
+        is_plane_required: d.is_plane_required,
+        is_last_destination: idx === arr.length - 1,
+        details: d.details,
+      };
+    });
 
     const payload = {
       id_origin_city: data.id_origin_city,
@@ -121,6 +132,7 @@ function CreateTravelRequestForm() {
         pauseOnHover: true,
       });
       reset();
+      navigate("/dashboard");
     } catch (error) {
       let errorMessage = "Error al crear la solicitud de viaje";
 
@@ -183,7 +195,11 @@ function CreateTravelRequestForm() {
                 render={({ field }) => (
                   <Select
                     options={destinationOptions}
-                    value={destinationOptions.find((o) => o.id === field.value)}
+                    value={
+                      field.value
+                        ? destinationOptions.find((o) => o.id === field.value)
+                        : null
+                    }
                     onChange={(opt) => field.onChange(opt.id)}
                     isLoading={isLoadingDestinations}
                     placeholder="Selecciona ciudad de origen"
@@ -261,9 +277,13 @@ function CreateTravelRequestForm() {
                       render={({ field }) => (
                         <Select
                           options={destinationOptions}
-                          value={destinationOptions.find(
-                            (o) => o.id === field.value
-                          )}
+                          value={
+                            field.value
+                              ? destinationOptions.find(
+                                  (o) => o.id === field.value
+                                )
+                              : null
+                          }
                           onChange={(opt) => field.onChange(opt.id)}
                           isLoading={isLoadingDestinations}
                           placeholder="Selecciona destino"
@@ -373,7 +393,7 @@ function CreateTravelRequestForm() {
             type="button"
             onClick={() =>
               append({
-                id_destination: "",
+                id_destination: null,
                 arrival_date: "",
                 departure_date: "",
                 stay_days: 1,

@@ -8,7 +8,6 @@ import {
 } from "react-router-dom";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Example from "./pages/Example.tsx";
 import CreateTravelRequest from "./pages/CreateTravelRequest.tsx";
 
 import {
@@ -29,8 +28,6 @@ import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 
-import "react-toastify/dist/ReactToastify.css";
-
 const router = createBrowserRouter([
   // Basic protected routes (requires only authentication)
   {
@@ -39,7 +36,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/dashboard",
-        element: <Dashboard />,
+        element: <Dashboard title="Inicio" />,
       },
       {
         path: "/requests",
@@ -102,7 +99,8 @@ const router = createBrowserRouter([
       {
         path: "/travel-requests",
         element: (
-          <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
+          // <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
+          <CreateTravelRequest />
         ),
         children: [
           {

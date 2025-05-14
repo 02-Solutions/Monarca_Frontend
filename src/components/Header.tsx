@@ -1,83 +1,66 @@
-
-
+import { useState } from "react";
+import { useAuth } from "../hooks/auth/authContext";
+import { useApp } from "../hooks/app/appContext";
 
 function Header() {
+  const { handleLogout ,authState } = useAuth();
+  const { pageTitle } = useApp();
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
   return (
     <nav className="fixed top-0 z-50 w-full bg-[var(--dark-blue)] text-[var(--white)]">
       <div className="px-3 py-5 lg:px-5 lg:pl-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center justify-start rtl:justify-end">
             <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
-            * titulo dinámico aquí *
+              {pageTitle}
             </span>
           </div>
           <div className="flex items-center">
-            <div className="flex items-center ms-3">
+            <div className="flex items-center ms-3 relative">
               <div className="flex items-center gap-8">
-                <h2 className="uppercase text-3xl"><span className="text-[var(--ultra-light-blue)]">M</span>onarca</h2>
+                <h2 className="uppercase text-3xl">
+                  <span className="text-[var(--ultra-light-blue)]">M</span>onarca
+                </h2>
                 <button
                   type="button"
-                  className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                  aria-expanded="false"
-                  data-dropdown-toggle="dropdown-user"
+                  className="flex text-sm bg-[var(--ultra-light-blue)] p-2 rounded-full"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
-                  <span className="sr-only">Open user menu</span>
-                  <img
-                    className="w-8 h-8 rounded-full"
-                    src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                    alt="user photo"
-                  />
+                  {authState.userName[0].toUpperCase()}{authState.userLastName[0].toUpperCase()}
                 </button>
               </div>
-              <div
-                className="z-50 hidden my-4 text-base list-none bg-[var(--blue)] divide-y divide-[var(--white)] rounded-sm shadow-sm"
-                id="dropdown-user"
-              >
-                <div className="px-4 py-3" role="none">
-                  <p
-                    className="text-sm text-[var(--gray)]"
-                    role="none"
-                  >
-                    Neil Sims
-                  </p>
-                  <p
-                    className="text-sm font-medium text-[var(--gray)] truncate"
-                    role="none"
-                  >
-                    neil.sims@flowbite.com
-                  </p>
-                </div>
-                <ul className="py-1" role="none">
-                  <li>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-[var(--white)] hover:bg-[var(--gray)] hover:text-[var(--blue)]"
-                      role="menuitem"
-                    >
-                      Dashboard
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-[var(--white)] hover:bg-[var(--gray)] hover:text-[var(--blue)]"
-                      role="menuitem"
-                    >
-                      Settings
-                    </a>
-                  </li>
+              {dropdownOpen &&
+                <div
+                  className="z-50 absolute top-[80%] left-[20%] my-4 text-base list-none bg-[var(--blue)] divide-y divide-[var(--white)] rounded-sm shadow-sm"
+                >
+                  <div className="px-4 py-3">
+                    <p className="text-sm text-[var(--gray)]">
+                    {authState.userName} {authState.userLastName}
+                    </p>
+                    <p className="text-sm font-medium text-[var(--gray)] truncate">
+                     {authState.userEmail}
 
-                  <li>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-[var(--white)] hover:bg-[var(--gray)] hover:text-[var(--blue)]"
-                      role="menuitem"
-                    >
-                      Sign out
-                    </a>
-                  </li>
-                </ul>
-              </div>
+                    </p>
+                    <p className="text-sm font-medium text-[var(--gray)] truncate">
+                     {authState.userRole}
+
+                    </p>
+                  </div>
+                  <ul className="py-1">
+                    <li>
+                      <button 
+                        type="button" 
+                        className="block px-4 py-2 text-sm w-full text-[var(--white)] hover:bg-[var(--gray)] hover:text-[var(--blue)]"
+                        onClick={handleLogout}
+                      >
+                        Cerrar Sesión
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              }
             </div>
           </div>
         </div>
@@ -85,6 +68,5 @@ function Header() {
     </nav>
   );
 }
-
 
 export default Header;

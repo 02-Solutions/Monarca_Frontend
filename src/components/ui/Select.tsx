@@ -13,7 +13,7 @@ type Option = {
 
 type SelectProps = {
   options: Option[];
-  value: Option | undefined;
+  value: Option | null | undefined;
   onChange: (option: Option) => void;
   direction?: "up" | "down";
   isLoading?: boolean;
@@ -31,7 +31,7 @@ export default function Select({
   placeholder = "Selecciona una opción",
 }: SelectProps) {
   return (
-    <Listbox value={value} onChange={onChange} disabled={isDisabled}>
+    <Listbox value={value || null} onChange={onChange} disabled={isDisabled}>
       <div className="relative">
         <ListboxButton
           className={`relative w-full cursor-default rounded-md p-2.5 pr-10 text-left text-gray-900 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 ${
