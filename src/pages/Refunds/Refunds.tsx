@@ -113,19 +113,23 @@ export const Refunds = () => {
       for (const rowData of formData) {
         const formDataToSend = new FormData();
 
-        formDataToSend.append("tripId", currentRefundTrip.id.toString());
-        formDataToSend.append("comment", commentDescriptionOfSpend);
         formDataToSend.append(
-          "requestDate",
-          new Date().toISOString().split("T")[0]
+          "id_request_destination",
+          currentRefundTrip.id.toString()
         );
-        formDataToSend.append("spentClass", rowData.spentClass);
+        formDataToSend.append("comment", commentDescriptionOfSpend);
+        formDataToSend.append("date", new Date().toISOString().split("T")[0]);
+        formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());
-        formDataToSend.append("taxIndicator", rowData.taxIndicator);
-        formDataToSend.append("date", rowData.date);
+        // agregar currency
+        /* formDataToSend.append("taxIndica", rowData.taxIndicator); */
+        // agregar status
+        // enum para status
+        // comprobante_pendiente, comprobante_denegado, comprobante_aprobado
         if (rowData.XMLFile) {
           formDataToSend.append("XMLFile", rowData.XMLFile);
         }
+
         if (rowData.PDFFile) {
           formDataToSend.append("PDFFile", rowData.PDFFile);
         }

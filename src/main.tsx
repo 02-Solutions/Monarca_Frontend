@@ -123,6 +123,10 @@ const router = createBrowserRouter([
     path: "/unauthorized",
     element: <Unauthorized />,
   },
+  {
+    path: "/refunds",
+    element: <Refunds />,
+  },
   // Catch-all route for non-existent pages
   // TODO: Add a 404 page
   {
