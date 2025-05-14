@@ -20,12 +20,13 @@
     "@hookform/resolvers": "^5.0.1",
     "@tailwindcss/vite": "^4.1.1",
     "@tanstack/react-query": "^5.71.5",
+    "axios": "^1.8.4",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
-    "axios": "^1.8.4",
     "flowbite": "^3.1.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^7.4.1",
     "react-toastify": "^11.0.5",
     "tailwindcss": "^4.1.1",
@@ -45,12 +46,8 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
-<<<<<<< HEAD
-    "typescript": "^5.8.3",
-=======
     "jsdom": "^26.1.0",
     "typescript": "~5.7.2",
->>>>>>> ff71085ac6e3472ae6cddfe50264752604b93a56
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0",
     "vitest": "^3.1.2"

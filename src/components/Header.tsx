@@ -28,7 +28,7 @@ function Header() {
                   className="flex text-sm bg-[var(--ultra-light-blue)] p-2 rounded-full"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
-                  {authState.userName[0].toUpperCase()}{authState.userLastName[0].toUpperCase()}
+                  {authState?.userName[0]?.toUpperCase()}{authState?.userLastName[0]?.toUpperCase()}
                 </button>
               </div>
               {dropdownOpen &&

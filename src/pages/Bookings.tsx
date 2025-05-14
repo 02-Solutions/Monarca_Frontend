@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import Layout from "../components/Layout";
+import { useState } from "react";
 import DynamicTable from "../components/Refunds/DynamicTable";
 import InputField from "../components/Refunds/InputField";
 import Dropdown from "../components/Refunds/DropDown";
@@ -24,7 +23,7 @@ const Bookings = () => {
       renderCell: (
         _value: string | number | boolean | null | undefined,
         _onChange: (newValue: string | number | boolean | null | undefined) => void,
-        rowIndex?: number
+        _rowIndex?: number
       ) => (
         <div className="w-4 h-4 rounded-full bg-white border-2 border-blue-900 mx-auto" />
       ),
@@ -173,7 +172,7 @@ const Bookings = () => {
   };
 
   return (
-    <Layout title="Viajes por reservar">
+    <>
       <div className="bg-[#F4F6F8] p-6 rounded-2xl shadow-md">
         <div className="flex items-center justify-between mb-6">
           <button className="bg-[#0a2c6d] hover:bg-[#003366] text-white font-semibold px-6 py-2 rounded shadow">
@@ -193,7 +192,7 @@ const Bookings = () => {
   initialData={formData}
   onDataChange={handleFormDataChange}
   expandedRows={expandedRows}
-  renderExpandedRow={(rowIndex: number) => (
+  renderExpandedRow={(_rowIndex: number) => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <InputField 
         value="000001" 
@@ -253,7 +252,7 @@ const Bookings = () => {
           </button>
         </div>
       </div>
-    </Layout>
+    </>
   );
 };
 

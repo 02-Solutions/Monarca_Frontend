@@ -5,7 +5,7 @@
  * @author Isaac
  */
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Button from "../components/Refunds/Button";
 import DynamicTable from "../components/Refunds/DynamicTable";
 import InputField from "../components/Refunds/InputField";

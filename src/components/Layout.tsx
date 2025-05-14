@@ -1,6 +1,3 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/auth/authContext";
-
 // ****************** components ******************
 import Header from "./Header";
 import Sidebar from "./Sidebar";
@@ -14,7 +11,7 @@ interface LayoutProps {
 function Layout({ children }: LayoutProps) {
   return (
     <div>
-      <Header title={title} />
+      <Header />
       <div className="flex flex-col min-h-screen">
         <div className="flex flex-1">
           <Sidebar />

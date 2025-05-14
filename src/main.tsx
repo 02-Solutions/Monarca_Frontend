@@ -27,7 +27,6 @@ import Requests from "./pages/Requests.tsx";
 import Bookings from "./pages/Bookings.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
-import Bookings from "./pages/Bookings.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 
 const router = createBrowserRouter([
