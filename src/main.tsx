@@ -27,6 +27,7 @@ import Requests from "./pages/Requests.tsx";
 import Bookings from "./pages/Bookings.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
+import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 
 const router = createBrowserRouter([
@@ -134,8 +135,16 @@ const router = createBrowserRouter([
     path: "/unauthorized",
     element: <Unauthorized />,
   },
-
+  {
+    path: "/refunds",
+    element: <Refunds />,
+  },
   // Catch-all route for non-existent pages
+  // TODO: Add a 404 page
+  {
+    path: "/refundsacceptance",
+    element: <RefundsAcceptance />,
+  },
   {
     path: "*",
     element: <Navigate to="/login" replace />,
