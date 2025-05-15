@@ -26,9 +26,10 @@ import Register from "./pages/Register.tsx";
 import Requests from "./pages/Requests.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
+import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   // Basic protected routes (requires only authentication)
   {
     path: "/",
@@ -124,8 +125,16 @@ const router = createBrowserRouter([
     path: "/unauthorized",
     element: <Unauthorized />,
   },
+  {
+    path: "/refunds",
+    element: <Refunds />,
+  },
   // Catch-all route for non-existent pages
   // TODO: Add a 404 page
+  {
+    path: "/refundsacceptance",
+    element: <RefundsAcceptance />,
+  },
   {
     path: "*",
     element: <Navigate to="/login" replace />,
@@ -134,10 +143,15 @@ const router = createBrowserRouter([
 
 const queryClient = new QueryClient();
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  </StrictMode>
-);
+if (import.meta.env.PROD || !import.meta.env.TEST) {
+  const rootElement = document.getElementById("root");
+  if (rootElement) {
+    createRoot(rootElement).render(
+      <StrictMode>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </StrictMode>,
+    );
+  }
+}

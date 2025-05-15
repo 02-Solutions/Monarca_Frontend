@@ -3,23 +3,22 @@
  * with minimal data: ID, trip title, travel date, destination, and request date.
  */
 
-import { useState } from "react";
 import Table from "../../components/Refunds/Table";
 import Button from "../../components/Refunds/Button";
 import { historialData } from "./local/dummyData";
 
-// Interface for travel records data
-interface TravelRecord {
-  id: string;
-  title: string;
-  travelDate: string;
-  destination: string;
-  requestDate: string;
-}
+//Interface for travel records data
+//interface TravelRecord {
+//id: string;
+//title: string;
+//travelDate: string;
+//destination: string;
+//requestDate: string;
+//}
 
 export const Historial = () => {
   // State to store selected travel record details
-  const [selectedTravel, setSelectedTravel] = useState<TravelRecord | null>(null);
+  //const [selectedTravel, setSelectedTravel] = useState<TravelRecord | null>(null);
 
   // Columns schema for travel history table
   const columnsSchema = [
