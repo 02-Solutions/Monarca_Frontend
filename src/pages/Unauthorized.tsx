@@ -23,10 +23,10 @@ export const Unauthorized = () => {
             Ir al Panel
           </Link>
           <Link
-            to="/example"
+            to="/login"
             className="block w-full py-2 mt-3 text-center text-white bg-gray-600 rounded hover:bg-gray-500 transition-colors"
           >
-            Ir a la Página de Inicar Sesión
+            Ir a la Página de Iniciar Sesión
           </Link>
         </div>
         <div className="flex justify-center pt-4">
