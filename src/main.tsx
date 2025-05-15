@@ -100,7 +100,8 @@ export const router = createBrowserRouter([
       {
         path: "/travel-requests",
         element: (
-          <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
+          // <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
+          <CreateTravelRequest />
         ),
         children: [
           {

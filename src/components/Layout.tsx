@@ -1,5 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/auth/authContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // ****************** components ******************
 import Header from "./Header";
@@ -19,7 +21,7 @@ function Layout({ children }: LayoutProps) {
 
   // Check if the user is authenticated
   if (!authState.isAuthenticated) return <Navigate to="/login" />;
-  
+
   return (
     <div>
       <Header />
@@ -30,7 +32,9 @@ function Layout({ children }: LayoutProps) {
         </div>
         <Footer />
       </div>
+      <ToastContainer />
     </div>
   );
 }
+
 export default Layout;
