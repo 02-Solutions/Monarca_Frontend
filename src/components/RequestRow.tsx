@@ -1,25 +1,49 @@
 /**
  * @file RequestRow.tsx
  * @description Vista de solicitudes de viaje con tabla editable, dropdowns, inputs y acciones.
- * @lastEdited 2025-04-25
+ * @lastEdited 2025-05-14
  * @author Isaac
  */
 
-import React, { useState } from "react";
+import { useState, ReactNode } from "react";
 import Button from "../components/Refunds/Button";
 import DynamicTable from "../components/Refunds/DynamicTable";
 import InputField from "../components/Refunds/InputField";
 import Dropdown from "../components/Refunds/DropDown";
 import { FaSyncAlt } from "react-icons/fa";
 
-// Opciones del dropdown para campo de estado
-const STATUS_OPTIONS = [
+// Define types for dropdown options
+type DropdownOption = {
+  value: string;
+  label: string;
+};
+
+// Define type for travel request data
+interface TravelRequest {
+  id: string;
+  date: string;
+  city: string;
+  country: string;
+  reason: string;
+  status: "autorizado" | "pendiente";
+  settlement: string;
+  refund: string;
+  currency: "MXN" | "USD";
+}
+
+// Import TableRow interface to match DynamicTable's expectations
+interface TableRow {
+  [key: string]: string | number | boolean | null | undefined | ReactNode;
+}
+
+// Options del dropdown para campo de estado
+const STATUS_OPTIONS: DropdownOption[] = [
   { value: "autorizado", label: "Autorizado" },
   { value: "pendiente", label: "Pendiente" },
 ];
 
-// Opciones del dropdown para campo de moneda
-const MONEDA_OPTIONS = [
+// Options del dropdown para campo de moneda
+const MONEDA_OPTIONS: DropdownOption[] = [
   { value: "MXN", label: "MXN" },
   { value: "USD", label: "USD" },
 ];
@@ -30,7 +54,7 @@ const MONEDA_OPTIONS = [
  */
 const RequestRow = () => {
   // Estado para almacenar los datos de cada fila de la tabla
-  const [data, setData] = useState([
+  const [data, setData] = useState<TravelRequest[]>([
     {
       id: "0001",
       date: "14/09/2020",
@@ -55,17 +79,17 @@ const RequestRow = () => {
     },
   ]);
 
-  // Configuración de columnas para la tabla editable
+  // Column config that matches DynamicTable's Column interface
   const columns = [
     {
       key: "status",
       header: "Autorización",
       defaultValue: "pendiente",
-      renderCell: (value, handleChange) => (
+      renderCell: (value: any, handleFieldChange: (newValue: any) => void) => (
         <Dropdown
           value={value as string}
           options={STATUS_OPTIONS}
-          onChange={(e) => handleChange(e.target.value)}
+          onChange={(e) => handleFieldChange(e.target.value)}
         />
       ),
     },
@@ -73,19 +97,22 @@ const RequestRow = () => {
       key: "id",
       header: "Viaje",
       defaultValue: "",
-      renderCell: (value, handleChange) => (
-        <InputField value={value as string} onChange={(e) => handleChange(e.target.value)} />
+      renderCell: (value: any, handleFieldChange: (newValue: any) => void) => (
+        <InputField
+          value={value as string}
+          onChange={(e) => handleFieldChange(e.target.value)}
+        />
       ),
     },
     {
       key: "date",
       header: "Fecha Salida",
       defaultValue: "",
-      renderCell: (value, handleChange) => (
+      renderCell: (value: any, handleFieldChange: (newValue: any) => void) => (
         <InputField
           type="date"
           value={value as string}
-          onChange={(e) => handleChange(e.target.value)}
+          onChange={(e) => handleFieldChange(e.target.value)}
         />
       ),
     },
@@ -93,55 +120,76 @@ const RequestRow = () => {
       key: "city",
       header: "Población",
       defaultValue: "",
-      renderCell: (value, handleChange) => (
-        <InputField value={value as string} onChange={(e) => handleChange(e.target.value)} />
+      renderCell: (value: any, handleFieldChange: (newValue: any) => void) => (
+        <InputField
+          value={value as string}
+          onChange={(e) => handleFieldChange(e.target.value)}
+        />
       ),
     },
     {
       key: "country",
       header: "País",
       defaultValue: "MX",
-      renderCell: (value, handleChange) => (
-        <InputField value={value as string} onChange={(e) => handleChange(e.target.value)} />
+      renderCell: (value: any, handleFieldChange: (newValue: any) => void) => (
+        <InputField
+          value={value as string}
+          onChange={(e) => handleFieldChange(e.target.value)}
+        />
       ),
     },
     {
       key: "reason",
       header: "Razón",
       defaultValue: "",
-      renderCell: (value, handleChange) => (
-        <InputField value={value as string} onChange={(e) => handleChange(e.target.value)} />
+      renderCell: (value: any, handleFieldChange: (newValue: any) => void) => (
+        <InputField
+          value={value as string}
+          onChange={(e) => handleFieldChange(e.target.value)}
+        />
       ),
     },
     {
       key: "settlement",
       header: "Comprobación",
       defaultValue: "",
-      renderCell: (value, handleChange) => (
-        <InputField value={value as string} onChange={(e) => handleChange(e.target.value)} />
+      renderCell: (value: any, handleFieldChange: (newValue: any) => void) => (
+        <InputField
+          value={value as string}
+          onChange={(e) => handleFieldChange(e.target.value)}
+        />
       ),
     },
     {
       key: "refund",
       header: "Reembolso",
       defaultValue: "$0",
-      renderCell: (value, handleChange) => (
-        <InputField value={value as string} onChange={(e) => handleChange(e.target.value)} />
+      renderCell: (value: any, handleFieldChange: (newValue: any) => void) => (
+        <InputField
+          value={value as string}
+          onChange={(e) => handleFieldChange(e.target.value)}
+        />
       ),
     },
     {
       key: "currency",
       header: "Moneda",
       defaultValue: "MXN",
-      renderCell: (value, handleChange) => (
+      renderCell: (value: any, handleFieldChange: (newValue: any) => void) => (
         <Dropdown
           value={value as string}
           options={MONEDA_OPTIONS}
-          onChange={(e) => handleChange(e.target.value)}
+          onChange={(e) => handleFieldChange(e.target.value)}
         />
       ),
     },
   ];
+
+  // Handle data changes from DynamicTable
+  const handleDataChange = (newData: TableRow[]) => {
+    // Cast the TableRow[] to TravelRequest[] to match our state type
+    setData(newData as unknown as TravelRequest[]);
+  };
 
   return (
     <div className="p-6 bg-white shadow-md rounded-lg">
@@ -155,7 +203,11 @@ const RequestRow = () => {
       </div>
 
       {/* Tabla editable con componentes personalizados */}
-      <DynamicTable columns={columns} initialData={data} onDataChange={setData} />
+      <DynamicTable
+        columns={columns}
+        initialData={data as unknown as TableRow[]}
+        onDataChange={handleDataChange}
+      />
 
       {/* Información adicional del empleado */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 text-sm text-[#0a2c6d] font-medium">

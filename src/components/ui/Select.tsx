@@ -66,7 +66,7 @@ export default function Select({
           ) : (
             options.map((option) => (
               <ListboxOption
-                key={option.id}
+                key={String(option.id)}
                 value={option}
                 className={({ active }) =>
                   `relative cursor-default select-none py-2 pl-3 pr-9 ${
