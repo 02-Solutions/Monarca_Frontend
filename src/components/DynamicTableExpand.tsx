@@ -46,8 +46,8 @@ interface Column {
  */
 interface DynamicTableExpandProps {
   columns: Column[];
-  initialData?: [];
-  onDataChange?: (data: []) => void;
+  initialData?: Record<string, any>[];
+  onDataChange?: (data: Record<string, any>[]) => void;
   expandedRows?: number[];
   renderExpandedRow?: (index: number) => React.ReactNode;
 }
@@ -63,9 +63,13 @@ const DynamicTableExpand: React.FC<DynamicTableExpandProps> = ({
   expandedRows = [],
   renderExpandedRow,
 }) => {
-  const [tableData, setTableData] = useState(initialData);
+  const [tableData, setTableData] = useState<Record<string, any>[]>(initialData as Record<string, any>[]);
 
-  const handleFieldChange = (rowIndex, columnKey, newValue) => {
+  const handleFieldChange = (
+    rowIndex: number,
+    columnKey: string,
+    newValue: string | number | boolean | null | undefined | React.ReactNode
+  ) => {
     const updatedData = [...tableData];
 
     updatedData[rowIndex] = {
@@ -81,10 +85,10 @@ const DynamicTableExpand: React.FC<DynamicTableExpandProps> = ({
   };
 
   const addItem = () => {
-    const defaultRow = columns.reduce((obj, column) => {
+    const defaultRow = columns.reduce((obj: Record<string, any>, column) => {
       obj[column.key] = column.defaultValue || "";
       return obj;
-    }, {});
+    }, {} as Record<string, any>);
 
     const updatedData = [...tableData, defaultRow];
     setTableData(updatedData);
@@ -128,7 +132,7 @@ const DynamicTableExpand: React.FC<DynamicTableExpandProps> = ({
                       {column.renderCell
                         ? column.renderCell(
                             row[column.key],
-                            (newValue) =>
+                            (newValue: any) =>
                               handleFieldChange(rowIndex, column.key, newValue),
                             rowIndex
                           )

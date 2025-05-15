@@ -34,24 +34,24 @@
    onFocus?: () => void;
  }
  
- const Dropdown = ({
-   id,
-   name,
-   value,
-   options,
-   placeholder = "Select an option",
-   className = "p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 text-[#0a2c6d] focus:ring-blue-500 bg-white hover:cursor-pointer",
-   wrapperClassName = "relative flex flex-col mb-4",
-   disabled = false,
-   required = false,
-   label,
-   error,
-   onChange,
-   onBlur,
-   onFocus,
- }: DropdownProps): JSX.Element => {
-   return (
-     <div className={wrapperClassName}>
+const Dropdown: React.FC<DropdownProps> = ({
+  id,
+  name,
+  value,
+  options,
+  placeholder = "Select an option",
+  className = "p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 text-[#0a2c6d] focus:ring-blue-500 bg-white hover:cursor-pointer",
+  wrapperClassName = "relative flex flex-col mb-4",
+  disabled = false,
+  required = false,
+  label,
+  error,
+  onChange,
+  onBlur,
+  onFocus,
+}) => {
+  return (
+    <div className={wrapperClassName}>
        {label && (
          <label htmlFor={id || name} className="mb-1 text-sm font-medium text-[#0a2c6d]">
            {label}

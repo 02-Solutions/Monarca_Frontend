@@ -22,9 +22,9 @@ interface Column {
  * DynamicTableProps interface to define the structure of the props for the DynamicTable component.
  */
 /* Interface for table row data structure */
-interface TableRow {
-  [key: string]: string | number | boolean | null | undefined | ReactNode;
-}
+// interface TableRow {
+//   [key: string]: string | number | boolean | null | undefined | ReactNode;
+// }
 
 interface DynamicTableProps {
   columns: Column[];
