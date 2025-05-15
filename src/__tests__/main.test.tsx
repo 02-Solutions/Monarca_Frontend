@@ -1,14 +1,14 @@
 // src/__tests__/main.test.tsx
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { describe, it, expect, vi } from "vitest";
 
 // Import the routes directly to test configuration
 import { router } from "../main";
 
 // Mock the components
 vi.mock("../pages/Dashboard", () => ({
-  Dashboard: ({ title }) => <div data-testid="dashboard">{title}</div>,
+  Dashboard: ({ title }: { title: string }) => (
+    <div data-testid="dashboard">{title}</div>
+  ),
 }));
 
 vi.mock("../pages/Login", () => ({
@@ -16,10 +16,10 @@ vi.mock("../pages/Login", () => ({
 }));
 
 vi.mock("../hooks/auth/authContext", () => ({
-  ProtectedRoute: ({ children }) => (
+  ProtectedRoute: ({ children }: { children?: React.ReactNode }) => (
     <div data-testid="protected-route">{children}</div>
   ),
-  PermissionProtectedRoute: ({ children }) => (
+  PermissionProtectedRoute: ({ children }: { children?: React.ReactNode }) => (
     <div data-testid="permission-route">{children}</div>
   ),
 }));
