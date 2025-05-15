@@ -1,5 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/auth/authContext";
+import { ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // ****************** components ******************
 import Header from "./Header";
@@ -23,6 +25,18 @@ function Layout({ children }: LayoutProps) {
   return (
     <div>
       <Header />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <div className="flex flex-col min-h-screen">
         <div className="flex flex-1">
           <Sidebar />

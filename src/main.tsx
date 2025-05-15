@@ -28,6 +28,7 @@ import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
+import ApplicationInfo from "./pages/ApplicationInfo.tsx"
 
 
 
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       {
         path: "/requests",
         element: <Requests />,
+      },
+      {
+        path: "/application-info",
+        element: <ApplicationInfo />,
       },
       // Routes protected by specific permissions
       {
