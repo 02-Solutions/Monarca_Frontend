@@ -4,19 +4,19 @@
  * When a refund is requested, a form is displayed with fields for entering details about the refund request.
  */
 
-import { useState, ReactNode } from "react";
+import { useState } from "react";
 import Table from "../../components/Refunds/Table";
 import Button from "../../components/Refunds/Button";
-import InputField from "../../components/Refunds/InputField";
-import Dropdown from "../../components/Refunds/DropDown";
-import { tripData, spendOptions, taxIndicatorOptions } from "./local/dummyData";
+//import InputField from "../../components/Refunds/InputField";
+//import Dropdown from "../../components/Refunds/DropDown";
+import { tripData} from "./local/dummyData";
 
 export const RefundsAcceptance = () => {
   /*
    * State to manage the visibility of the request form and the current trip
    * for which the refund is being requested.
    */
-  const [visibleRequestForm, setVisibleRequestForm] = useState(false);
+  const [visibleRequestForm] = useState(false);
 
   /*
    * State to manage the current trip for which the refund is being requested.
@@ -35,22 +35,22 @@ export const RefundsAcceptance = () => {
     requestDate: string;
   }
 
-  const [currentRefundTrip, setCurrentRefundTrip] = useState<Trip | null>(null);
+  const [currentRefundTrip ] = useState<Trip | null>(null);
 
   /*
    * State to manage the form data for the refund request.
    * This is an array of objects, each object represents a row in the dynamic table
    * for entering expenses related to the refund request.
    */
-  interface FormDataRow {
-    spentClass: string;
-    amount: number;
-    taxIndicator: string;
-    date: string;
-    XML: string;
-    PDF: string;
-    [key: string]: string | number | null | undefined | ReactNode;
-  }
+  //interface FormDataRow {
+    //spentClass: string;
+    //amount: number;
+    //taxIndicator: string;
+    //date: string;
+    //XML: string;
+    //PDF: string;
+    //[key: string]: string | number | null | undefined | ReactNode;
+  //}
 
 
   /* Array of trip data with an action button to request a refund.
@@ -112,124 +112,124 @@ export const RefundsAcceptance = () => {
    * the component from CHILD to PARENT. Note that returns an object of type ReactNode,
    * so it should be used to render components like InputField, Dropdown, etc.
    */
-  const columnsSchemaVauchers = [
-    {
-      key: "spentClass",
-      header: "Clase de gasto",
-      defaultValue: "",
-      /*
-       * An fast example of how the renderCell function works:
-       * 1. When change the option in the dropdown, the native OnChange function of the dropdown is called.
-       * 2. OnChangeComponentFunction is acually the function passed as a prop to the renderCell function,
-       *    in this case (newValue) => handleFieldChange(rowIndex, column.key, newValue) in the DynamicTable component.
-       * 3. This function is used to update the component from child to parent, so it will update the value of the
-       *   column in the row with the new value selected in the dropdown.
-       *
-       */
-      renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
-      ) => (
-        <Dropdown
-          required={true}
-          options={spendOptions}
-          value={value as string}
-          onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Seleccione el tipo de gasto"
-        />
-      ),
-    },
-    {
-      key: "amount",
-      header: "Monto MXN",
-      defaultValue: 0,
-      renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
-      ) => (
-        <InputField
-          required={true}
-          type="number"
-          value={value as string}
-          onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
-          placeholder="Ingrese monto del comprobante"
-        />
-      ),
-    },
-    {
-      key: "taxIndicator",
-      header: "Indicador de impuesto",
-      defaultValue: "",
-      renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
-      ) => (
-        <Dropdown
-          required={true}
-          options={taxIndicatorOptions}
-          value={value as string}
-          onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Seleccione el indicador de impuesto"
-        />
-      ),
-    },
-    {
-      key: "date",
-      header: "Fecha del comprobante",
-      defaultValue: "",
-      renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
-      ) => (
-        <InputField
-          required={true}
-          type="date"
-          value={value as string}
-          onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Fecha del comprobante"
-        />
-      ),
-    },
-    {
-      key: "XML",
-      header: "Archivo XML",
-      defaultValue: "",
-      renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
-      ) => (
-        <InputField
-          required={true}
-          type="file"
-          value={value as string}
-          onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Subir archivo XML"
-        />
-      ),
-    },
-    {
-      key: "PDF",
-      header: "Archivo PDF",
-      defaultValue: "",
-      renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
-      ) => (
-        <InputField
-          required={true}
-          type="file"
-          value={value as string}
-          onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Subir archivo PDF"
-        />
-      ),
-    },
-  ];
+  //const columnsSchemaVauchers = [
+    //{
+      //key: "spentClass",
+      //header: "Clase de gasto",
+      //defaultValue: "",
+      ///*
+       //* An fast example of how the renderCell function works:
+       //* 1. When change the option in the dropdown, the native OnChange function of the dropdown is called.
+       //* 2. OnChangeComponentFunction is acually the function passed as a prop to the renderCell function,
+       //*    in this case (newValue) => handleFieldChange(rowIndex, column.key, newValue) in the DynamicTable component.
+       //* 3. This function is used to update the component from child to parent, so it will update the value of the
+       //*   column in the row with the new value selected in the dropdown.
+       //*
+       //*/
+      //renderCell: (
+        //value: ReactNode,
+        //onChangeComponentFunction: (newValue: ReactNode) => void
+      //) => (
+        //<Dropdown
+          //required={true}
+          //options={spendOptions}
+          //value={value as string}
+          //onChange={(e) => onChangeComponentFunction(e.target.value)}
+          //placeholder="Seleccione el tipo de gasto"
+        ///>
+      //),
+    //},
+    //{
+      //key: "amount",
+      //header: "Monto MXN",
+      //defaultValue: 0,
+      //renderCell: (
+        //value: ReactNode,
+        //onChangeComponentFunction: (newValue: ReactNode) => void
+      //) => (
+        //<InputField
+          //required={true}
+          //type="number"
+          //value={value as string}
+          //onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
+          //placeholder="Ingrese monto del comprobante"
+        ///>
+      //),
+    //},
+    //{
+      //key: "taxIndicator",
+      //header: "Indicador de impuesto",
+      //defaultValue: "",
+      //renderCell: (
+        //value: ReactNode,
+        //onChangeComponentFunction: (newValue: ReactNode) => void
+      //) => (
+        //<Dropdown
+          //required={true}
+          //options={taxIndicatorOptions}
+          //value={value as string}
+          //onChange={(e) => onChangeComponentFunction(e.target.value)}
+          //placeholder="Seleccione el indicador de impuesto"
+        ///>
+      //),
+    //},
+    //{
+      //key: "date",
+      //header: "Fecha del comprobante",
+      //defaultValue: "",
+      //renderCell: (
+        //value: ReactNode,
+        //onChangeComponentFunction: (newValue: ReactNode) => void
+      //) => (
+        //<InputField
+          //required={true}
+          //type="date"
+          //value={value as string}
+          //onChange={(e) => onChangeComponentFunction(e.target.value)}
+          //placeholder="Fecha del comprobante"
+        ///>
+      //),
+    //},
+    //{
+      //key: "XML",
+      //header: "Archivo XML",
+      //defaultValue: "",
+      //renderCell: (
+        //value: ReactNode,
+        //onChangeComponentFunction: (newValue: ReactNode) => void
+      //) => (
+        //<InputField
+          //required={true}
+          //type="file"
+          //value={value as string}
+          //onChange={(e) => onChangeComponentFunction(e.target.value)}
+          //placeholder="Subir archivo XML"
+        ///>
+      //),
+    //},
+    //{
+      //key: "PDF",
+      //header: "Archivo PDF",
+      //defaultValue: "",
+      //renderCell: (
+        //value: ReactNode,
+        //onChangeComponentFunction: (newValue: ReactNode) => void
+      //) => (
+        //<InputField
+          //required={true}
+          //type="file"
+          //value={value as string}
+          //onChange={(e) => onChangeComponentFunction(e.target.value)}
+          //placeholder="Subir archivo PDF"
+        ///>
+      //),
+    //},
+  //];
 
   // Import the TableRow type or define it locally if not already imported
-  interface TableRow {
-    [key: string]: string | number | null | undefined | ReactNode;
-  }
+  //interface TableRow {
+    //[key: string]: string | number | null | undefined | ReactNode;
+  //}
 
   return (
     <>
