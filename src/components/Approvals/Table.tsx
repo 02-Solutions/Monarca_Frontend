@@ -14,11 +14,6 @@ interface TableProps {
   itemsPerPage?: number;
 }
 
-const actionOptions = [
-  { value: "approve", label: "Aprobar" },
-  { value: "reject", label: "Rechazar" },
-];
-
 const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRowId, setExpandedRowId] = useState<number | null>(null);
@@ -37,19 +32,6 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5 }) => {
     if (page < 1) page = 1;
     if (page > totalPages) page = totalPages;
     setCurrentPage(page);
-  };
-
-  const handleApprovalChange = (rowId: number, action: string) => {
-    setLocalData((prev) =>
-      prev.map((row) =>
-        row.id === rowId
-          ? {
-              ...row,
-              authorization: action === "approve" ? "Autorizado" : "Rechazado",
-            }
-          : row
-      )
-    );
   };
 
   const toggleExpand = (rowId: number) => {

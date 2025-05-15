@@ -51,22 +51,6 @@ export const Approvals: React.FC = () => {
     setTrips(tripsWithStatus);
   }, []);
 
-  // Actualizar autorización en el estado trips
-  const handleActionChange = (tripId: number, action: string) => {
-    setTrips((prev) =>
-      prev.map((t) =>
-        t.id === tripId
-          ? { ...t, authorization: action === "approve" ? "Autorizado" : "Rechazado" }
-          : t
-      )
-    );
-  };
-
-  // Alternar fila expandida
-  const toggleExpand = (tripId: number) => {
-    setExpandedTripId((curr) => (curr === tripId ? null : tripId));
-  };
-
   // Construimos data para Table incluyendo dropdown y botón expandir en cada fila
   const dataWithActions = trips.map((t) => ({
     ...t,
