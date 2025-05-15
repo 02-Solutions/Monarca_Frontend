@@ -1,3 +1,8 @@
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/auth/authContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 // ****************** components ******************
 import Header from "./Header";
 import Sidebar from "./Sidebar";
@@ -9,6 +14,15 @@ interface LayoutProps {
 }
 
 function Layout({ children }: LayoutProps) {
+  const { authState, loadingProfile } = useAuth();
+
+  // Check if the profile is loading
+  // TODO: Replace with a loading spinner or skeleton
+  if (loadingProfile) return <div>Loading...</div>;
+
+  // Check if the user is authenticated
+  if (!authState.isAuthenticated) return <Navigate to="/login" />;
+    
   return (
     <div>
       <Header />
@@ -19,6 +33,7 @@ function Layout({ children }: LayoutProps) {
         </div>
         <Footer />
       </div>
+      <ToastContainer />
     </div>
   );
 }
