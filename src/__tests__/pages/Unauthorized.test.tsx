@@ -1,4 +1,3 @@
-
 /**
  * @file Unauthorized.test.tsx
  * @description This file contains the test suite for the Unauthorized component.
@@ -24,28 +23,28 @@ describe("Unauthorized component", () => {
 
   it("muestra el título principal", () => {
     const heading = screen.getByRole("heading", { level: 1 });
-    expect(heading).toHaveTextContent("Unauthorized Access");
+    expect(heading).toHaveTextContent("Acceso no autorizado");
   });
 
   it("muestra el mensaje de permiso denegado", () => {
     expect(
-      screen.getByText("You don't have permission to access this page.")
+      screen.getByText("No tienes permiso para acceder a esta página.")
     ).toBeInTheDocument();
   });
 
   it("muestra el mensaje de contacto al administrador", () => {
     expect(
-      screen.getByText("Please contact your administrator if you think this is an error.")
+      screen.getByText("Contacta a un administrador si crees que esto es un error.")
     ).toBeInTheDocument();
   });
 
   it("tiene un enlace al dashboard con la ruta correcta", () => {
-    const dashLink = screen.getByRole("link", { name: /go to dashboard/i });
+    const dashLink = screen.getByRole("link", { name: /Ir al Panel/i });
     expect(dashLink).toHaveAttribute("href", "/dashboard");
   });
 
-  it("tiene un enlace a la página de ejemplo con la ruta correcta", () => {
-    const exampleLink = screen.getByRole("link", { name: /go to example page/i });
-    expect(exampleLink).toHaveAttribute("href", "/example");
+  it("tiene un enlace al login con la ruta correcta", () => {
+    const loginLink = screen.getByRole("link", { name: /Ir a la Página de Iniciar Sesión/i });
+    expect(loginLink).toHaveAttribute("href", "/login");
   });
 });

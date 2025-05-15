@@ -24,10 +24,12 @@ import "./App.css";
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
 import Requests from "./pages/Requests.tsx";
+import Bookings from "./pages/Bookings.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
+
 
 export const router = createBrowserRouter([
   // Basic protected routes (requires only authentication)
@@ -43,7 +45,10 @@ export const router = createBrowserRouter([
         path: "/requests",
         element: <Requests />,
       },
-      // Routes protected by specific permissions
+      {
+        path: "/refunds",
+        element: <Refunds />,
+      },
       {
         path: "/approval",
         element: (
@@ -52,7 +57,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: <div>Trips to Approve</div>, // Replace with your actual component
+            element: <div>Trips to Approve</div>,
           },
           {
             path: "history",
@@ -64,11 +69,15 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: "",
-                element: <div>Approval History</div>, // Replace with your actual component
+                element: <div>Approval History</div>,
               },
             ],
           },
         ],
+      },
+      {
+        path: "/bookings",
+        element: <Bookings />,
       },
       // Routes protected for booking permission
       {
@@ -77,10 +86,6 @@ export const router = createBrowserRouter([
           <PermissionProtectedRoute requiredPermissions={["book_trip"]} />
         ),
         children: [
-          {
-            path: "",
-            element: <div>Trips to Book</div>, // Replace with your actual component
-          },
           {
             path: "history",
             element: (
@@ -112,6 +117,13 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
+  // ✅ Public route for Bookings — temp dev only (no auth)
+  {
+    path: "/bookings",
+    element: <Bookings />,
+  },
+
   // Public routes (no authentication required)
   {
     path: "/login",
