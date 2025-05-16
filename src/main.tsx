@@ -30,6 +30,7 @@ import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 import ApplicationInfo from "./pages/ApplicationInfo.tsx"
+import {Approvals} from "./pages/Approvals/Approvals.tsx";
 
 
 export const router = createBrowserRouter([
@@ -146,6 +147,10 @@ export const router = createBrowserRouter([
   {
     path: "/refunds",
     element: <Refunds />,
+  },
+  {
+    path: "/approvals",
+    element: <Approvals />
   },
   // Catch-all route for non-existent pages
   // TODO: Add a 404 page
