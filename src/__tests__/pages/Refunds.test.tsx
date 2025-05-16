@@ -8,7 +8,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { Refunds } from "../../pages/Refunds/Refunds";
-import React from "react";
 
 // Mock the needed components
 vi.mock("../../components/Refunds/Table", () => ({
@@ -677,24 +676,6 @@ describe("Refunds", () => {
   it("tests the request refund function with different trip IDs", () => {
     // Instead of trying to mock complex state, let's extract and test the handleRequestRefund function
     // by examining its effects on the component rendering
-
-    // Let's create a test component that exposes internal state
-    const TestComponent = () => {
-      const [selectedTripId, setSelectedTripId] = React.useState<
-        string | number | null
-      >(null);
-
-      return (
-        <div>
-          <Refunds />
-          <div data-testid="test-observer">
-            {selectedTripId
-              ? `Selected Trip: ${selectedTripId}`
-              : "No trip selected"}
-          </div>
-        </div>
-      );
-    };
 
     render(<Refunds />);
 
