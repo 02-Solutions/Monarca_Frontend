@@ -1,8 +1,17 @@
+/**
+ * File: SidebarOption.test.tsx
+ * Description: Test suite for the SidebarOption component
+ * Last edited: 16/05/2025
+ * Author: Gabriel Edid Harari
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import SidebarOption from "../../components/SiderbarOption";
 
-// Mock react-router-dom Link component
+/**
+ * Mock react-router-dom Link component to simplify testing
+ */
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
@@ -16,6 +25,9 @@ vi.mock("react-router-dom", async () => {
 });
 
 describe("SidebarOption", () => {
+  /**
+   * Tests if the sidebar option renders with the correct label text
+   */
   it("renders the sidebar option with correct label", () => {
     render(<SidebarOption label="Dashboard" link="/dashboard" />);
 
@@ -23,6 +35,9 @@ describe("SidebarOption", () => {
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
   });
 
+  /**
+   * Tests if the component renders a link with the correct destination URL
+   */
   it("renders a link to the correct destination", () => {
     render(<SidebarOption label="Bookings" link="/bookings" />);
 
@@ -32,6 +47,9 @@ describe("SidebarOption", () => {
     expect(link).toHaveAttribute("href", "/bookings");
   });
 
+  /**
+   * Tests if the SVG icon is correctly rendered
+   */
   it("renders the SVG icon", () => {
     render(<SidebarOption label="Profile" link="/profile" />);
 
@@ -44,6 +62,9 @@ describe("SidebarOption", () => {
     expect(paths.length).toBe(2);
   });
 
+  /**
+   * Tests if the component applies the correct CSS classes
+   */
   it("applies the correct CSS classes", () => {
     render(<SidebarOption label="Settings" link="/settings" />);
 
@@ -64,6 +85,9 @@ describe("SidebarOption", () => {
     expect(span).toHaveClass("ms-3");
   });
 
+  /**
+   * Tests if the sidebar option is properly wrapped in a list item
+   */
   it("wraps the link in a list item", () => {
     render(<SidebarOption label="Help" link="/help" />);
 

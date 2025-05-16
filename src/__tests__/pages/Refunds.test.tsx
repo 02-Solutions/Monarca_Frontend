@@ -1,3 +1,10 @@
+/**
+ * File: Refunds.test.tsx
+ * Description: Test suite for the Refunds page component
+ * Last edited: 16/05/2025
+ * Author: Gabriel Edid Harari
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { Refunds } from "../../pages/Refunds/Refunds";
@@ -131,9 +138,10 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// Add this helper function just below the mocks
-
-// Helper function to safely get the onDataChange callback
+/**
+ * Helper function to safely get the onDataChange callback
+ * @returns The onDataChange callback function
+ */
 const getOnDataChangeCallback = () => {
   expect(dynamicTableMock).toHaveBeenCalled();
   expect(dynamicTableMock.mock.calls[0]).toBeDefined();
@@ -143,6 +151,9 @@ const getOnDataChangeCallback = () => {
 };
 
 describe("Refunds", () => {
+  /**
+   * Tests if the trip history table renders initially with correct data
+   */
   it("renders the trip history table initially", () => {
     render(<Refunds />);
 
@@ -158,6 +169,9 @@ describe("Refunds", () => {
     expect(dataCount.textContent).toBe("1"); // Based on our mocked tripData
   });
 
+  /**
+   * Tests if the request form appears when the refund button is clicked
+   */
   it("shows request form when the refund button is clicked", () => {
     render(<Refunds />);
 
@@ -175,6 +189,9 @@ describe("Refunds", () => {
     expect(screen.getByTestId("mocked-dynamic-table")).toBeInTheDocument();
   });
 
+  /**
+   * Tests if a new row can be added to the dynamic table
+   */
   it("can add a new row to the dynamic table", () => {
     render(<Refunds />);
 
@@ -197,6 +214,9 @@ describe("Refunds", () => {
     fireEvent.click(screen.getByTestId("trigger-data-change"));
   });
 
+  /**
+   * Tests if the form elements can be interacted with
+   */
   it("can interact with form elements", () => {
     const { container } = render(<Refunds />);
 

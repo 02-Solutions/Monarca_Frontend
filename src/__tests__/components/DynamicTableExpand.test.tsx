@@ -1,3 +1,10 @@
+/**
+ * File: DynamicTableExpand.test.tsx
+ * Description: Test suite for the DynamicTableExpand component
+ * Last edited: 16/05/2025
+ * Author: Gabriel Edid Harari
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import DynamicTableExpand from "../../components/DynamicTableExpand";
@@ -26,6 +33,9 @@ describe("DynamicTableExpand", () => {
     { id: 2, name: "Jane Smith", action: "Edit" },
   ];
 
+  /**
+   * Tests if the table renders with the correct column headers
+   */
   it("renders the table with correct columns", () => {
     render(<DynamicTableExpand columns={testColumns} />);
 
@@ -35,6 +45,9 @@ describe("DynamicTableExpand", () => {
     expect(screen.getByText("Action")).toBeInTheDocument();
   });
 
+  /**
+   * Tests if the table correctly renders initial data
+   */
   it("renders the table with initial data", () => {
     render(<DynamicTableExpand columns={testColumns} initialData={testData} />);
 
@@ -47,6 +60,9 @@ describe("DynamicTableExpand", () => {
     expect(screen.getByText("Edit")).toBeInTheDocument();
   });
 
+  /**
+   * Tests if custom cell components render correctly
+   */
   it("renders custom cell components", () => {
     render(<DynamicTableExpand columns={testColumns} initialData={testData} />);
 
@@ -57,6 +73,9 @@ describe("DynamicTableExpand", () => {
     expect(customCell1).toBeInTheDocument();
   });
 
+  /**
+   * Tests if onDataChange callback is called when add item button is clicked
+   */
   it("calls onDataChange when add item button is clicked", () => {
     const handleDataChange = vi.fn();
     render(
@@ -77,6 +96,9 @@ describe("DynamicTableExpand", () => {
     expect(handleDataChange).toHaveBeenCalledTimes(1);
   });
 
+  /**
+   * Tests if handleFieldChange is called when a cell value changes
+   */
   it("calls handleFieldChange when a cell value changes", () => {
     const handleDataChange = vi.fn();
     render(
@@ -97,6 +119,9 @@ describe("DynamicTableExpand", () => {
     expect(handleDataChange).toHaveBeenCalledTimes(1);
   });
 
+  /**
+   * Tests if expanded rows render correctly
+   */
   it("renders expanded rows when provided", () => {
     const expandedRows = [0];
     const renderExpandedRow = vi.fn((index) => (
@@ -123,6 +148,9 @@ describe("DynamicTableExpand", () => {
     expect(renderExpandedRow).toHaveBeenCalledWith(0);
   });
 
+  /**
+   * Tests if the component applies the correct styling classes
+   */
   it("applies the correct styling classes", () => {
     render(<DynamicTableExpand columns={testColumns} initialData={testData} />);
 

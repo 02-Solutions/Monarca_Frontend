@@ -1,8 +1,17 @@
+/**
+ * File: Error.test.tsx
+ * Description: Test suite for the Error page component (404 Not Found)
+ * Last edited: 16/05/2025
+ * Author: Gabriel Edid Harari
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import NotFound from "../../pages/Error";
 
-// Mock react-router-dom's Link component
+/**
+ * Mock react-router-dom's Link component to simplify testing
+ */
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
@@ -16,6 +25,9 @@ vi.mock("react-router-dom", async () => {
 });
 
 describe("NotFound", () => {
+  /**
+   * Tests if the 404 error page renders correctly with all expected content
+   */
   it("renders the 404 error page", () => {
     render(<NotFound />);
 
@@ -29,6 +41,9 @@ describe("NotFound", () => {
     ).toBeInTheDocument();
   });
 
+  /**
+   * Tests if navigation links render with correct destinations
+   */
   it("renders navigation links", () => {
     render(<NotFound />);
 
@@ -42,6 +57,9 @@ describe("NotFound", () => {
     expect(dashboardLink).toHaveTextContent("Ir al Panel");
   });
 
+  /**
+   * Tests if the 404 icon renders correctly with proper attributes
+   */
   it("renders the 404 icon", () => {
     render(<NotFound />);
 
@@ -54,6 +72,9 @@ describe("NotFound", () => {
     expect(icon).toHaveClass("w-25 h-25 opacity-70");
   });
 
+  /**
+   * Tests if the correct CSS classes are applied for styling
+   */
   it("applies the correct CSS classes for styling", () => {
     render(<NotFound />);
 

@@ -1,3 +1,10 @@
+/**
+ * File: Bookings.test.tsx
+ * Description: Test suite for the Bookings page component
+ * Last edited: 16/05/2025
+ * Author: Gabriel Edid Harari
+ */
+
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import Bookings from "../../pages/Bookings";
@@ -188,6 +195,9 @@ describe("Bookings", () => {
     vi.clearAllMocks();
   });
 
+  /**
+   * Tests if the Bookings page renders with the correct initial structure
+   */
   it("renders the Bookings page with initial structure", () => {
     render(<Bookings />);
 
@@ -206,6 +216,9 @@ describe("Bookings", () => {
     expect(screen.getByTestId("rows-count").textContent).toBe("3");
   });
 
+  /**
+   * Tests if pagination controls render correctly
+   */
   it("renders pagination controls", () => {
     render(<Bookings />);
 
@@ -222,6 +235,9 @@ describe("Bookings", () => {
     expect(pageButtons.length).toBe(3);
   });
 
+  /**
+   * Tests if the component correctly handles form data changes through DynamicTable
+   */
   it("handles form data changes through DynamicTable", () => {
     render(<Bookings />);
 
@@ -234,6 +250,9 @@ describe("Bookings", () => {
     expect(screen.getByTestId("mocked-dynamic-table")).toBeInTheDocument();
   });
 
+  /**
+   * Tests if the component correctly handles expanded rows
+   */
   it("handles expanded rows correctly", () => {
     render(<Bookings />);
 
@@ -245,6 +264,9 @@ describe("Bookings", () => {
     expect(dynamicTable).toBeInTheDocument();
   });
 
+  /**
+   * Tests if the component applies the correct styling classes
+   */
   it("renders with the correct styling classes", () => {
     render(<Bookings />);
 
@@ -265,6 +287,9 @@ describe("Bookings", () => {
 
   // New tests to improve coverage
 
+  /**
+   * Tests if the page reload functionality works when the refresh button is clicked
+   */
   it("reloads the page when refresh button is clicked", () => {
     render(<Bookings />);
 
@@ -276,6 +301,9 @@ describe("Bookings", () => {
     expect(reloadMock).toHaveBeenCalledTimes(1);
   });
 
+  /**
+   * Tests if all column headers render with the proper renderers
+   */
   it("renders all column headers with proper renderers", () => {
     render(<Bookings />);
 
@@ -307,6 +335,9 @@ describe("Bookings", () => {
     ).toBeInTheDocument();
   });
 
+  /**
+   * Tests if the component passes the correct props to the renderExpandedRow function
+   */
   it("passes the correct props to renderExpandedRow function", () => {
     // Instead of testing the expanded row content directly, which requires DOM manipulation,
     // we'll test that the component is passing the correct props for rendering expanded content
@@ -326,6 +357,9 @@ describe("Bookings", () => {
     expect(mockInputFieldComponent).toHaveBeenCalled();
   });
 
+  /**
+   * Tests if the dropdown components receive the correct options
+   */
   it("verifies correct options in dropdown components", () => {
     // This test verifies that DropDown components receive the correct options
     // without needing to directly check the rendered elements

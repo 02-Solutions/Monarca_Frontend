@@ -1,3 +1,10 @@
+/**
+ * File: RefundsAcceptance.test.tsx
+ * Description: Test suite for the RefundsAcceptance page component
+ * Last edited: 16/05/2025
+ * Author: Gabriel Edid Harari
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { RefundsAcceptance } from "../../pages/Refunds/RefundsAcceptance";
@@ -106,6 +113,9 @@ afterEach(() => {
 });
 
 describe("RefundsAcceptance", () => {
+  /**
+   * Tests if the trip history table renders correctly with the expected data
+   */
   it("renders the trip history table", () => {
     render(<RefundsAcceptance />);
 
@@ -121,6 +131,9 @@ describe("RefundsAcceptance", () => {
     expect(dataCount.textContent).toBe("2"); // Based on our mocked tripData
   });
 
+  /**
+   * Tests if the 'Ver Comprobante' button renders for each row in the table
+   */
   it("renders 'Ver Comprobante' button for each row", () => {
     render(<RefundsAcceptance />);
 
@@ -135,6 +148,9 @@ describe("RefundsAcceptance", () => {
     expect(buttons[1]).toBeInTheDocument();
   });
 
+  /**
+   * Tests if the correct page title is rendered
+   */
   it("renders correct page title", () => {
     render(<RefundsAcceptance />);
     const titleElement = screen.getByText("Historial de viajes");
@@ -142,6 +158,9 @@ describe("RefundsAcceptance", () => {
     expect(titleElement.tagName).toBe("H2");
   });
 
+  /**
+   * Tests if the page renders with appropriate styling classes
+   */
   it("renders the page with appropriate styling", () => {
     const { container } = render(<RefundsAcceptance />);
 
@@ -159,6 +178,9 @@ describe("RefundsAcceptance", () => {
     }
   });
 
+  /**
+   * Tests that the form is not displayed by default
+   */
   it("doesn't show a form by default", () => {
     render(<RefundsAcceptance />);
 
@@ -168,6 +190,9 @@ describe("RefundsAcceptance", () => {
     ).not.toBeInTheDocument();
   });
 
+  /**
+   * Tests that buttons call the correct function when clicked
+   */
   it("has buttons that call the correct function when clicked", () => {
     render(<RefundsAcceptance />);
 
@@ -187,6 +212,9 @@ describe("RefundsAcceptance", () => {
     }
   });
 
+  /**
+   * Tests that all trip data is correctly displayed
+   */
   it("shows all trip data correctly", () => {
     render(<RefundsAcceptance />);
 
