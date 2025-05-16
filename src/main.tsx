@@ -25,6 +25,7 @@ import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
 import Requests from "./pages/Requests.tsx";
 import Bookings from "./pages/Bookings.tsx";
+import Reservations from "./pages/Reservations/Reservations.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
@@ -140,6 +141,10 @@ export const router = createBrowserRouter([
   {
     path: "/refunds",
     element: <Refunds />,
+  },
+  {
+    path: "/reservations",
+    element: <Reservations />,
   },
   // Catch-all route for non-existent pages
   // TODO: Add a 404 page
