@@ -9,6 +9,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import CreateTravelRequest from "../../pages/CreateTravelRequest";
 import { MemoryRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 /**
  * Mock the CreateTravelRequestForm component to simplify testing
@@ -25,11 +26,16 @@ describe("CreateTravelRequest", () => {
   /**
    * Tests if the CreateTravelRequestForm component is correctly rendered
    */
+
+  const queryClient = new QueryClient();
+
   it("renders the CreateTravelRequestForm component", () => {
     render(
-      <MemoryRouter>
-        <CreateTravelRequest />
-      </MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <CreateTravelRequest />
+        </MemoryRouter>
+      </QueryClientProvider>
     );
 
     // Check if the mocked component is rendered
