@@ -3,6 +3,9 @@ import { Input } from "../ui/Input";
 import { TextArea } from "../ui/TextArea";
 import Switch from "../ui/Switch";
 import dayjs from "dayjs";
+import { toast } from "react-toastify";
+import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 
@@ -12,6 +15,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Select from "../ui/Select";
 import FieldError from "../ui/FieldError";
 
+import { useCreateTravelRequest } from "../../hooks/requests/useCreateRequest";
+import { useDestinations } from "../../hooks/destinations/useDestinations";
+
 type Option = { id: number | string; name: string };
 
 const priorityOptions: Option[] = [
@@ -20,13 +26,8 @@ const priorityOptions: Option[] = [
   { id: "baja", name: "Baja" },
 ];
 
-const yesNo = [
-  { id: true, name: "Sí" },
-  { id: false, name: "No" },
-];
-
 const destinationSchema = z.object({
-  destination_id: z.string().nonempty({ message: "Selecciona un destino" }),
+  id_destination: z.string().nullable(),
   arrival_date: z.string().nonempty({ message: "Selecciona fecha de llegada" }),
   departure_date: z
     .string()
@@ -34,78 +35,119 @@ const destinationSchema = z.object({
   stay_days: z.number().int().positive(),
   is_hotel_required: z.boolean(),
   is_plane_required: z.boolean(),
-  is_last_destination: z.boolean(),
+  details: z.string().nonempty({ message: "Selecciona fecha de llegada" }),
 });
 
 const formSchema = z.object({
-  id_origin_city: z
-    .string()
-    .nonempty({ message: "Selecciona ciudad de origen" }),
+  id_origin_city: z.string().nullable(),
   motive: z.string().nonempty({ message: "Escribe el motivo del viaje" }),
+  title: z.string().nonempty({ message: "Escribe el título del viaje" }),
   priority: z.enum(["alta", "media", "baja"]),
-  is_multi_user: z.boolean(),
   requirements: z.string().optional(),
   destinations: z.array(destinationSchema).min(1, "Al menos un destino"),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+type RawFormValues = z.infer<typeof formSchema>;
 
 function CreateTravelRequestForm() {
+  const navigate = useNavigate();
+  const { destinationOptions, isLoading: isLoadingDestinations } =
+    useDestinations();
+
   const {
     control,
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormValues>({
+    reset,
+  } = useForm<RawFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id_origin_city: "",
+      id_origin_city: null,
       motive: "",
+      title: "",
       priority: "media",
-      is_multi_user: false,
       requirements: "",
       destinations: [
         {
-          destination_id: "",
+          id_destination: null,
           arrival_date: "",
           departure_date: "",
           stay_days: 1,
           is_hotel_required: false,
           is_plane_required: true,
+          details: "",
         },
       ],
     },
   });
+
+  const { createTravelRequestMutation, isPending } = useCreateTravelRequest();
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "destinations",
   });
 
-  const onSubmit = (data: FormValues) => {
-    // post-procesar para que coincida 1:1 con tu BD -------------------
-    const requestPayload = {
+  const onSubmit = async (data: RawFormValues) => {
+    if (!data.id_origin_city) {
+      toast.error("Selecciona una ciudad de origen");
+      return;
+    }
+
+    const requests_destinations = data.destinations.map((d, idx, arr) => {
+      if (!d.id_destination) {
+        throw new Error("Selecciona un destino");
+      }
+
+      return {
+        id_destination: d.id_destination,
+        destination_order: idx + 1,
+        stay_days: d.stay_days,
+        arrival_date: dayjs(d.arrival_date).toISOString(),
+        departure_date: dayjs(d.departure_date).toISOString(),
+        is_hotel_required: d.is_hotel_required,
+        is_plane_required: d.is_plane_required,
+        is_last_destination: idx === arr.length - 1,
+        details: d.details,
+      };
+    });
+
+    const payload = {
       id_origin_city: data.id_origin_city,
+      title: data.motive,
       motive: data.motive,
-      is_multi_user: data.is_multi_user,
-      status: "draft", // o lo que tu backend ponga por defecto
-      requirements: data.requirements,
+      requirements: data.requirements || undefined,
       priority: data.priority,
+      requests_destinations,
     };
 
-    const destinationsPayload = data.destinations.map((dest, idx, arr) => ({
-      destination_id: dest.destination_id,
-      destination_order: idx + 1,
-      stay_days: dest.stay_days,
-      arrival_date: dayjs(dest.arrival_date).toISOString(),
-      departure_date: dayjs(dest.departure_date).toISOString(),
-      is_hotel_required: dest.is_hotel_required,
-      is_plane_required: dest.is_plane_required,
-      is_last_destination: idx === arr.length - 1,
-    }));
+    try {
+      await createTravelRequestMutation(payload);
+      toast.success("¡Solicitud de viaje creada exitosamente!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
+      reset();
+      navigate("/dashboard");
+    } catch (error) {
+      let errorMessage = "Error al crear la solicitud de viaje";
 
-    // 👉 aquí harías una única llamada (o dos) a tu API
-    console.log({ requestPayload, destinationsPayload });
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
+    }
   };
 
   return (
@@ -133,10 +175,37 @@ function CreateTravelRequestForm() {
 
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-900">
+                Título
+              </label>
+              <Input {...register("title")} />
+              {errors.title && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.title.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-2 text-sm font-medium text-gray-900">
                 Ciudad Origen
               </label>
-              {/* placeholder hasta que cargues Destinations */}
-              <Input {...register("id_origin_city")} placeholder="CDMX-MEX" />
+              <Controller
+                control={control}
+                name="id_origin_city"
+                render={({ field }) => (
+                  <Select
+                    options={destinationOptions}
+                    value={
+                      field.value
+                        ? destinationOptions.find((o) => o.id === field.value)
+                        : null
+                    }
+                    onChange={(opt) => field.onChange(opt.id)}
+                    isLoading={isLoadingDestinations}
+                    placeholder="Selecciona ciudad de origen"
+                  />
+                )}
+              />
               {errors.id_origin_city && (
                 <p className="text-sm text-red-600 mt-1">
                   {errors.id_origin_city.message}
@@ -165,27 +234,7 @@ function CreateTravelRequestForm() {
                 </p>
               )}
             </div>
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-900">
-                Viaje multidestino
-              </label>
-              <Controller
-                control={control}
-                name="is_multi_user"
-                render={({ field }) => (
-                  <Select
-                    options={yesNo}
-                    value={yesNo.find((o) => o.id === field.value)}
-                    onChange={(opt) => field.onChange(opt.id)}
-                  />
-                )}
-              />
-              {errors.is_multi_user && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.is_multi_user.message}
-                </p>
-              )}
-            </div>
+
             <div className="sm:col-span-2">
               <label className="block mb-2 text-sm font-medium text-gray-900">
                 Requerimientos
@@ -222,14 +271,27 @@ function CreateTravelRequestForm() {
                     <label className="block mb-2 text-sm font-medium text-gray-900">
                       Destino
                     </label>
-                    <Input
-                      {...register(
-                        `destinations.${idx}.destination_id` as const
+                    <Controller
+                      control={control}
+                      name={`destinations.${idx}.id_destination`}
+                      render={({ field }) => (
+                        <Select
+                          options={destinationOptions}
+                          value={
+                            field.value
+                              ? destinationOptions.find(
+                                  (o) => o.id === field.value
+                                )
+                              : null
+                          }
+                          onChange={(opt) => field.onChange(opt.id)}
+                          isLoading={isLoadingDestinations}
+                          placeholder="Selecciona destino"
+                        />
                       )}
-                      placeholder="PAR-CDG"
                     />
                     <FieldError
-                      msg={destinationErrors?.destination_id?.message}
+                      msg={destinationErrors?.id_destination?.message}
                     />
                   </div>
 
@@ -273,6 +335,16 @@ function CreateTravelRequestForm() {
                       })}
                     />
                     <FieldError msg={destinationErrors?.stay_days?.message} />
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-gray-900">
+                      Detalles
+                    </label>
+                    <Input
+                      {...register(`destinations.${idx}.details` as const)}
+                    />
+                    <FieldError msg={destinationErrors?.details?.message} />
                   </div>
 
                   <div>
@@ -321,21 +393,21 @@ function CreateTravelRequestForm() {
             type="button"
             onClick={() =>
               append({
-                destination_id: "",
+                id_destination: null,
                 arrival_date: "",
                 departure_date: "",
                 stay_days: 1,
                 is_hotel_required: false,
                 is_plane_required: true,
-                is_last_destination: false,
+                details: "",
               })
             }
           >
             + Añadir destino
           </Button>
 
-          <Button type="submit" className="mt-4 sm:mt-6">
-            Crear viaje
+          <Button type="submit" className="mt-4 sm:mt-6" disabled={isPending}>
+            {isPending ? "Creando..." : "Crear viaje"}
           </Button>
         </form>
       </div>

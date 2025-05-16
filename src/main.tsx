@@ -24,6 +24,7 @@ import "./App.css";
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
 import Requests from "./pages/Requests.tsx";
+import Bookings from "./pages/Bookings.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
@@ -31,8 +32,7 @@ import { Unauthorized } from "./pages/Unauthorized.tsx";
 import ApplicationInfo from "./pages/ApplicationInfo.tsx"
 
 
-
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   // Basic protected routes (requires only authentication)
   {
     path: "/",
@@ -51,6 +51,10 @@ const router = createBrowserRouter([
         element: <ApplicationInfo />,
       },
       // Routes protected by specific permissions
+       {
+        path: "/refunds",
+        element: <Refunds />,
+      },
       {
         path: "/approval",
         element: (
@@ -59,7 +63,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: <div>Trips to Approve</div>, // Replace with your actual component
+            element: <div>Trips to Approve</div>,
           },
           {
             path: "history",
@@ -71,11 +75,15 @@ const router = createBrowserRouter([
             children: [
               {
                 path: "",
-                element: <div>Approval History</div>, // Replace with your actual component
+                element: <div>Approval History</div>,
               },
             ],
           },
         ],
+      },
+      {
+        path: "/bookings",
+        element: <Bookings />,
       },
       // Routes protected for booking permission
       {
@@ -84,10 +92,6 @@ const router = createBrowserRouter([
           <PermissionProtectedRoute requiredPermissions={["book_trip"]} />
         ),
         children: [
-          {
-            path: "",
-            element: <div>Trips to Book</div>, // Replace with your actual component
-          },
           {
             path: "history",
             element: (
@@ -107,7 +111,8 @@ const router = createBrowserRouter([
       {
         path: "/travel-requests",
         element: (
-          <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
+          // <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
+          <CreateTravelRequest />
         ),
         children: [
           {
@@ -118,6 +123,13 @@ const router = createBrowserRouter([
       },
     ],
   },
+
+  // ✅ Public route for Bookings — temp dev only (no auth)
+  {
+    path: "/bookings",
+    element: <Bookings />,
+  },
+
   // Public routes (no authentication required)
   {
     path: "/login",
@@ -149,10 +161,15 @@ const router = createBrowserRouter([
 
 const queryClient = new QueryClient();
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  </StrictMode>
-);
+if (import.meta.env.PROD || !import.meta.env.TEST) {
+  const rootElement = document.getElementById("root");
+  if (rootElement) {
+    createRoot(rootElement).render(
+      <StrictMode>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </StrictMode>,
+    );
+  }
+}
