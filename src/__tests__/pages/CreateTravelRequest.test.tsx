@@ -8,6 +8,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import CreateTravelRequest from "../../pages/CreateTravelRequest";
+import { MemoryRouter } from "react-router-dom";
 
 /**
  * Mock the CreateTravelRequestForm component to simplify testing
@@ -25,7 +26,11 @@ describe("CreateTravelRequest", () => {
    * Tests if the CreateTravelRequestForm component is correctly rendered
    */
   it("renders the CreateTravelRequestForm component", () => {
-    render(<CreateTravelRequest />);
+    render(
+      <MemoryRouter>
+        <CreateTravelRequest />
+      </MemoryRouter>
+    );
 
     // Check if the mocked component is rendered
     expect(
