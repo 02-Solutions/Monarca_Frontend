@@ -5,16 +5,16 @@ describe('Unauthorized Page E2E', () => {
   });
 
   it('muestra el título y mensajes correctos', () => {
-    cy.get('h1').should('contain.text', 'Unauthorized Access');
-    cy.contains("You don't have permission to access this page.").should('be.visible');
-    cy.contains('Please contact your administrator if you think this is an error.').should('be.visible');
+    cy.get('h1').should('contain.text', 'Acceso no autorizado');
+    cy.contains("No tienes permiso para acceder a esta página.").should('be.visible');
+    cy.contains('Contacta a un administrador si crees que esto es un error.').should('be.visible');
   });
 
   it('tiene dos enlaces con los href correctos', () => {
     cy.get('a').should('have.length', 2);
-    cy.contains('Go to Dashboard')
+    cy.contains('Ir al Panel')
       .should('have.attr', 'href', '/dashboard');
-    cy.contains('Go to Example Page')
-      .should('have.attr', 'href', '/example');
+    cy.contains('Ir a la Página de Iniciar Sesión')
+      .should('have.attr', 'href', '/login');
   });
 });

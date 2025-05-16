@@ -1,0 +1,40 @@
+// src/pages/Historial/local/dummyData.ts
+
+export const TravelAgencyFormData = [
+  {
+    id: "0001",
+    title: "Viaje a Cancún",
+    travelDate: "14/09/2020",
+    destination: "Cancún, MX",
+    requestDate: "10/09/2020",
+    days: 5,
+    passengers: 2,
+    transport: "Avión",
+    price: 12000,
+    status: "Aprobado",
+  },
+  {
+    id: "0002",
+    title: "Viaje a CDMX",
+    travelDate: "20/10/2020",
+    destination: "Ciudad de México, MX",
+    requestDate: "15/10/2020",
+    days: 3,
+    passengers: 1,
+    transport: "Autobús",
+    price: 3500,
+    status: "Pendiente",
+  },
+  {
+    id: "0003",
+    title: "Viaje a Monterrey",
+    travelDate: "05/11/2020",
+    destination: "Monterrey, MX",
+    requestDate: "01/11/2020",
+    days: 4,
+    passengers: 3,
+    transport: "Auto rentado",
+    price: 8000,
+    status: "Rechazado",
+  },
+];

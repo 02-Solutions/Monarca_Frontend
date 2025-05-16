@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/auth/authContext";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // ****************** components ******************
 import Header from "./Header";
@@ -10,6 +10,7 @@ import Footer from "./Footer";
 
 interface LayoutProps {
   children: React.ReactNode;
+  title?: string;
 }
 
 function Layout({ children }: LayoutProps) {
@@ -21,10 +22,22 @@ function Layout({ children }: LayoutProps) {
 
   // Check if the user is authenticated
   if (!authState.isAuthenticated) return <Navigate to="/login" />;
-
+    
   return (
     <div>
       <Header />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <div className="flex flex-col min-h-screen">
         <div className="flex flex-1">
           <Sidebar />

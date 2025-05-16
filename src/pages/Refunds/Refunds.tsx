@@ -146,18 +146,9 @@ export const Refunds = () => {
       key: "spentClass",
       header: "Clase de gasto",
       defaultValue: "",
-      /*
-       * An fast example of how the renderCell function works:
-       * 1. When change the option in the dropdown, the native OnChange function of the dropdown is called.
-       * 2. OnChangeComponentFunction is acually the function passed as a prop to the renderCell function,
-       *    in this case (newValue) => handleFieldChange(rowIndex, column.key, newValue) in the DynamicTable component.
-       * 3. This function is used to update the component from child to parent, so it will update the value of the
-       *   column in the row with the new value selected in the dropdown.
-       *
-       */
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: string | number | boolean | null | undefined,
+        onChangeComponentFunction: (newValue: string | number | boolean | null | undefined) => void
       ) => (
         <Dropdown
           required={true}
@@ -173,8 +164,8 @@ export const Refunds = () => {
       header: "Monto MXN",
       defaultValue: 0,
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: string | number | boolean | null | undefined,
+        onChangeComponentFunction: (newValue: string | number | boolean | null | undefined) => void
       ) => (
         <InputField
           required={true}
@@ -190,8 +181,8 @@ export const Refunds = () => {
       header: "Indicador de impuesto",
       defaultValue: "",
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: string | number | boolean | null | undefined,
+        onChangeComponentFunction: (newValue: string | number | boolean | null | undefined) => void
       ) => (
         <Dropdown
           required={true}
@@ -207,8 +198,8 @@ export const Refunds = () => {
       header: "Fecha del comprobante",
       defaultValue: "",
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: string | number | boolean | null | undefined,
+        onChangeComponentFunction: (newValue: string | number | boolean | null | undefined) => void
       ) => (
         <InputField
           required={true}
@@ -224,8 +215,8 @@ export const Refunds = () => {
       header: "Archivo XML",
       defaultValue: "",
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: string | number | boolean | null | undefined,
+        onChangeComponentFunction: (newValue: string | number | boolean | null | undefined) => void
       ) => (
         <InputField
           required={true}
@@ -241,8 +232,8 @@ export const Refunds = () => {
       header: "Archivo PDF",
       defaultValue: "",
       renderCell: (
-        value: ReactNode,
-        onChangeComponentFunction: (newValue: ReactNode) => void
+        value: string | number | boolean | null | undefined,
+        onChangeComponentFunction: (newValue: string | number | boolean | null | undefined) => void
       ) => (
         <InputField
           required={true}

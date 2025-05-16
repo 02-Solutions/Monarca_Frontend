@@ -15,10 +15,18 @@ import { historialData } from "./local/dummyData";
 //destination: string;
 //requestDate: string;
 //}
+// // Interface for travel records data
+// interface TravelRecord {
+//   id: string;
+//   title: string;
+//   travelDate: string;
+//   destination: string;
+//   requestDate: string;
+// }
 
 export const Historial = () => {
   // State to store selected travel record details
-  //const [selectedTravel, setSelectedTravel] = useState<TravelRecord | null>(null);
+  // const [selectedTravel, setSelectedTravel] = useState<TravelRecord | null>(null);
 
   // Columns schema for travel history table
   const columnsSchema = [
