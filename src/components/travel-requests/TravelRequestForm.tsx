@@ -16,7 +16,9 @@ import Select from "../ui/Select";
 import FieldError from "../ui/FieldError";
 
 import { useCreateTravelRequest } from "../../hooks/requests/useCreateRequest";
+import { useUpdateTravelRequest } from "../../hooks/requests/useUpdateRequest";
 import { useDestinations } from "../../hooks/destinations/useDestinations";
+import { CreateRequest } from "../../types/requests";
 
 type Option = { id: number | string; name: string };
 
@@ -51,15 +53,29 @@ const formSchema = z.object({
     .number()
     .int()
     .positive({ message: "El dinero adelantado debe ser positivo" }),
-  destinations: z.array(destinationSchema).min(1, "Al menos un destino"),
+  requests_destinations: z
+    .array(destinationSchema)
+    .min(1, "Al menos un destino"),
 });
 
 type RawFormValues = z.infer<typeof formSchema>;
 
-function CreateTravelRequestForm() {
+interface TravelRequestFormProps {
+  initialData?: CreateRequest;
+  requestId?: string;
+}
+
+function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const navigate = useNavigate();
   const { destinationOptions, isLoading: isLoadingDestinations } =
     useDestinations();
+  const { createTravelRequestMutation, isPending: isCreating } =
+    useCreateTravelRequest();
+  const { updateTravelRequestMutation, isPending: isUpdating } =
+    useUpdateTravelRequest();
+
+  const isEditing = !!requestId;
+  const isPending = isEditing ? isUpdating : isCreating;
 
   const {
     control,
@@ -69,20 +85,20 @@ function CreateTravelRequestForm() {
     reset,
   } = useForm<RawFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       id_origin_city: null,
       motive: "",
       title: "",
       priority: "media",
       advance_money: 0,
       requirements: "",
-      destinations: [
+      requests_destinations: [
         {
           id_destination: null,
           arrival_date: "",
           departure_date: "",
           stay_days: 1,
-          is_hotel_required: false,
+          is_hotel_required: true,
           is_plane_required: true,
           details: "",
         },
@@ -90,11 +106,9 @@ function CreateTravelRequestForm() {
     },
   });
 
-  const { createTravelRequestMutation, isPending } = useCreateTravelRequest();
-
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "destinations",
+    name: "requests_destinations",
   });
 
   const onSubmit = async (data: RawFormValues) => {
@@ -103,23 +117,25 @@ function CreateTravelRequestForm() {
       return;
     }
 
-    const requests_destinations = data.destinations.map((d, idx, arr) => {
-      if (!d.id_destination) {
-        throw new Error("Selecciona un destino");
-      }
+    const requests_destinations = data.requests_destinations.map(
+      (d, idx, arr) => {
+        if (!d.id_destination) {
+          throw new Error("Selecciona un destino");
+        }
 
-      return {
-        id_destination: d.id_destination,
-        destination_order: idx + 1,
-        stay_days: d.stay_days,
-        arrival_date: dayjs(d.arrival_date).toISOString(),
-        departure_date: dayjs(d.departure_date).toISOString(),
-        is_hotel_required: d.is_hotel_required,
-        is_plane_required: d.is_plane_required,
-        is_last_destination: idx === arr.length - 1,
-        details: d.details,
-      };
-    });
+        return {
+          id_destination: d.id_destination,
+          destination_order: idx + 1,
+          stay_days: d.stay_days,
+          arrival_date: dayjs(d.arrival_date).toISOString(),
+          departure_date: dayjs(d.departure_date).toISOString(),
+          is_hotel_required: d.is_hotel_required,
+          is_plane_required: d.is_plane_required,
+          is_last_destination: idx === arr.length - 1,
+          details: d.details,
+        };
+      }
+    );
 
     const payload = {
       id_origin_city: data.id_origin_city,
@@ -132,18 +148,20 @@ function CreateTravelRequestForm() {
     };
 
     try {
-      await createTravelRequestMutation(payload);
-      toast.success("¡Solicitud de viaje creada exitosamente!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-      });
+      if (isEditing && requestId) {
+        await updateTravelRequestMutation({ requestId, payload });
+        toast.success("¡Solicitud de viaje actualizada exitosamente!");
+      } else {
+        await createTravelRequestMutation(payload);
+        toast.success("¡Solicitud de viaje creada exitosamente!");
+      }
+
       reset();
       navigate("/dashboard");
     } catch (error) {
-      let errorMessage = "Error al crear la solicitud de viaje";
+      let errorMessage = isEditing
+        ? "Error al actualizar la solicitud de viaje"
+        : "Error al crear la solicitud de viaje";
 
       if (error instanceof AxiosError && error.response?.data?.message) {
         errorMessage = error.response.data.message;
@@ -163,7 +181,7 @@ function CreateTravelRequestForm() {
     <section className="bg-gray-200 rounded-md">
       <div className="py-8 px-4 mx-auto max-w-2xl lg:py-16">
         <h2 className="mb-4 text-xl font-bold text-gray-900 ">
-          Datos del Viaje
+          {isEditing ? "Editar Viaje" : "Datos del Viaje"}
         </h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
@@ -273,7 +291,7 @@ function CreateTravelRequestForm() {
           <h3 className="mt-8 mb-4 text-lg font-semibold">Destinos</h3>
 
           {fields.map((field, idx) => {
-            const destinationErrors = errors.destinations?.[idx];
+            const destinationErrors = errors.requests_destinations?.[idx];
 
             return (
               <div
@@ -296,7 +314,7 @@ function CreateTravelRequestForm() {
                     </label>
                     <Controller
                       control={control}
-                      name={`destinations.${idx}.id_destination`}
+                      name={`requests_destinations.${idx}.id_destination`}
                       render={({ field }) => (
                         <Select
                           options={destinationOptions}
@@ -324,7 +342,9 @@ function CreateTravelRequestForm() {
                     </label>
                     <Input
                       type="date"
-                      {...register(`destinations.${idx}.arrival_date` as const)}
+                      {...register(
+                        `requests_destinations.${idx}.arrival_date` as const
+                      )}
                     />
                     <FieldError
                       msg={destinationErrors?.arrival_date?.message}
@@ -338,7 +358,7 @@ function CreateTravelRequestForm() {
                     <Input
                       type="date"
                       {...register(
-                        `destinations.${idx}.departure_date` as const
+                        `requests_destinations.${idx}.departure_date` as const
                       )}
                     />
                     <FieldError
@@ -353,9 +373,12 @@ function CreateTravelRequestForm() {
                     <Input
                       type="number"
                       min={1}
-                      {...register(`destinations.${idx}.stay_days` as const, {
-                        valueAsNumber: true,
-                      })}
+                      {...register(
+                        `requests_destinations.${idx}.stay_days` as const,
+                        {
+                          valueAsNumber: true,
+                        }
+                      )}
                     />
                     <FieldError msg={destinationErrors?.stay_days?.message} />
                   </div>
@@ -365,7 +388,9 @@ function CreateTravelRequestForm() {
                       Detalles
                     </label>
                     <Input
-                      {...register(`destinations.${idx}.details` as const)}
+                      {...register(
+                        `requests_destinations.${idx}.details` as const
+                      )}
                     />
                     <FieldError msg={destinationErrors?.details?.message} />
                   </div>
@@ -376,7 +401,9 @@ function CreateTravelRequestForm() {
                     </label>
                     <Controller
                       control={control}
-                      name={`destinations.${idx}.is_hotel_required` as const}
+                      name={
+                        `requests_destinations.${idx}.is_hotel_required` as const
+                      }
                       render={({ field }) => (
                         <Switch
                           checked={field.value}
@@ -395,7 +422,9 @@ function CreateTravelRequestForm() {
                     </label>
                     <Controller
                       control={control}
-                      name={`destinations.${idx}.is_plane_required` as const}
+                      name={
+                        `requests_destinations.${idx}.is_plane_required` as const
+                      }
                       render={({ field }) => (
                         <Switch
                           checked={field.value}
@@ -430,11 +459,17 @@ function CreateTravelRequestForm() {
           </Button>
 
           <Button type="submit" className="mt-4 sm:mt-6" disabled={isPending}>
-            {isPending ? "Creando..." : "Crear viaje"}
+            {isPending
+              ? isEditing
+                ? "Actualizando..."
+                : "Creando..."
+              : isEditing
+              ? "Actualizar viaje"
+              : "Crear viaje"}
           </Button>
         </form>
       </div>
     </section>
   );
 }
-export default CreateTravelRequestForm;
+export default TravelRequestForm;

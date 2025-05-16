@@ -1,9 +1,9 @@
-import CreateTravelRequestForm from "../components/travel-requests/CreateTravelRequestForm";
+import TravelRequestForm from "../components/travel-requests/TravelRequestForm";
 
 function CreateTravelRequest() {
   return (
     <div>
-      <CreateTravelRequestForm />
+      <TravelRequestForm />
     </div>
   );
 }
