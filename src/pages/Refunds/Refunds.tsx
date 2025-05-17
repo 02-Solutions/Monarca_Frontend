@@ -66,7 +66,11 @@ export const Refunds = () => {
         setLoading(true);
         setError(null);
 
-        const response = await getRequest(API_ENDPOINTS.TRIPS);
+        const response = await getRequest(
+          API_ENDPOINTS.TRIPS,
+          {},
+          { withCredentials: false }
+        );
         setTrips(response);
       } catch (err) {
         setError("Error desconocido al cargar los viajes");
@@ -130,6 +134,12 @@ export const Refunds = () => {
       setSubmitSuccess(null);
       setOnSubmitError(null);
 
+      // agregar currency
+      /* formDataToSend.append("taxIndica", rowData.taxIndicator); */
+      // agregar status
+      // enum para status
+      // comprobante_pendiente, comprobante_denegado, comprobante_aprobado
+
       for (const rowData of formData) {
         const formDataToSend = new FormData();
 
@@ -141,11 +151,8 @@ export const Refunds = () => {
         formDataToSend.append("date", new Date().toISOString().split("T")[0]);
         formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());
-        // agregar currency
-        /* formDataToSend.append("taxIndica", rowData.taxIndicator); */
-        // agregar status
-        // enum para status
-        // comprobante_pendiente, comprobante_denegado, comprobante_aprobado
+        formDataToSend.append("status", "comprobante_pendiente");
+        formDataToSend.append("currency", "MXN");
         if (rowData.XMLFile) {
           formDataToSend.append("XMLFile", rowData.XMLFile);
         }
