@@ -1,9 +1,3 @@
-/*
- * Reusable input field component with customizable styling and behavior.
- *
- * Last edit: May 13, 2025
- * Authors: José Manuel García Zumaya
- */
 import React, { ChangeEvent, useState } from "react";
 
 /*
@@ -41,7 +35,7 @@ interface InputFieldProps {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onBlur?: () => void;
   onFocus?: () => void;
-  // New callback for validation
+  // Callback for validation
   validateField?: (value: string) => string | undefined;
 }
 
@@ -55,19 +49,7 @@ const InputField: React.FC<InputFieldProps> = ({
   type = "text",
   value,
   placeholder = "",
-  className = `p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#0a2c6d] ${
-    type === "file"
-      ? "hover:cursor-pointer"
-      : type === "checkbox" || type === "radio"
-      ? "hover:cursor-pointer"
-      : type === "color"
-      ? "hover:cursor-pointer"
-      : type === "range"
-      ? "hover:cursor-ew-resize"
-      : type === "date"
-      ? "hover:cursor-pointer"
-      : "hover:cursor-text"
-  }`,
+  className = "",
   disabled = false,
   required = false,
   label,
@@ -81,32 +63,103 @@ const InputField: React.FC<InputFieldProps> = ({
   const effectivePlaceholder =
     type === "date" && !placeholder ? "DD/MM/YYYY" : placeholder;
 
-  // Local state to track validation errors
+  // Local state to track validation errors and touched state
   const [localError, setLocalError] = useState<string | undefined>(error);
   const [isTouched, setIsTouched] = useState(false);
+  const [wasChanged, setWasChanged] = useState(false);
+
+  // Helper function to check if value is empty based on input type
+  const isEmptyValue = (val: string, inputType: string = type): boolean => {
+    // For checkboxes and radios, we don't use trim()
+    if (inputType === "checkbox" || inputType === "radio") {
+      // For these types, we might consider "false" or "0" as empty
+      return val === "false" || val === "0" || val === "";
+    }
+
+    // For number inputs
+    if (inputType === "number") {
+      return val === "" || val === null || val === undefined;
+    }
+
+    // For file inputs
+    if (inputType === "file") {
+      return val === "";
+    }
+
+    // For color inputs (should always have a value)
+    if (inputType === "color") {
+      return false;
+    }
+
+    // For range inputs (should always have a value)
+    if (inputType === "range") {
+      return false;
+    }
+
+    // For normal string-based inputs, use trim()
+    return typeof val === "string"
+      ? val.trim() === ""
+      : val === null || val === undefined;
+  };
 
   // Combined error message (from props or local validation)
-  const errorMessage = error || (isTouched ? localError : undefined);
+  const errorMessage =
+    error || (isTouched || wasChanged ? localError : undefined);
 
-  // Styles for invalid input
-  const invalidClass = errorMessage ? "border-red-500 focus:ring-red-500" : "";
+  // Determine if the field is in an invalid state - now checks both touched and changed state
+  const isInvalid =
+    required && isEmptyValue(value) && (isTouched || wasChanged);
 
-  // Handle validation on blur
-  const handleBlur = () => {
-    setIsTouched(true);
+  // Base styles for the input - adjusted for different input types
+  const baseClass = `p-2 border rounded-md focus:outline-none focus:ring-2 ${
+    type === "checkbox" || type === "radio"
+      ? "w-auto hover:cursor-pointer" // Checkbox and radio shouldn't be full width
+      : type === "file"
+      ? "w-full hover:cursor-pointer"
+      : type === "color"
+      ? "w-auto h-10 hover:cursor-pointer" // Color picker needs specific height
+      : type === "range"
+      ? "w-full hover:cursor-ew-resize"
+      : type === "date"
+      ? "w-full hover:cursor-pointer"
+      : "w-full hover:cursor-text"
+  }`;
 
+  // Final className combining all styles
+  const borderClass =
+    isInvalid || errorMessage
+      ? "border-red-500 focus:ring-red-500"
+      : "border-gray-300 focus:ring-blue-500";
+
+  // Text color
+  const textClass = "text-[#0a2c6d]";
+
+  // Validate the field
+  const validateInput = (inputValue: string) => {
     // Check if field is required and empty
-    if (required && value.trim() === "") {
+    if (required && isEmptyValue(inputValue)) {
       setLocalError("Este campo es obligatorio");
+      return false;
     }
     // Run custom validation if provided
     else if (validateField) {
-      setLocalError(validateField(value));
+      const validationError = validateField(inputValue);
+      setLocalError(validationError);
+      return !validationError;
     }
     // Clear error if field is valid
     else {
       setLocalError(undefined);
+      return true;
     }
+  };
+
+  // We don't need the useEffect anymore, validation will be handled by the touch state and event handlers
+
+  // Handle validation on blur
+  const handleBlur = () => {
+    setIsTouched(true);
+    validateInput(value);
 
     // Call original onBlur if provided
     if (onBlur) onBlur();
@@ -117,52 +170,91 @@ const InputField: React.FC<InputFieldProps> = ({
     // Call original onChange handler
     onChange(e);
 
-    // If field has been touched, validate on change as well
-    if (isTouched) {
-      if (required && e.target.value.trim() === "") {
-        setLocalError("Este campo es obligatorio");
-      } else if (validateField) {
-        setLocalError(validateField(e.target.value));
-      } else {
-        setLocalError(undefined);
-      }
+    // Mark that the field has been changed
+    setWasChanged(true);
+
+    // Validate on change
+    validateInput(e.target.value);
+  };
+
+  // Handle focus event
+  const handleFocus = () => {
+    setIsTouched(true);
+    if (onFocus) onFocus();
+  };
+
+  // Handle special display requirements for different input types
+  const renderInput = () => {
+    // Special case for checkbox and radio inputs
+    if (type === "checkbox" || type === "radio") {
+      return (
+        <div className="flex items-center">
+          <input
+            id={id || name}
+            name={name}
+            type={type}
+            value={value}
+            checked={value === "true" || value === "1"}
+            className={`${baseClass} ${borderClass} ${textClass} ${className}`}
+            disabled={disabled}
+            required={required}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onFocus={handleFocus}
+            aria-invalid={!!errorMessage}
+            aria-required={required}
+          />
+          {label && (
+            <label
+              htmlFor={id || name}
+              className="ml-2 text-sm font-medium text-[#0a2c6d]"
+            >
+              {label}
+              {required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+          )}
+        </div>
+      );
     }
+
+    // Default case for all other input types
+    return (
+      <>
+        {label && (
+          <label
+            htmlFor={id || name}
+            className="mb-1 text-sm font-medium text-[#0a2c6d]"
+          >
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+        )}
+        <div className="relative">
+          <input
+            id={id || name}
+            name={name}
+            type={type}
+            value={value}
+            placeholder={effectivePlaceholder}
+            className={`${baseClass} ${borderClass} ${textClass} ${className}`}
+            disabled={disabled}
+            required={required}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onFocus={handleFocus}
+            aria-invalid={!!errorMessage}
+            aria-required={required}
+          />
+        </div>
+      </>
+    );
   };
 
   return (
     <div className="flex flex-col mb-4">
-      {label && (
-        <label
-          htmlFor={id || name}
-          className="mb-1 text-sm font-medium text-[#0a2c6d]"
-        >
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
-      )}
-      <div className="relative">
-        <input
-          id={id || name}
-          name={name}
-          type={type}
-          value={value}
-          placeholder={effectivePlaceholder}
-          className={`${className} ${invalidClass}`}
-          disabled={disabled}
-          required={required}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          onFocus={(e) => {
-            e.preventDefault();
-            setIsTouched(true);
-            if (onFocus) onFocus();
-          }}
-          aria-invalid={!!errorMessage}
-          aria-required={required}
-        />
-      </div>
+      {renderInput()}
       {errorMessage && (
-        <p className="mt-1 text-sm text-red-600">{errorMessage}</p>
+        <p className="mt-1 text-xs text-red-600">{errorMessage}</p>
       )}
     </div>
   );
