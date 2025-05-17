@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -34,8 +34,7 @@ export default function LoginPage() {
 
             <p className="text-[18px] text-left mb-[100px] ">
                 ¿Ya tienes cuenta?&nbsp;
-            <a className="!underline font-semibold" href="/login">
-                Inicia sesión</a>
+                <Link className="!underline font-semibold" to="/">Inicia sesión</Link>
             </p>
 
             <button type="submit" className="bg-[#00296B] text-white py-4 px-6 rounded-[0.5rem] font-semibold cursor-pointer text-left w-[60%] hover:bg-[#00509D]">

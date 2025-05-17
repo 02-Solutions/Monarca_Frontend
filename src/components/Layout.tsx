@@ -21,7 +21,7 @@ function Layout({ children }: LayoutProps) {
   if (loadingProfile) return <div>Loading...</div>;
 
   // Check if the user is authenticated
-  if (!authState.isAuthenticated) return <Navigate to="/login" />;
+  if (!authState.isAuthenticated) return <Navigate to="/" />;
     
   return (
     <div>

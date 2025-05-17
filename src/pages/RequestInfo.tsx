@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const FormularioSolicitudViaje: React.FC = () => {
+const RequestInfo: React.FC = () => {
   // Estados
-  const [comentario, setComentario] = useState('');
-  const [agenciaSeleccionada, setAgenciaSeleccionada] = useState('');
+  const [comment, setComment] = useState('');
+  const [selectedAgency, setSelectedAgency] = useState('');
 
-  // Datos de ejemplo (normalmente vendrían por props o fetch)
-  const datos = {
+
+  const data = {
     id: '7b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e',
     id_user: 'b2c3d4e5-f6a7-8901-2345-67890abcdef0',
     id_admin: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
@@ -22,8 +22,7 @@ const FormularioSolicitudViaje: React.FC = () => {
     created_at: '2025-05-14T11:30:00Z',
   };
 
-  // Etiquetas en español y orden deseado
-  const etiquetas: { key: keyof typeof datos; label: string }[] = [
+  const labels: { key: keyof typeof data; label: string }[] = [
     { key: 'id', label: 'ID solicitud' },
     { key: 'id_user', label: 'ID usuario' },
     { key: 'id_admin', label: 'ID administrador' },
@@ -37,15 +36,15 @@ const FormularioSolicitudViaje: React.FC = () => {
   ];
 
   // Handlers con Toastify
-  const aprobar = () => {
-    toast.success(`Solicitud aprobada con ${agenciaSeleccionada}`, {
+  const approve = () => {
+    toast.success(`Solicitud aprobada con ${selectedAgency}`, {
       position: 'top-right',
       autoClose: 3000,
     });
     // aquí tu llamada a la API...
   };
 
-  const solicitarCambios = () => {
+  const requestChanges = () => {
     toast.info('Se han solicitado cambios', {
       position: 'top-right',
       autoClose: 3000,
@@ -53,7 +52,7 @@ const FormularioSolicitudViaje: React.FC = () => {
     // aquí tu llamada a la API...
   };
 
-  const denegar = () => {
+  const deny = () => {
     toast.error('Solicitud denegada', {
       position: 'top-right',
       autoClose: 3000,
@@ -65,26 +64,21 @@ const FormularioSolicitudViaje: React.FC = () => {
     <div className="pb-10">
       <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
         <div className="px-8 py-10 flex flex-col">
-          {/* Buton para regresar a la página anterior */}
           <Link
             to="/requests"
             className="inline-block mb-6 text-sm text-blue-600 hover:text-blue-800"
           >
             &larr; Regresar
           </Link>
-          {/* Título sección */}
           <div className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6">
             Información de Solicitud
           </div>
-
-          {/* Empleado */}
           <p className="mb-6 text-gray-700 font-medium">
             Empleado: <span className="text-[var(--blue)]">123456789</span>
           </p>
 
-          {/* Campos de datos */}
           <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-            {etiquetas.map(({ key, label }) => (
+            {labels.map(({ key, label }) => (
               <div key={key}>
                 <label
                   htmlFor={key}
@@ -96,48 +90,44 @@ const FormularioSolicitudViaje: React.FC = () => {
                   id={key}
                   type="text"
                   readOnly
-                  value={String(datos[key])}
+                  value={String(data[key])}
                   className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                 />
               </div>
             ))}
           </section>
 
-          {/* Dropdown de agencias */}
           <section className="mb-10">
             <label
-              htmlFor="agencia"
+              htmlFor="agency"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Agencias de viaje
             </label>
             <select
-              id="agencia"
+              id="agency"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={agenciaSeleccionada}
-              onChange={(e) => setAgenciaSeleccionada(e.target.value)}
+              value={selectedAgency}
+              onChange={(e) => setSelectedAgency(e.target.value)}
             >
               <option value="">-- Selecciona una agencia --</option>
-              <option value="Viajes Méndez">Viajes Méndez</option>
-              <option value="Turismo Express">Turismo Express</option>
-              <option value="Ruta Latina">Ruta Latina</option>
             </select>
           </section>
 
-          {/* Zona de comentarios */}
+
           <section className="mb-8">
             <label
-              htmlFor="comentario"
+              htmlFor="comment"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Comentarios
             </label>
             <textarea
-              id="comentario"
+              id="comment"
               rows={4}
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={comentario}
-              onChange={(e) => setComentario(e.target.value)}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
               placeholder="Escribe tus comentarios aquí..."
             />
           </section>
@@ -145,11 +135,11 @@ const FormularioSolicitudViaje: React.FC = () => {
           {/* Botones de acción */}
           <footer className="flex flex-col sm:flex-row gap-4">
             <button
-              onClick={aprobar}
-              disabled={!agenciaSeleccionada}
+              onClick={approve}
+              disabled={!selectedAgency}
               className={`flex-1 py-3 rounded-lg font-semibold transition
                 ${
-                  agenciaSeleccionada
+                  selectedAgency
                     ? 'bg-green-600 hover:bg-green-700 text-white'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
@@ -157,11 +147,11 @@ const FormularioSolicitudViaje: React.FC = () => {
               Aprobar
             </button>
             <button
-              onClick={solicitarCambios}
-              disabled={!comentario.trim()}
+              onClick={requestChanges}
+              disabled={!comment.trim()}
               className={`flex-1 py-3 rounded-lg font-semibold transition
                 ${
-                  comentario.trim()
+                  comment.trim()
                     ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
@@ -169,7 +159,7 @@ const FormularioSolicitudViaje: React.FC = () => {
               Solicitar cambios
             </button>
             <button
-              onClick={denegar}
+              onClick={deny}
               className="flex-1 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition"
             >
               Denegar
@@ -184,4 +174,4 @@ const FormularioSolicitudViaje: React.FC = () => {
   );
 };
 
-export default FormularioSolicitudViaje;
+export default RequestInfo;

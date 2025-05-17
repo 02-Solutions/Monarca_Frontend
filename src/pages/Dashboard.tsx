@@ -20,10 +20,10 @@ export const Dashboard = ({title}:DashboardProps) => {
   return (
     <div className="grid grid-cols-4 gap-y-20 py-10 px-1 ml-0">
       {authState.userPermissions.includes("create_request" as Permission) && (
-        <Mosaic title="Crear solicitud de viaje" iconPath="/assets/crear_solicitud_de_viaje.png" link=""/>
+        <Mosaic title="Crear solicitud de viaje" iconPath="/assets/crear_solicitud_de_viaje.png" link="/requests/create"/>
       )}
       {authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) && (
-        <Mosaic title="Historial de viajes" iconPath="/assets/historial_de_viajes.png" link=""/>
+        <Mosaic title="Historial de viajes" iconPath="/assets/historial_de_viajes.png" link="/history"/>
       )}
       {authState.userPermissions.includes("upload_vouchers" as Permission) && (
         <Mosaic title="Solicitud de reembolso" iconPath="/assets/solicitud_de_reembolso.png" link=""/>
