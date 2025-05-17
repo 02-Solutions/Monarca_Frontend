@@ -14,7 +14,7 @@ import Button from "../../components/Refunds/Button";
 import InputField from "../../components/Refunds/InputField";
 import Dropdown from "../../components/Refunds/DropDown";
 import { spendOptions, taxIndicatorOptions } from "./local/dummyData";
-import { getRequest /*postRequest*/ } from "../../utils/apiService";
+import { getRequest , postRequest } from "../../utils/apiService";
 
 interface Trip {
   id: number | string;
@@ -43,7 +43,7 @@ interface FormDataRow extends DynamicTableRow {
 
 const API_ENDPOINTS = {
   TRIPS: "https://680ff5f827f2fdac240fe541.mockapi.io/monarca/trips",
-  REFUND_REQUESTS: "/monarca/refundRequests",
+  REFUND_REQUESTS: "http://localhost:3000/vouchers/upload",
 };
 
 export const Refunds = () => {
@@ -139,29 +139,36 @@ export const Refunds = () => {
       // agregar status
       // enum para status
       // comprobante_pendiente, comprobante_denegado, comprobante_aprobado
-
-      for (const rowData of formData) {
-        const formDataToSend = new FormData();
+      
+      let formDataToSend = null;
+      await Promise.all(formData.map(async rowData=>{
+        formDataToSend = new FormData();
 
         formDataToSend.append(
-          "id_request_destination",
-          currentRefundTrip.id.toString()
+          "id_request","581c998a-9f67-4431-b6ab-635ec9794ba7"
         );
-        formDataToSend.append("comment", commentDescriptionOfSpend);
+        //formDataToSend.append("comment", commentDescriptionOfSpend);
         formDataToSend.append("date", new Date().toISOString().split("T")[0]);
         formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());
         formDataToSend.append("status", "comprobante_pendiente");
         formDataToSend.append("currency", "MXN");
+        formDataToSend.append("id_approver", "");
+        console.log("FILE Before XML: ", rowData.XMLFile)
+        console.log("FILE Before PDF:", rowData.PDFFile)
         if (rowData.XMLFile) {
-          formDataToSend.append("XMLFile", rowData.XMLFile);
+          console.log("FILE After APPENDED XML:", rowData.XMLFile)
+          formDataToSend.append("file_url_xml", rowData.XMLFile);
         }
+        
 
         if (rowData.PDFFile) {
-          formDataToSend.append("PDFFile", rowData.PDFFile);
+          console.log("FILE After APPENDED PDF:", rowData.PDFFile)
+          formDataToSend.append("file_url_pdf", rowData.PDFFile);
         }
+        
 
-        // await postRequest(API_ENDPOINTS.REFUND_REQUESTS, formDataToSend);
+         await postRequest(API_ENDPOINTS.REFUND_REQUESTS, formDataToSend);
 
         setSubmitSuccess(
           `Solicitud de reembolso del viaje ${currentRefundTrip.tripName} enviada con éxito`
@@ -172,7 +179,10 @@ export const Refunds = () => {
             `${key}: ${value instanceof File ? `File: ${value.name}` : value}`
           );
         }
+
       }
+    )
+  )
 
       setVisibleRequestForm(false);
       const updatedTrips = await getRequest(API_ENDPOINTS.TRIPS);
@@ -327,23 +337,26 @@ export const Refunds = () => {
       header: "Archivo XML",
       defaultValue: "",
       renderCell: (
-        value: CellValueType,
+        _value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         rowIndex?: number
       ) => (
         <InputField
           required={true}
           type="file"
-          value={value as string}
+          value={"" as string}
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
-              onChangeComponentFunction(e.target.value);
-
+              console.log("IDK ANYMORE 2",file)
+              onChangeComponentFunction(file);
+              console.log("Row index", rowIndex)  
               if (rowIndex !== undefined) {
                 const updatedFormData = [...formData];
+                
                 if (updatedFormData[rowIndex]) {
                   updatedFormData[rowIndex].XMLFile = file;
+                  console.log("UpdatedFromData:", updatedFormData)
                   setFormData(updatedFormData);
                 }
               }
@@ -358,18 +371,18 @@ export const Refunds = () => {
       header: "Archivo PDF",
       defaultValue: "",
       renderCell: (
-        value: CellValueType,
+        _value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         rowIndex?: number
       ) => (
         <InputField
           required={true}
           type="file"
-          value={value as string}
+          value={"" as string}
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
-              onChangeComponentFunction(e.target.value);
+              onChangeComponentFunction(file);
 
               if (rowIndex !== undefined) {
                 const updatedFormData = [...formData];

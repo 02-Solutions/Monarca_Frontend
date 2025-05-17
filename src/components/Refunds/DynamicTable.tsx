@@ -125,7 +125,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     }, {} as TableRow);
 
     /* Add the new row to the tableData state */
-    const updatedData = [...tableData, defaultRow];
+    const updatedData = [...tableData,defaultRow];
     setTableData(updatedData);
 
     /* Notify the parent component of the change */
