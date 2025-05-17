@@ -72,7 +72,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
               userName: response.user.name,
               userLastName: response.user.last_name,
               userRole: response.user.role.name,
-              userPermissions: response.user.role.permissions,
+              userPermissions: response.user.role.permissions.map(
+                (permission: { name: string }) => permission.name
+              ),
               userEmail: response.user.email,
             });
             setLoadingProfile(false);
