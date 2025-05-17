@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { Dashboard } from "./../../pages/Dashboard";
+import { Dashboard } from "../../pages/Dashboard";
 import * as appContext from "../../hooks/app/appContext";
 
 describe("Dashboard", () => {

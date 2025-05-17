@@ -9,6 +9,7 @@ import {
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CreateTravelRequest from "./pages/CreateTravelRequest.tsx";
+import EditTravelRequest from "./pages/EditTravelRequest.tsx";
 
 import {
   ProtectedRoute,
@@ -125,17 +126,15 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: "/travel-requests",
+        path: "/travel-requests/create",
         element: (
           // <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
           <CreateTravelRequest />
         ),
-        children: [
-          {
-            path: "create", // full URL = /travel-requests/create
-            element: <CreateTravelRequest />,
-          },
-        ],
+      },
+      {
+        path: "/travel-requests/:id/edit",
+        element: <EditTravelRequest />,
       },
     ],
   },
@@ -189,7 +188,7 @@ if (import.meta.env.PROD || !import.meta.env.TEST) {
         <QueryClientProvider client={queryClient}>
           <RouterProvider router={router} />
         </QueryClientProvider>
-      </StrictMode>,
+      </StrictMode>
     );
   }
 }
