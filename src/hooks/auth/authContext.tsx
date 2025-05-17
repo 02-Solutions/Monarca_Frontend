@@ -29,7 +29,7 @@ export interface AuthState {
   userId: string;
   userName: string;
   userLastName: string;
-  userEmail: string,
+  userEmail: string;
   userPermissions: Permission[];
   userRole: string;
 }
@@ -60,7 +60,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     userEmail: "",
     userPermissions: [],
   });
-
 
   useEffect(() => {
     const getAuthState = async () => {
@@ -96,7 +95,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     };
 
     getAuthState();
-    
   }, []);
 
   const handleLogout = async () => {
@@ -112,15 +110,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         userPermissions: [],
       });
     }
-  }
+  };
 
   return (
-    <AuthContext.Provider value={{ 
-      authState, 
-      setAuthState,
-      loadingProfile,
-      handleLogout
-    }}>
+    <AuthContext.Provider
+      value={{
+        authState,
+        setAuthState,
+        loadingProfile,
+        handleLogout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -131,9 +131,9 @@ export const ProtectedRoute: React.FC = () => {
   return (
     <AuthProvider>
       <AppProvider>
-      <Layout>
-        <Outlet />
-      </Layout>
+        <Layout>
+          <Outlet />
+        </Layout>
       </AppProvider>
     </AuthProvider>
   );

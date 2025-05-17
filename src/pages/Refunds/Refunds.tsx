@@ -64,7 +64,7 @@ export const Refunds = () => {
     { key: "requestDate", header: "Fecha solicitud" },
     { key: "action", header: "" },
   ];
-
+  
   if (loading) {
     return (
       <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">

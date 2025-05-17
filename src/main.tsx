@@ -9,6 +9,7 @@ import {
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CreateTravelRequest from "./pages/CreateTravelRequest.tsx";
+import EditTravelRequest from "./pages/EditTravelRequest.tsx";
 
 import {
   ProtectedRoute,
@@ -23,13 +24,20 @@ import "./App.css";
 // ****************** Pages ******************
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
-// import Requests from "./pages/Requests.tsx";
+import { Dashboard } from "./pages/Dashboard.tsx";
+import { Vouchers } from "./pages/Refunds/Vouchers.tsx";
+import Requests from "./pages/Requests.tsx";
+import Bookings from "./pages/Bookings.tsx";
+import Reservations from "./pages/Reservations/Reservations.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
 import { Refunds } from "./pages/Refunds/Refunds.tsx";
-import { Vouchers } from "./pages/Refunds/Vouchers.tsx";
+import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
+import ApplicationInfo from "./pages/ApplicationInfo.tsx"
+import {Approvals} from "./pages/Approvals/Approvals.tsx";
 
-const router = createBrowserRouter([
+
+export const router = createBrowserRouter([
   // Basic protected routes (requires only authentication)
   {
     path: "/",
@@ -39,11 +47,11 @@ const router = createBrowserRouter([
         path: "/dashboard",
         element: <Dashboard title="Inicio" />,
       },
-      // {
-      //   path: "/requests",
-      //   element: <Requests />,
-      // },
       // Routes protected by specific permissions
+       {
+        path: "/refunds",
+        element: <Refunds />,
+      },
       {
         path: "/approval",
         element: (
@@ -52,7 +60,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: <div>Trips to Approve</div>, // Replace with your actual component
+            element: <div>Trips to Approve</div>,
           },
           {
             path: "history",
@@ -64,11 +72,15 @@ const router = createBrowserRouter([
             children: [
               {
                 path: "",
-                element: <div>Approval History</div>, // Replace with your actual component
+                element: <div>Approval History</div>,
               },
             ],
           },
         ],
+      },
+      {
+        path: "/bookings",
+        element: <Bookings />,
       },
       // Routes protected for booking permission
       {
@@ -77,10 +89,6 @@ const router = createBrowserRouter([
           <PermissionProtectedRoute requiredPermissions={["book_trip"]} />
         ),
         children: [
-          {
-            path: "",
-            element: <div>Trips to Book</div>, // Replace with your actual component
-          },
           {
             path: "history",
             element: (
@@ -98,19 +106,25 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: "/travel-requests",
+        path: "/travel-requests/create",
         element: (
-          <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
+          // <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
+          <CreateTravelRequest />
         ),
-        children: [
-          {
-            path: "create", // full URL = /travel-requests/create
-            element: <CreateTravelRequest />,
-          },
-        ],
+      },
+      {
+        path: "/travel-requests/:id/edit",
+        element: <EditTravelRequest />,
       },
     ],
   },
+
+  // ✅ Public route for Bookings — temp dev only (no auth)
+  {
+    path: "/bookings",
+    element: <Bookings />,
+  },
+
   // Public routes (no authentication required)
   {
     path: "/login",
@@ -132,8 +146,19 @@ const router = createBrowserRouter([
     path: "/refunds/:id",
     element: <Vouchers />,
   },
+    path: "/reservations",
+    element: <Reservations />,
+  },
+  {
+    path: "/approvals",
+    element: <Approvals />,
+  },
   // Catch-all route for non-existent pages
   // TODO: Add a 404 page
+  {
+    path: "/refundsacceptance",
+    element: <RefundsAcceptance />,
+  },
   {
     path: "*",
     element: <Navigate to="/login" replace />,
@@ -142,10 +167,15 @@ const router = createBrowserRouter([
 
 const queryClient = new QueryClient();
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  </StrictMode>
-);
+if (import.meta.env.PROD || !import.meta.env.TEST) {
+  const rootElement = document.getElementById("root");
+  if (rootElement) {
+    createRoot(rootElement).render(
+      <StrictMode>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </StrictMode>
+    );
+  }
+}

@@ -26,6 +26,7 @@ export default function LoginPage() {
         navigate("/dashboard")
       }
       else {
+        console.log(result)
         alert("Error al iniciar sesion")
       }
     } catch (error) {

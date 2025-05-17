@@ -18,20 +18,10 @@ export type CellValueType =
 
 /*
  * Column interface SCHEMA to define the structure of each column in the table.
- * key: The key in the data object that corresponds to this column, this is very
- * important due allows to access the data dynamically in our object data.
+ * key: The key in the data object that corresponds to this column.
  * header: The header text to display for this column.
- * defaultValue: The default value to display in the cell or inside the component
- * that you want to use to render the cell, if not provided, it will be empty.
- * renderCell: (VERY IMPORTANT) A function that helps to render custom components
- * inside the cell, this function receives a value to show in the component and a
- * function to handle the change of that component, this function is used to update
- * the component from child to parent, this function is optional, if not provided,
- * the default value will be used, for example if you want to show a static value
- * or a simple text, you can see that returns an object of type ReactNode, so it
- * should be used to render components like InputField, Dropdown, etc.
- *
- * You can reach an example of how to use this in the src/pages/Refunds/Refunds.tsx file.
+ * defaultValue: The default value to display in the cell or inside the component.
+ * renderCell: A function that helps to render custom components inside the cell.
  */
 export interface Column {
   key: string;
@@ -43,13 +33,8 @@ export interface Column {
     rowIndex?: number
   ) => React.ReactNode;
 }
-
 /*
  * DynamicTableProps interface to define the structure of the props for the DynamicTable component.
- * columns: An array of Column objects defining the table's columns.
- * initialData: An optional initial data array to populate the table.
- * onDataChange: A callback function that is called when the data changes,
- * it helps to notify the parent component of the change and need to render the table again.
  */
 /* Interface for table row data structure */
 export interface TableRow {
@@ -58,18 +43,18 @@ export interface TableRow {
 
 export interface DynamicTableProps {
   columns: Column[];
-  initialData?: TableRow[];
-  onDataChange?: (data: TableRow[]) => void;
+  initialData?: any[]; // Add proper typing here if known
+  onDataChange?: (data: any[]) => void;
+  expandedRows?: number[];
+  renderExpandedRow?: (index: number) => React.ReactNode;
 }
 
-/*
- * DynamicTable component that renders a table with dynamic rows and columns.
- * It allows adding new rows and updating existing ones.
- */
 const DynamicTable: React.FC<DynamicTableProps> = ({
   columns,
   initialData = [],
   onDataChange,
+  expandedRows = [],
+  renderExpandedRow,
 }) => {
   /*
    * State to manage the table data.
@@ -95,40 +80,23 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       [columnKey]: newValue,
     };
 
-    /* Update the local state data with the new data */
     setTableData(updatedData);
 
-    /* Notify the parent component of the change
-     * This is useful if you want to update the data in the parent component
-     */
     if (onDataChange) {
       onDataChange(updatedData);
     }
   };
 
-  /*
-   * Function to add a new row to the table.
-   * It creates a new row object with default values for each column or component
-   * and adds it to the tableData array which renders the table.
-   */
   const addItem = () => {
-    /* Create a new row object using reduce to iterate over the columns */
-    const defaultRow = columns.reduce((obj: TableRow, column) => {
-      /* Remember that in TS we can create or access properties by using
-       * the bracket notation, this is useful to create dynamic properties
-       * in an object, so although the initial object is empty, we can
-       * create properties dynamically using the column.key as the property name
-       * and the defaultValue as the value to assign to that property.
-       */
+    const defaultRow = columns.reduce((obj, column) => {
       obj[column.key] = column.defaultValue || "";
       return obj;
-    }, {} as TableRow);
+    }, {} as Record<string, any>); // Ensure proper typing of the default row
 
     /* Add the new row to the tableData state */
     const updatedData = [...tableData,defaultRow];
     setTableData(updatedData);
 
-    /* Notify the parent component of the change */
     if (onDataChange) {
       onDataChange(updatedData);
     }
@@ -154,13 +122,8 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   return (
     <div className="relative">
       <div className="overflow-x-auto mb-4">
-        {/* Table component */}
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
           <thead>
-            {/*
-             * Contruct the headers of the table, based on colum property
-             * Use the index to rounded the borders of the cell.
-             */}
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {columns.map((column, index) => (
                 <th
@@ -175,24 +138,9 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
             </tr>
           </thead>
           <tbody>
-            {
-              /*
-               * Contruct the rows of the table, based on tableData array,
-               * tableData is the data array based on the current page
-               *
-               * THE LOGIC IS for each row of data in the tableItems array,
-               * we create a new row in the table, and then for each colum (headers)
-               * in the colums array, we create a new cell in the current row, finally
-               * access the data by colum.key in the row data, to display in the correct place.
-               */
-              tableData.map((row, rowIndex) => (
-                <tr
-                  key={rowIndex}
-                  className="bg-[#4C6997] text-white text-center"
-                >
-                  {/*
-                   * Use the index to rounded the borders of the cell.
-                   */}
+            {tableData.map((row, rowIndex) => (
+              <React.Fragment key={rowIndex}>
+                <tr className="bg-[#4C6997] text-white text-center">
                   {columns.map((column, cellIndex) => (
                     <td
                       key={cellIndex}
@@ -228,8 +176,17 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                     </td>
                   ))}
                 </tr>
-              ))
-            }
+
+                {/* Expanded row (optional) */}
+                {expandedRows.includes(rowIndex) && renderExpandedRow && (
+                  <tr className="bg-[#f4f6f8] text-black">
+                    <td colSpan={columns.length} className="px-6 py-4">
+                      {renderExpandedRow(rowIndex)}
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
           </tbody>
         </table>
       </div>

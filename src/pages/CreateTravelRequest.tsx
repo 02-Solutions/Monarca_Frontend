@@ -1,6 +1,10 @@
-import CreateTravelRequestForm from "../components/travel-requests/CreateTravelRequestForm";
+import TravelRequestForm from "../components/travel-requests/TravelRequestForm";
 
 function CreateTravelRequest() {
-  return <CreateTravelRequestForm />;
+  return (
+    <div>
+      <TravelRequestForm />
+    </div>
+  );
 }
 export default CreateTravelRequest;
