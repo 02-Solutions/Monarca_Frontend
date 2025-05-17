@@ -24,6 +24,8 @@ import "./App.css";
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
 import Requests from "./pages/Requests.tsx";
+import CreateTravelRequestForm from "./components/travel-requests/CreateTravelRequestForm.tsx";
+import Historial from "./pages/Historial/Historial.tsx";
 import Bookings from "./pages/Bookings.tsx";
 import Reservations from "./pages/Reservations/Reservations.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
@@ -45,12 +47,24 @@ export const router = createBrowserRouter([
         element: <Dashboard title="Inicio" />,
       },
       {
+        path: "/requests/create",
+        element: <CreateTravelRequestForm />,
+      },
+      {
         path: "/requests",
-        element: <Requests />,
+        element: <Approvals />,
       },
       {
         path: "/application-info",
         element: <ApplicationInfo />,
+      },
+      {
+        path: "/requests",
+        element: <Requests />,
+      },
+      {
+        path: "/historial",
+        element: <Historial />,
       },
       // Routes protected by specific permissions
        {
@@ -153,14 +167,10 @@ export const router = createBrowserRouter([
     path: "/reservations",
     element: <Reservations />,
   },
-  {
-    path: "/approvals",
-    element: <Approvals />,
-  },
   // Catch-all route for non-existent pages
   // TODO: Add a 404 page
   {
-    path: "/refundsacceptance",
+    path: "/refunds-acceptance",
     element: <RefundsAcceptance />,
   },
   {

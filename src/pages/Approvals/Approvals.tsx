@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Table from "../../components/Approvals/Table";
 import InputField from "../../components/Refunds/InputField";
-import Button from "../../components/Refunds/Button";
 import { MdRefresh } from "react-icons/md";
 
 import { approvalsData } from "./local/dummyData";
@@ -29,13 +28,9 @@ const columns = [
   { key: "statusIndicator", header: "Estado" },
   { key: "code", header: "Viaje" },
   { key: "departureDate", header: "Fecha Salida" },
-  { key: "city", header: "Población" },
   { key: "country", header: "País" },
   { key: "reason", header: "Razón" },
   { key: "authorization", header: "Autorización" },
-  { key: "checking", header: "Comprobación" },
-  { key: "refund", header: "Reembolso" },
-  { key: "currency", header: "Moneda" },
 ];
 
 export const Approvals: React.FC = () => {
@@ -60,15 +55,9 @@ export const Approvals: React.FC = () => {
 
 
   return (
-    <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
+    <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-[#0a2c6d]">Viajes por aprobar</h2>
-        <div className="flex items-center space-x-2">
-          <Button
-            label="Viajes"
-            className="bg-[#0a2c6d] text-white px-4 py-2 rounded-md"
-            onClickFunction={() => {}}
-          />
+          <h2 className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6 text-xl">Viajes</h2>
           <button
             onClick={() => {
               const refreshed = approvalsData.map((t) => ({
@@ -83,7 +72,6 @@ export const Approvals: React.FC = () => {
           >
             <MdRefresh className="h-6 w-6 text-[#0a2c6d]" />
           </button>
-        </div>
       </div>
 
       <Table columns={columns} data={dataWithActions} itemsPerPage={5} />

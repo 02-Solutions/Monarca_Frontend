@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -61,36 +62,25 @@ const FormularioSolicitudViaje: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen py-8">
-      <main className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="px-8 py-10">
+    <div className="pb-10">
+      <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
+        <div className="px-8 py-10 flex flex-col">
+          {/* Buton para regresar a la página anterior */}
+          <Link
+            to="/requests"
+            className="inline-block mb-6 text-sm text-blue-600 hover:text-blue-800"
+          >
+            &larr; Regresar
+          </Link>
           {/* Título sección */}
-          <div className="inline-block bg-blue-700 text-white px-4 py-2 rounded-full mb-6">
+          <div className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6">
             Información de Solicitud
           </div>
 
           {/* Empleado */}
           <p className="mb-6 text-gray-700 font-medium">
-            Empleado: <span className="text-blue-800">123456789</span>
+            Empleado: <span className="text-[var(--blue)]">123456789</span>
           </p>
-
-          {/* Zona de comentarios */}
-          <section className="mb-8">
-            <label
-              htmlFor="comentario"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Comentarios
-            </label>
-            <textarea
-              id="comentario"
-              rows={4}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={comentario}
-              onChange={(e) => setComentario(e.target.value)}
-              placeholder="Escribe tus comentarios aquí..."
-            />
-          </section>
 
           {/* Campos de datos */}
           <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
@@ -132,6 +122,24 @@ const FormularioSolicitudViaje: React.FC = () => {
               <option value="Turismo Express">Turismo Express</option>
               <option value="Ruta Latina">Ruta Latina</option>
             </select>
+          </section>
+
+          {/* Zona de comentarios */}
+          <section className="mb-8">
+            <label
+              htmlFor="comentario"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Comentarios
+            </label>
+            <textarea
+              id="comentario"
+              rows={4}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={comentario}
+              onChange={(e) => setComentario(e.target.value)}
+              placeholder="Escribe tus comentarios aquí..."
+            />
           </section>
 
           {/* Botones de acción */}
