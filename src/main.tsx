@@ -4,7 +4,6 @@ import { createRoot } from "react-dom/client";
 import {
   createBrowserRouter,
   RouterProvider,
-  Navigate,
 } from "react-router-dom";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -25,7 +24,6 @@ import "./App.css";
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
 import Error from "./pages/Error.tsx";
-import Requests from "./pages/Requests.tsx";
 import Historial from "./pages/Historial/Historial.tsx";
 import Bookings from "./pages/Bookings.tsx";
 import Reservations from "./pages/Reservations/Reservations.tsx";
@@ -68,8 +66,8 @@ export const router = createBrowserRouter([
         path: "/dashboard",
         element: <Dashboard title="Inicio" />,
       },
-            {
-        path: "/requests",
+      {
+        path: "/approvals",
         element: <Approvals />,
       },
       {
@@ -84,15 +82,10 @@ export const router = createBrowserRouter([
         path: "/requests/:id/edit",
         element: <EditTravelRequest />,
       },
-      // {
-      //   path: "/requests",
-      //   element: <Requests />,
-      // },
       {
         path: "/history",
         element: <Historial />,
       },
-
       {
         path: "/refunds",
         element: <Refunds />,
@@ -105,6 +98,14 @@ export const router = createBrowserRouter([
         path: "/refunds-acceptance",
         element: <RefundsAcceptance />,
       },
+      {
+        path: "/bookings",
+        element: <Bookings />,
+      },
+
+
+
+
 
 
       // Routes protected by specific permissions
@@ -138,10 +139,6 @@ export const router = createBrowserRouter([
           },
         ],
       },
-      {
-        path: "/bookings",
-        element: <Bookings />,
-      },
       // Routes protected for booking permission
       {
         path: "/booking",
@@ -166,12 +163,6 @@ export const router = createBrowserRouter([
         ],
       },
     ],
-  },
-
-  // ✅ Public route for Bookings — temp dev only (no auth)
-  {
-    path: "/bookings",
-    element: <Bookings />,
   },
 ]);
 

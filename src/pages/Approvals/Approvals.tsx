@@ -1,98 +1,55 @@
 import React, { useEffect, useState } from "react";
 import Table from "../../components/Approvals/Table";
-import InputField from "../../components/Refunds/InputField";
-import { MdRefresh } from "react-icons/md";
-
-import { approvalsData } from "./local/dummyData";
-
-interface Trip {
-  id: number;
-  code: string;
-  departureDate: string;
-  city: string;
-  country: string;
-  reason: string;
-  authorization: string;
-  checking: string;
-  refund: string;
-  currency: string;
-  employee: string;
-  position: string;
-  name: string;
-  email: string;
-  creditor: string;
-  company: string;
-}
+import { getRequest } from "../../utils/apiService";
+import RefreshButton from "../../components/RefreshButton";
+import formatDate from "../../utils/formatDate";
 
 const columns = [
-  { key: "statusIndicator", header: "Estado" },
-  { key: "code", header: "Viaje" },
+  { key: "status", header: "Estado" },
+  { key: "motive", header: "Motivo" },
+  { key: "title", header: "Viaje" },
   { key: "departureDate", header: "Fecha Salida" },
-  { key: "country", header: "País" },
-  { key: "reason", header: "Razón" },
-  { key: "authorization", header: "Autorización" },
+  { key: "country", header: "Lugar de Salida" },
 ];
 
 export const Approvals: React.FC = () => {
-  const [trips, setTrips] = useState<Trip[]>([]);
-  const [expandedTripId, setExpandedTripId] = useState<number | null>(null);
+  const [dataWithActions, setDataWithActions] = useState([]);
 
+  // Fetch travel records data from API
   useEffect(() => {
-    // Añadimos statusIndicator con círculo verde
-    const tripsWithStatus = approvalsData.map((t) => ({
-      ...t,
-      statusIndicator: <span className="text-green-500">●</span>,
-    }));
-    setTrips(tripsWithStatus);
+    const fetchTravelRecords = async () => {
+      try {
+        const response = await getRequest("/requests/to-approve");
+        setDataWithActions(response.map((trip: any) => ({
+          ...trip,
+          country: trip.destination.city,
+          departureDate: formatDate(trip.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
+        })));
+      } catch (error) {
+        console.error("Error fetching travel records:", error);
+      }
+    };
+
+    fetchTravelRecords();
   }, []);
 
-  // Construimos data para Table incluyendo dropdown y botón expandir en cada fila
-  const dataWithActions = trips.map((t) => ({
-    ...t,
-    // En cada fila agregamos propiedades extra para que Table las muestre
-
-  }));
 
 
   return (
     <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
       <div className="flex items-center justify-between mb-4">
-          <h2 className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6 text-xl">Viajes</h2>
-          <button
-            onClick={() => {
-              const refreshed = approvalsData.map((t) => ({
-                ...t,
-                statusIndicator: <span className="text-green-500">●</span>,
-              }));
-              setTrips(refreshed);
-              setExpandedTripId(null);
-            }}
-            className="p-2 bg-white rounded-md shadow hover:bg-gray-100"
-            aria-label="Refrescar viajes"
-          >
-            <MdRefresh className="h-6 w-6 text-[#0a2c6d]" />
-          </button>
+          <h2 className="text-2xl font-bold text-[var(--blue)]">
+            Viajes por Aprobar
+          </h2> 
+          <RefreshButton />
       </div>
 
-      <Table columns={columns} data={dataWithActions} itemsPerPage={5} />
-
-      {expandedTripId !== null && (
-        <div className="mt-4 p-4 bg-white rounded-lg shadow">
-          {(() => {
-            const t = trips.find((x) => x.id === expandedTripId)!;
-            return (
-              <div className="grid grid-cols-2 gap-6">
-                <InputField label="Empleado" value={t.employee} disabled onChange={() => {}} />
-                <InputField label="Nombre" value={t.name} disabled onChange={() => {}} />
-                <InputField label="Posición" value={t.position} disabled onChange={() => {}} />
-                <InputField label="Correo electrónico" value={t.email} disabled onChange={() => {}} />
-                <InputField label="Acreedor" value={t.creditor} disabled onChange={() => {}} />
-                <InputField label="Sociedad" value={t.company} disabled onChange={() => {}} />
-              </div>
-            );
-          })()}
-        </div>
-      )}
+      <Table 
+          columns={columns} 
+          data={dataWithActions} 
+          itemsPerPage={5}
+          link={"/requests"}
+      />
     </div>
   );
 };

@@ -13,9 +13,10 @@ interface TableProps {
     [key: string]: string | number | boolean | null | undefined | ReactNode;
   }>;
   itemsPerPage?: number;
+  link: string;
 }
 
-const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5 }) => {
+const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, link }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRowId, setExpandedRowId] = useState<number | null>(null);
   const [localData, setLocalData] = useState(data);
@@ -70,7 +71,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5 }) => {
           </thead>
 
           <tbody>
-            {currentItems.map((row) => (
+            {currentItems.map((row: any) => (
               <React.Fragment key={row.id}>
                 <tr className="bg-[#4C6997] text-white text-center">
                   {columns.map((column, cidx) => (
@@ -90,7 +91,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5 }) => {
                   ))}
 
                   <td className="text-sm">
-                    <Link to="/application-info" className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm">Ver Solicitud</Link>
+                    <Link to={`${link}/${row.id}`} className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm">Ver detalles</Link>
                   </td>
 
                   {/* Celda Detalles: borde izquierdo sólido, borde derecho redondeado */}
@@ -113,23 +114,22 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5 }) => {
                     >
                       <div className="grid grid-cols-3 gap-6">
                         <div>
-                          <strong>Empleado:</strong> {row.employee}
+                          <strong>Solicitante:</strong> {`${row?.user?.name} ${row?.user?.last_name}`}
                         </div>
                         <div>
-                          <strong>Nombre:</strong> {row.name}
+                          <strong>Correo Electrónico:</strong> {row?.user?.email}
                         </div>
                         <div>
-                          <strong>Acreedor:</strong> {row.creditor}
-                        </div>
-
-                        <div>
-                          <strong>Posición:</strong> {row.position}
+                          <strong>Aprobador:</strong> {`${row?.admin?.name} ${row?.admin?.last_name}`}
                         </div>
                         <div>
-                          <strong>Correo electrónico:</strong> {row.email}
+                          <strong>Estatus:</strong> {row?.status}
                         </div>
                         <div>
-                          <strong>Sociedad:</strong> {row.company}
+                          <strong>Motivo:</strong> {row?.motive}
+                        </div>
+                        <div>
+                          <strong>Fecha de Salida:</strong> {row?.departureDate}
                         </div>
                       </div>
                     </td>

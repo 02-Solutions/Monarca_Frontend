@@ -26,18 +26,7 @@ function Layout({ children }: LayoutProps) {
   return (
     <div>
       <Header />
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <ToastContainer />
       <div className="flex flex-col min-h-screen">
         <div className="flex flex-1">
           <Sidebar />

@@ -5,7 +5,12 @@
 
 import Table from "../../components/Refunds/Table";
 import Button from "../../components/Refunds/Button";
-import { historialData } from "./local/dummyData";
+import { useState, useEffect } from "react";
+import { getRequest } from "../../utils/apiService";
+import formatDate from "../../utils/formatDate";
+import { Permission, useAuth } from "../../hooks/auth/authContext";
+import RefreshButton from "../../components/RefreshButton";
+import { useNavigate } from "react-router-dom";
 
 //Interface for travel records data
 //interface TravelRecord {
@@ -27,44 +32,73 @@ import { historialData } from "./local/dummyData";
 export const Historial = () => {
   // State to store selected travel record details
   // const [selectedTravel, setSelectedTravel] = useState<TravelRecord | null>(null);
+  const [dataWithActions, setDataWithActions] = useState([]);
+  const { authState } = useAuth();
+  const navigate = useNavigate();
+
+  // Fetch travel records data from API
+  useEffect(() => {
+    const fetchTravelRecords = async () => {
+      try {
+        const endpoint = 
+          authState.userPermissions.includes("create_request" as Permission)
+            ? "/requests/user"
+            : "/requests/all";
+        let response = await getRequest(endpoint);
+        if(authState.userPermissions.includes("approve_request" as Permission)) {
+          response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled"].includes(record.status) && record.id_admin === authState.userId);
+        }
+        if(authState.userPermissions.includes("submit_reservations" as Permission)) {
+          response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status) && record.id_SOI === authState.userId);
+        }
+        // Data with actions (edit buttons)
+        setDataWithActions(response?.map((record: any) => ({
+          ...record,
+          createdAt: formatDate(record.createdAt),
+          country: record.destination.city,
+          departureDate: formatDate(record.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
+          action: record.status == "Changes Needed" && (
+            <Button
+              label="Editar"
+              onClickFunction={() => {
+                navigate(`/requests/${record.id}/edit`);
+              }}
+            />
+          ),
+        })));
+      } catch (error) {
+        console.error("Error fetching travel records:", error);
+      }
+    };
+
+    fetchTravelRecords();
+  }, []);
 
   // Columns schema for travel history table
   const columnsSchema = [
-    { key: "id", header: "ID" },
+    { key: "status", header: "Estatus" },
     { key: "title", header: "Título del viaje" },
-    { key: "travelDate", header: "Fecha del viaje" },
-    { key: "destination", header: "Destino" },
-    { key: "requestDate", header: "Fecha de solicitud" },
+    { key: "motive", header: "Motivo" },
+    { key: "departureDate", header: "Fecha del viaje" },
+    { key: "country", header: "Lugar de Salida" },
+    { key: "createdAt", header: "Fecha de solicitud" },
     {
       key: "action",
       header: "",
     },
   ];
 
-  // Data with actions (edit buttons)
-  const dataWithActions = historialData.map((record) => ({
-    ...record,
-    action: (
-      <Button
-        label="Editar"
-        onClickFunction={() => {
-          /*
-           * Placeholder for edit functionality.
-           * Implement what happens when clicking Edit button here.
-           */
-        }}
-      />
-    ),
-  }));
-
   return (
     <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-      <h2 className="text-2xl font-bold text-[#0a2c6d] mb-4">
-        Historial de viajes
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-[#0a2c6d] mb-4">
+            Historial de viajes
+          </h2>
+          <RefreshButton />
+      </div>
 
       {/* Travel history table component */}
-      <Table columns={columnsSchema} data={dataWithActions} itemsPerPage={5} />
+      <Table columns={columnsSchema} data={dataWithActions} itemsPerPage={5} link="/requests" />
     </div>
   );
 };

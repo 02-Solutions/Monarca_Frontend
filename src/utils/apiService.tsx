@@ -12,18 +12,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Interceptor de solicitud para añadir el token de autenticación (si existe)
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
 // Interceptor de respuesta para manejar errores globalmente
 api.interceptors.response.use(
   (response) => response,
@@ -84,6 +72,25 @@ export const putRequest = async (
       ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
     };
     const response = await api.put(url, data, { ...config, headers });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Función para peticiones PATCH (JSON o FormData)
+export const patchRequest = async (
+  url: string,
+  data: Record<string, unknown> | FormData,
+  config: AxiosRequestConfig = {}
+) => {
+  try {
+    const isForm = data instanceof FormData;
+    const headers = {
+      ...config.headers,
+      ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
+    };
+    const response = await api.patch(url, data, { ...config, headers });
     return response.data;
   } catch (error) {
     throw error;
