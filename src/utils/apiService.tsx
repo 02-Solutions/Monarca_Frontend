@@ -64,6 +64,7 @@ export const postRequest = async (
       ...config.headers,
       ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
     };
+    console.log("DATA", data);
     const response = await api.post(url, data, { ...config, headers });
     return response.data;
   } catch (error) {
