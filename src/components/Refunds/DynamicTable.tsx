@@ -1,4 +1,20 @@
-import React, { useState } from "react";
+/*
+ * DynamicTable component that renders a table with dynamic rows and columns.
+
+ * Last edit: April 29, 2025
+ * Authors: José Manuel García Zumaya
+ */
+import React, { useState, ReactNode } from "react";
+
+// Define a type for all possible cell values including File objects
+export type CellValueType =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | ReactNode
+  | File;
 
 /*
  * Column interface SCHEMA to define the structure of each column in the table.
@@ -7,14 +23,13 @@ import React, { useState } from "react";
  * defaultValue: The default value to display in the cell or inside the component.
  * renderCell: A function that helps to render custom components inside the cell.
  */
-
-interface Column {
+export interface Column {
   key: string;
   header: string;
-  defaultValue?: string | number | boolean | null | undefined;
+  defaultValue?: CellValueType;
   renderCell?: (
-    value: string | number | boolean | null | undefined, // Changed from ReactNode
-    handleFieldChange: (newValue: string | number | boolean | null | undefined) => void,
+    value: CellValueType,
+    handleFieldChange: (newValue: CellValueType) => void,
     rowIndex?: number
   ) => React.ReactNode;
 }
@@ -22,11 +37,11 @@ interface Column {
  * DynamicTableProps interface to define the structure of the props for the DynamicTable component.
  */
 /* Interface for table row data structure */
-// interface TableRow {
-//   [key: string]: string | number | boolean | null | undefined | ReactNode;
-// }
+export interface TableRow {
+  [key: string]: CellValueType;
+}
 
-interface DynamicTableProps {
+export interface DynamicTableProps {
   columns: Column[];
   initialData?: any[]; // Add proper typing here if known
   onDataChange?: (data: any[]) => void;
@@ -41,9 +56,23 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   expandedRows = [],
   renderExpandedRow,
 }) => {
-  const [tableData, setTableData] = useState<any[]>(initialData); // Replace any[] with the proper type if possible
+  /*
+   * State to manage the table data.
+   * The initial data is set to the initialData prop, or an empty array if not provided.
+   * This is useful if there are data that is already loaded in the table.
+   */
+  const [tableData, setTableData] = useState<TableRow[]>(initialData);
 
-  const handleFieldChange = (rowIndex: number, columnKey: string, newValue: any) => {
+  /*
+   * Function to handle changes in the table data.
+   * It receives the row index, column key, and new value.
+   * Using TableRow interface defined above
+   */
+  const handleFieldChange = (
+    rowIndex: number,
+    columnKey: string,
+    newValue: CellValueType
+  ): void => {
     const updatedData = [...tableData];
 
     updatedData[rowIndex] = {
@@ -64,12 +93,30 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       return obj;
     }, {} as Record<string, any>); // Ensure proper typing of the default row
 
-    const updatedData = [...tableData, defaultRow];
+    /* Add the new row to the tableData state */
+    const updatedData = [...tableData,defaultRow];
     setTableData(updatedData);
 
     if (onDataChange) {
       onDataChange(updatedData);
     }
+  };
+
+  // Function to render cell content safely
+  const renderCellContent = (value: CellValueType): React.ReactNode => {
+    if (value instanceof File) {
+      return value.name; // Show the filename instead of the File object
+    }
+
+    if (value === null || value === undefined) {
+      return "";
+    }
+
+    if (typeof value === "object" && !React.isValidElement(value)) {
+      return JSON.stringify(value);
+    }
+
+    return value;
   };
 
   return (
@@ -103,14 +150,29 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                         cellIndex === columns.length - 1 ? "rounded-r-lg" : ""
                       }`}
                     >
-                      {column.renderCell
-                        ? column.renderCell(
-                            row[column.key],
-                            (newValue: string | number | boolean | null | undefined) =>
-                              handleFieldChange(rowIndex, column.key, newValue),
-                            rowIndex
-                          )
-                        : row[column.key]}
+                      {
+                        /*
+                         * Here render the cell data, if the column has a renderCell function (that means a component)
+                         * we call it and pass the parameters to it, the value for the component to display it and an
+                         * anonymous function to update the state of the data localy, please see the definition of the
+                         * column interface to understand why an value and a function are passed to the renderCell function.
+                         * If there is no renderCell function, we just display the value of the cell like a static text.
+                         *
+                         * This can be a tricky of understanding, so please reach me José Manuel García Zumaya if you have any question about this.
+                         */
+                        column.renderCell
+                          ? column.renderCell(
+                              row[column.key],
+                              (newValue) =>
+                                handleFieldChange(
+                                  rowIndex,
+                                  column.key,
+                                  newValue
+                                ),
+                              rowIndex
+                            )
+                          : renderCellContent(row[column.key])
+                      }
                     </td>
                   ))}
                 </tr>

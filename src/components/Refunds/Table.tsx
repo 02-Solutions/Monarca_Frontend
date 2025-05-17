@@ -165,7 +165,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, link }) 
           <button
             onClick={() => changePage(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-1 rounded-lg bg-[#0a2c6d] text-white disabled:opacity-50"
+            className="px-3 py-1 rounded-lg bg-[#0a2c6d] text-white disabled:opacity-50 hover:cursor-pointer"
             aria-label="Previous page"
           >
             &lt;
@@ -178,7 +178,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, link }) 
           <button
             onClick={() => changePage(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded-lg bg-[#0a2c6d] text-white disabled:opacity-50"
+            className="px-3 py-1 rounded-lg bg-[#0a2c6d] text-white disabled:opacity-50 hover:cursor-pointer"
             aria-label="Next page"
           >
             &gt;
