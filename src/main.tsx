@@ -24,6 +24,8 @@ import "./App.css";
 // ****************** Pages ******************
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
+import { Dashboard } from "./pages/Dashboard.tsx";
+import { Vouchers } from "./pages/Refunds/Vouchers.tsx";
 import Requests from "./pages/Requests.tsx";
 import Bookings from "./pages/Bookings.tsx";
 import Reservations from "./pages/Reservations/Reservations.tsx";
@@ -44,14 +46,6 @@ export const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <Dashboard title="Inicio" />,
-      },
-      {
-        path: "/requests",
-        element: <Requests />,
-      },
-      {
-        path: "/application-info",
-        element: <ApplicationInfo />,
       },
       // Routes protected by specific permissions
        {
@@ -149,6 +143,9 @@ export const router = createBrowserRouter([
     element: <Refunds />,
   },
   {
+    path: "/refunds/:id",
+    element: <Vouchers />,
+  },
     path: "/reservations",
     element: <Reservations />,
   },
