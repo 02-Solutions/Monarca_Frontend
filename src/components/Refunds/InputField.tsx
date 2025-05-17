@@ -128,7 +128,7 @@ const InputField: React.FC<InputFieldProps> = ({
   // Final className combining all styles
   const borderClass =
     isInvalid || errorMessage
-      ? "border-red-500 focus:ring-red-500"
+      ? "border-red-500 focus:ring-blue-500"
       : "border-gray-300 focus:ring-blue-500";
 
   // Text color

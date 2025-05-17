@@ -14,7 +14,7 @@ import Button from "../../components/Refunds/Button";
 import InputField from "../../components/Refunds/InputField";
 import Dropdown from "../../components/Refunds/DropDown";
 import { spendOptions, taxIndicatorOptions } from "./local/dummyData";
-import { getRequest, postRequest } from "../../utils/apiService";
+import { getRequest /*postRequest*/ } from "../../utils/apiService";
 
 interface Trip {
   id: number | string;
@@ -58,6 +58,7 @@ export const Refunds = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [onSubmitError, setOnSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -99,17 +100,36 @@ export const Refunds = () => {
        */
       setFormData([]);
       setCommentDescriptionOfSpend("");
+      setOnSubmitError(null);
+      setSubmitSuccess(null);
+      setSubmitError(null);
     }
   };
 
+  const validateFormData = () => {
+    // Validate the form data before submission
+    for (const row of formData) {
+      if (!row.spentClass || !row.amount || !row.taxIndicator || !row.date) {
+        setOnSubmitError("Por favor complete todos los campos obligatorios.");
+        return false;
+      }
+      if (isNaN(row.amount)) {
+        setOnSubmitError("El monto debe ser un número válido.");
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmitRefund = async () => {
+    if (!validateFormData()) return;
     if (!currentRefundTrip) return;
     try {
       setSubmitting(true);
       setSubmitError(null);
       setSubmitSuccess(null);
+      setOnSubmitError(null);
 
-      let i = 0;
       for (const rowData of formData) {
         const formDataToSend = new FormData();
 
@@ -134,14 +154,10 @@ export const Refunds = () => {
           formDataToSend.append("PDFFile", rowData.PDFFile);
         }
 
-        await postRequest(API_ENDPOINTS.REFUND_REQUESTS, formDataToSend);
+        // await postRequest(API_ENDPOINTS.REFUND_REQUESTS, formDataToSend);
 
-        i++;
         setSubmitSuccess(
-          `Solicitud de reembolso ${i} enviada con éxito del viaje ${currentRefundTrip.tripName}`
-        );
-        console.log(
-          `Solicitud de reembolso ${i} enviada con éxito de ${formData.length}`
+          `Solicitud de reembolso del viaje ${currentRefundTrip.tripName} enviada con éxito`
         );
         console.log("Row submitted:");
         for (const [key, value] of formDataToSend.entries()) {
@@ -462,7 +478,11 @@ export const Refunds = () => {
                 <strong>Monto total:</strong> ${currentRefundTrip.amount}
               </p>
             </div>
-
+            {onSubmitError && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                {onSubmitError}
+              </div>
+            )}
             {/*
              * which contains the schema of the table.
              * The table is created initially with initially empty data,
@@ -507,7 +527,6 @@ export const Refunds = () => {
                   console.log("Form data:", formData);
                   console.log("Comment:", commentDescriptionOfSpend);
                   handleSubmitRefund();
-                  setVisibleRequestForm(false);
                 }}
                 disabled={submitting}
               >
