@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render } from "@testing-library/react";
 import { screen } from "@testing-library/dom";
 import Requests from "../../pages/Requests.tsx";
-import RequestRow from "../../components/RequestRow";
+import RequestRow from "../../components/RequestRow.tsx";
 
 vi.mock("../../components/RequestRow", () => ({
   default: vi.fn(() => (

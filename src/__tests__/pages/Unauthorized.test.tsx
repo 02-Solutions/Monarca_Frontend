@@ -9,7 +9,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { Unauthorized } from "./../../pages/Unauthorized";
+import { Unauthorized } from "../../pages/Unauthorized";
 import { beforeEach, describe, expect, it } from "vitest";
 
 describe("Unauthorized component", () => {
@@ -34,7 +34,9 @@ describe("Unauthorized component", () => {
 
   it("muestra el mensaje de contacto al administrador", () => {
     expect(
-      screen.getByText("Contacta a un administrador si crees que esto es un error.")
+      screen.getByText(
+        "Contacta a un administrador si crees que esto es un error."
+      )
     ).toBeInTheDocument();
   });
 
@@ -44,7 +46,9 @@ describe("Unauthorized component", () => {
   });
 
   it("tiene un enlace al login con la ruta correcta", () => {
-    const loginLink = screen.getByRole("link", { name: /Ir a la Página de Iniciar Sesión/i });
+    const loginLink = screen.getByRole("link", {
+      name: /Ir a la Página de Iniciar Sesión/i,
+    });
     expect(loginLink).toHaveAttribute("href", "/login");
   });
 });
