@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { postRequest } from "../utils/apiService";
+import { ToastContainer, toast } from "react-toastify";
 
 interface User {
   email: string;
@@ -16,7 +17,15 @@ export default function LoginPage() {
   const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!user.email || !user.password) {
-      alert("El Usuario y la Contraseña son obligatorios")
+      toast.error("Por favor, completa todos los campos", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
       return
     }
     // Send request to API
@@ -27,11 +36,27 @@ export default function LoginPage() {
       }
       else {
         console.log(result)
-        alert("Error al iniciar sesion")
+        toast.error("Credenciales incorrectas", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
       }
     } catch (error) {
       console.log(error)
-      alert("Error")
+      toast.error("Error al iniciar sesión", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
 
@@ -49,6 +74,7 @@ export default function LoginPage() {
         <p className="text-[2.5rem] absolute top-8 right-12" style={{ fontWeight: 700 }}>
           <span className="text-[#0466CB]">M</span>ONARCA
         </p>
+        <ToastContainer />
         <h1 className="text-[3.5rem] text-[#001d3d] mb-8 mt-20" style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 700 }}>
           INICIO DE SESIÓN
         </h1>
@@ -58,7 +84,6 @@ export default function LoginPage() {
             name="email"
             type="email"
             placeholder="Correo"
-            required
             className="p-4 border border-[#E0E0E0] rounded-[0.5rem] bg-[#F0F3F4] shadow-[0_2px_1px_rgba(0,0,0,0.3)] text-[1.2rem] mb-8"
           />
           <input
@@ -66,7 +91,6 @@ export default function LoginPage() {
             name="password"
             type="password"
             placeholder="Contraseña"
-            required
             className="p-4 border border-[#E0E0E0] rounded-[0.5rem] bg-[#F0F3F4] shadow-[0_2px_1px_rgba(0,0,0,0.3)] text-[1.2rem] mb-4"
           />
           <a

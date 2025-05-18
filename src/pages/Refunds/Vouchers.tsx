@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DynamicTable, {
   TableRow as DynamicTableRow,
   CellValueType,
@@ -7,7 +7,10 @@ import { useState, useEffect } from "react";
 import InputField from "../../components/Refunds/InputField";
 import Dropdown from "../../components/Refunds/DropDown";
 import { spendOptions, taxIndicatorOptions } from "./local/dummyData";
-import { postRequest } from "../../utils/apiService";
+import { getRequest, postRequest } from "../../utils/apiService";
+import { useParams } from "react-router-dom";
+import formatMoney from "../../utils/formatMoney";
+import { toast } from "react-toastify";
 
 interface FormDataRow extends DynamicTableRow {
   spentClass: string;
@@ -22,36 +25,51 @@ interface Trip {
   title: string;
   advance_money: number;
   destination: {
-    name: string;
+    city: string;
   };
 }
 
 export const Vouchers = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [formData, setFormData] = useState<FormDataRow[]>([]);
   const [trip, setTrip] = useState<Trip>({
     id: 0,
     title: "",
     advance_money: 0,
     destination: {
-      name: "",
+      city: "",
     },
   });
+
+  useEffect(() => {
+    const fetchTrip = async () => {
+      try {
+        const response = await getRequest(`/requests/${id}`);
+        setTrip(response);
+      } catch (err) {
+        console.error(
+          "Error al cargar el viaje: ",
+          err instanceof Error ? err.message : err
+        );
+      }
+    };
+    fetchTrip();
+  }, []);
 
   const handleSubmitRefund = async () => {
     try {
       // comprobante_pendiente, comprobante_denegado, comprobante_aprobado
-
-      console.log("Form data to send:", formData);
       let formDataToSend = null;
       for (const rowData of formData) {
         formDataToSend = new FormData();
 
         formDataToSend.append(
           "id_request",
-          "581c998a-9f67-4431-b6ab-635ec9794ba7"
+          trip.id.toString()
         );
         //formDataToSend.append("comment", commentDescriptionOfSpend);
-        formDataToSend.append("date", new Date().toISOString().split("T")[0]);
+        formDataToSend.append("date", new Date().toISOString());
         formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());
         formDataToSend.append("status", "comprobante_pendiente");
@@ -66,11 +84,16 @@ export const Vouchers = () => {
         }
 
         await postRequest("/vouchers/upload", formDataToSend);
+        navigate("/refunds");
+        toast.success("Solicitud de reembolso enviada con éxito.");
       }
     } catch (err) {
       console.error(
         "Error al enviar la solicitud de reembolso: ",
         err instanceof Error ? err.message : err
+      );
+      toast.error(
+        "Error al enviar la solicitud de reembolso. Por favor, inténtelo de nuevo más tarde."
       );
     } finally {
       // Reset form data and comment after submission
@@ -177,7 +200,6 @@ export const Vouchers = () => {
 
                 if (updatedFormData[rowIndex]) {
                   updatedFormData[rowIndex].XMLFile = file;
-                  console.log("UpdatedFromData:", updatedFormData);
                   setFormData(updatedFormData);
                 }
               }
@@ -249,10 +271,10 @@ export const Vouchers = () => {
           <strong>Nombre del viaje:</strong> {trip.title}
         </p>
         <p>
-          <strong>Destino:</strong> {trip.destination.name}
+          <strong>Destino:</strong> {trip.destination.city}
         </p>
         <p>
-          <strong>Monto total:</strong> ${trip.advance_money}
+          <strong>Anticipo:</strong> {formatMoney(trip.advance_money)}
         </p>
       </div>
       {/*

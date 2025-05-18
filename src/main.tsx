@@ -4,7 +4,6 @@ import { createRoot } from "react-dom/client";
 import {
   createBrowserRouter,
   RouterProvider,
-  Navigate,
 } from "react-router-dom";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -24,20 +23,41 @@ import "./App.css";
 // ****************** Pages ******************
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
-import { Dashboard } from "./pages/Dashboard.tsx";
-import { Vouchers } from "./pages/Refunds/Vouchers.tsx";
-import Requests from "./pages/Requests.tsx";
+import Error from "./pages/Error.tsx";
+import Historial from "./pages/Historial/Historial.tsx";
 import Bookings from "./pages/Bookings.tsx";
+import { Refunds } from "./pages/Refunds/Refunds.tsx";
+import { Vouchers } from "./pages/Refunds/Vouchers.tsx";
 import Reservations from "./pages/Reservations/Reservations.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
-import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
-import ApplicationInfo from "./pages/ApplicationInfo.tsx"
+import RequestInfo from "./pages/RequestInfo.tsx"
 import {Approvals} from "./pages/Approvals/Approvals.tsx";
 
 
 export const router = createBrowserRouter([
+  // Public routes (no authentication required)
+  {
+    path: "/",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/unauthorized",
+    element: <Unauthorized />,
+  },
+  {
+    path: "*",
+    element: <Error />,
+  },
+
+
+
+
   // Basic protected routes (requires only authentication)
   {
     path: "/",
@@ -47,10 +67,51 @@ export const router = createBrowserRouter([
         path: "/dashboard",
         element: <Dashboard title="Inicio" />,
       },
-      // Routes protected by specific permissions
-       {
+      {
+        path: "/approvals",
+        element: <Approvals />,
+      },
+      {
+        path: "/requests/:id",
+        element: <RequestInfo />,
+      },
+      {
+        path: "/requests/create",
+        element: <CreateTravelRequest />
+      },
+      {
+        path: "/requests/:id/edit",
+        element: <EditTravelRequest />,
+      },
+      {
+        path: "/history",
+        element: <Historial />,
+      },
+      {
         path: "/refunds",
         element: <Refunds />,
+      },
+      {
+        path: "/refunds/:id",
+        element: <Vouchers />,
+      },
+      {
+        path: "/bookings",
+        element: <Bookings />,
+      },
+      {
+        path: "/bookings/:id",
+        element: <Reservations />,
+      },
+      
+      
+      
+      
+      
+      
+      {
+        path: "/refunds-acceptance",
+        element: <RefundsAcceptance />,
       },
       {
         path: "/approval",
@@ -78,10 +139,6 @@ export const router = createBrowserRouter([
           },
         ],
       },
-      {
-        path: "/bookings",
-        element: <Bookings />,
-      },
       // Routes protected for booking permission
       {
         path: "/booking",
@@ -105,63 +162,7 @@ export const router = createBrowserRouter([
           },
         ],
       },
-      {
-        path: "/travel-requests/create",
-        element: (
-          // <PermissionProtectedRoute requiredPermissions={["create_trip"]} />
-          <CreateTravelRequest />
-        ),
-      },
-      {
-        path: "/travel-requests/:id/edit",
-        element: <EditTravelRequest />,
-      },
     ],
-  },
-
-  // ✅ Public route for Bookings — temp dev only (no auth)
-  {
-    path: "/bookings",
-    element: <Bookings />,
-  },
-
-  // Public routes (no authentication required)
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/register",
-    element: <Register />,
-  },
-  {
-    path: "/unauthorized",
-    element: <Unauthorized />,
-  },
-  {
-    path: "/refunds",
-    element: <Refunds />,
-  },
-  {
-    path: "/refunds/:id",
-    element: <Vouchers />,
-  },
-    path: "/reservations",
-    element: <Reservations />,
-  },
-  {
-    path: "/approvals",
-    element: <Approvals />,
-  },
-  // Catch-all route for non-existent pages
-  // TODO: Add a 404 page
-  {
-    path: "/refundsacceptance",
-    element: <RefundsAcceptance />,
-  },
-  {
-    path: "*",
-    element: <Navigate to="/login" replace />,
   },
 ]);
 

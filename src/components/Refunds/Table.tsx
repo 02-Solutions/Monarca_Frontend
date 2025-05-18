@@ -43,7 +43,7 @@ interface TableProps {
 /*
  * Table component that renders a table based on the provided columns and data with pagination controls.
  */
-const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5 }) => {
+const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
   /*
    * State to manage the current page of the table.
    */

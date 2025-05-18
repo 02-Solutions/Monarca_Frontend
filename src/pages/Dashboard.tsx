@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import {useApp} from "../hooks/app/appContext";
+import { Permission, useAuth } from "../hooks/auth/authContext";
+import Mosaic from "../components/Mosaic";
 
 interface DashboardProps {
   title: string;
@@ -7,54 +9,49 @@ interface DashboardProps {
 
 export const Dashboard = ({title}:DashboardProps) => {
   const { setPageTitle } = useApp();
+  const { authState } = useAuth();
+
   // Set the page title when the component mounts
   useEffect(() => {
     setPageTitle(title);
   }, [title, setPageTitle]);
+
+
   return (
-    <div className="flex justify-start items-start gap-10 py-10 px-1 ml-0">
-      {[
-        {
-          title: "Crear solicitud de viaje",
-          iconPath:
-            "M16.5 9.75V6a2.25 2.25 0 00-2.25-2.25h-4.5A2.25 2.25 0 007.5 6v3.75M3.75 9.75h16.5M6 9.75v10.5h12V9.75",
-        },
-        {
-          title: "Historial de viajes",
-          iconPath:
-            "M8.25 6.75v-1.5a.75.75 0 01.75-.75h6a.75.75 0 01.75.75v1.5m-8.25 0h9A2.25 2.25 0 0119.5 9v8.25A2.25 2.25 0 0117.25 19.5H6.75A2.25 2.25 0 014.5 17.25V9a2.25 2.25 0 012.25-2.25zm5.25 3v4.5",
-        },
-        {
-          title: "Solicitud de reembolso",
-          iconPath:
-            "M15.75 2.25v6M12 4.5h7.5M18 9.75V21a.75.75 0 01-.75.75H6.75A.75.75 0 016 21V3a.75.75 0 01.75-.75H12",
-        },
-      ].map(({ title, iconPath }, idx) => (
-        <div
-          key={idx}
-          className="relative bg-[#F4F6F8] w-64 h-30 rounded-2xl shadow-md flex items-end justify-center pt-12 hover:shadow-lg transition-shadow duration-300 ease-in-out"
-        >
-          <div className="absolute -top-8 bg-[#2C64C6] w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="white"
-              className="w-9 h-9"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d={iconPath}
-              />
-            </svg>
-          </div>
-          <p className="text-center text-[#001233] font-extrabold text-base pb-3 leading-tight px-2">
-            {title}
-          </p>
-        </div>
-      ))}
+    <div className="grid grid-cols-4 gap-y-20 py-10 px-1 ml-0">
+      {authState.userPermissions.includes("create_request" as Permission) && (
+        <Mosaic title="Crear solicitud de viaje" iconPath="/assets/crear_solicitud_de_viaje.png" link="/requests/create"/>
+      )}
+      {authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) && authState.userPermissions.includes("create_request" as Permission) && (
+        <Mosaic title="Historial de viajes" iconPath="/assets/historial_de_viajes.png" link="/history"/>
+      )}
+      {authState.userPermissions.includes("upload_vouchers" as Permission) && (
+        <Mosaic title="Solicitud de reembolso" iconPath="/assets/solicitud_de_reembolso.png" link="/refunds"/>
+      )}
+      {authState.userPermissions.includes("approve_request" as Permission) && (
+        <Mosaic title="Viajes por aprobar" iconPath="/assets/viajes_por_aprobar.png" link="/approvals"/>
+      )}
+      {authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) && authState.userPermissions.includes("approve_request" as Permission) && (
+        <Mosaic title="Historial de viajes aprobados" iconPath="/assets/historial_de_viajes_aprobados.png" link="/history"/>
+      )}
+      {authState.userPermissions.includes("approve_vouchers" as Permission) && (
+        <Mosaic title="Comprobantes de gastos por aprobar" iconPath="/assets/comprobantes_de_gastos_por_aprobar.png" link=""/>
+      )}
+      {authState.userPermissions.includes("approve_vouchers" as Permission) && (
+        <Mosaic title="Reembolsos por aprobar" iconPath="/assets/reembolsos_por_aprobar.png" link=""/>
+      )}
+      {authState.userPermissions.includes("request_history" as Permission) && (
+        <Mosaic title="Historial de reembolsos aprobados" iconPath="/assets/historial_de_reembolsos_aprobados.png" link=""/>
+      )}
+      {authState.userPermissions.includes("submit_reservations" as Permission) && (
+        <Mosaic title="Viajes por reservar" iconPath="/assets/viajes_por_reservar.png" link="/bookings"/>
+      )}
+      {/* {authState.userPermissions.includes("submit_reservations" as Permission) && (
+        <Mosaic title="Formulario de ingreso de reservación" iconPath="/assets/formulario_de_ingreso_de_reservacion.png" link=""/>
+      )} */}
+      {authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) && authState.userPermissions.includes("submit_reservations" as Permission) && (
+        <Mosaic title="Historial de viajes reservados" iconPath="/assets/historial_de_viajes_reservados.png" link="/history"/>
+      )}
     </div>
   );
 };

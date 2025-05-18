@@ -21,23 +21,12 @@ function Layout({ children }: LayoutProps) {
   if (loadingProfile) return <div>Loading...</div>;
 
   // Check if the user is authenticated
-  if (!authState.isAuthenticated) return <Navigate to="/login" />;
+  if (!authState.isAuthenticated) return <Navigate to="/" />;
     
   return (
     <div>
       <Header />
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <ToastContainer />
       <div className="flex flex-col min-h-screen">
         <div className="flex flex-1">
           <Sidebar />
