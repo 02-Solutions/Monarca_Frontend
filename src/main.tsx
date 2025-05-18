@@ -27,7 +27,7 @@ import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { Vouchers } from "./pages/Refunds/Vouchers.tsx";
 import Reservations from "./pages/Reservations/Reservations.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
-import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
+import RefundsAcceptance from "./pages/Refunds/RefundsAcceptance.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 import RequestInfo from "./pages/RequestInfo.tsx";
 import { Approvals } from "./pages/Approvals/Approvals.tsx";
@@ -54,6 +54,10 @@ export const router = createBrowserRouter([
   {
     path: "/refunds-review",
     element: <RefundsReview />,
+  },
+  {
+    path: "/refunds-review/:id",
+    element: <RefundsAcceptance />,
   },
 
   // Basic protected routes (requires only authentication)
@@ -100,11 +104,6 @@ export const router = createBrowserRouter([
       {
         path: "/bookings/:id",
         element: <Reservations />,
-      },
-
-      {
-        path: "/refunds-acceptance",
-        element: <RefundsAcceptance />,
       },
       {
         path: "/approval",
