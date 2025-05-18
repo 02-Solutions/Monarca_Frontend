@@ -98,7 +98,7 @@ export const Historial = () => {
       </div>
 
       {/* Travel history table component */}
-      <Table columns={columnsSchema} data={dataWithActions} itemsPerPage={5} link="/requests" />
+      <Table columns={columnsSchema} data={dataWithActions} itemsPerPage={5} />
     </div>
   );
 };

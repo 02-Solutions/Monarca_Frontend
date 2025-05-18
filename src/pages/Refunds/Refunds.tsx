@@ -9,6 +9,10 @@ import Table from "../../components/Refunds/Table";
 import { getRequest } from "../../utils/apiService";
 import Button from "../../components/Refunds/Button";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import RefreshButton from "../../components/RefreshButton";
+import formatDate from "../../utils/formatDate";
+import formatMoney from "../../utils/formatMoney";
 
 interface Trip {
   id: number | string;
@@ -17,33 +21,32 @@ interface Trip {
   date: string;
   destination: string;
   requestDate: string;
+  status: string;
 }
-
-const API_ENDPOINTS = {
-  TRIPS: "https://680ff5f827f2fdac240fe541.mockapi.io/monarca/trips",
-};
 
 export const Refunds = () => {
   const navigate = useNavigate();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTrips = async () => {
       try {
         setLoading(true);
-        setError(null);
 
-        const response = await getRequest(
-          API_ENDPOINTS.TRIPS,
-          {},
-          { withCredentials: false }
-        );
-        setTrips(response);
+        const response = await getRequest("/requests/all");
+        setTrips(response.filter((trip: Trip) => trip.status === "In Progres").map((trip: any) => ({
+          ...trip,
+          date: formatDate(trip.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
+          advance_money: formatMoney(trip.advance_money),
+          origin: trip.destination.city,
+          createdAt: formatDate(trip.createdAt),
+        })));
       } catch (err) {
-        setError("Error desconocido al cargar los viajes");
-
+        toast.error(
+          "Error al cargar los viajes. Por favor, inténtelo de nuevo más tarde."  
+        );
+    
         console.error(
           "Error al cargar viajes: ",
           err instanceof Error ? err.message : err
@@ -56,12 +59,12 @@ export const Refunds = () => {
   }, []);
 
   const columnsSchemaTrips = [
-    { key: "id", header: "ID" },
-    { key: "tripName", header: "Nombre del viaje" },
+    { key: "title", header: "Nombre del viaje" },
+    { key: "status", header: "Estatus" },
     { key: "date", header: "Fecha viaje" },
-    { key: "destination", header: "Destino" },
-    { key: "amount", header: "Monto" },
-    { key: "requestDate", header: "Fecha solicitud" },
+    { key: "origin", header: "Lugar de Salida" },
+    { key: "advance_money", header: "Anticipo" },
+    { key: "createdAt", header: "Fecha solicitud" },
     { key: "action", header: "" },
   ];
   
@@ -73,19 +76,6 @@ export const Refunds = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-        <p className="text-center text-red-500">Error: {error}</p>
-        <button
-          className="mt-4 px-4 py-2 bg-[#0a2c6d] text-white rounded-md hover:bg-[#0d3d94] mx-auto block"
-          onClick={() => window.location.reload()}
-        >
-          Reintentar
-        </button>
-      </div>
-    );
-  }
   const dataWithActions = trips.map((trip) => ({
     ...trip,
     action: (
@@ -100,15 +90,15 @@ export const Refunds = () => {
     <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold text-[var(--blue)]">
-          Viajes por Aprobar
+            Solicitudes de reembolso
         </h2>
-        {/* <RefreshButton />*/}
+        <RefreshButton />
       </div>
 
       <Table
         columns={columnsSchemaTrips}
         data={dataWithActions}
-        itemsPerPage={5}
+        itemsPerPage={7}
       />
     </div>
   );

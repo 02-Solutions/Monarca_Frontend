@@ -26,9 +26,10 @@ import Register from "./pages/Register.tsx";
 import Error from "./pages/Error.tsx";
 import Historial from "./pages/Historial/Historial.tsx";
 import Bookings from "./pages/Bookings.tsx";
+import { Refunds } from "./pages/Refunds/Refunds.tsx";
+import { Vouchers } from "./pages/Refunds/Vouchers.tsx";
 import Reservations from "./pages/Reservations/Reservations.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
-import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
 import RequestInfo from "./pages/RequestInfo.tsx"
@@ -91,27 +92,26 @@ export const router = createBrowserRouter([
         element: <Refunds />,
       },
       {
-        path: "/reservations",
-        element: <Reservations />,
-      },
-      {
-        path: "/refunds-acceptance",
-        element: <RefundsAcceptance />,
+        path: "/refunds/:id",
+        element: <Vouchers />,
       },
       {
         path: "/bookings",
         element: <Bookings />,
       },
-
-
-
-
-
-
-      // Routes protected by specific permissions
-       {
-        path: "/refunds",
-        element: <Refunds />,
+      {
+        path: "/bookings/:id",
+        element: <Reservations />,
+      },
+      
+      
+      
+      
+      
+      
+      {
+        path: "/refunds-acceptance",
+        element: <RefundsAcceptance />,
       },
       {
         path: "/approval",

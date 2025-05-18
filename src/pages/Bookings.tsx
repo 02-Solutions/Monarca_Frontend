@@ -3,11 +3,8 @@ import RefreshButton from "../components/RefreshButton";
 import Table from "../components/Refunds/Table";
 import { getRequest } from "../utils/apiService";
 import formatDate from "../utils/formatDate";
-
-// Type for form data rows
-interface FormData {
-  [key: string]: string | number | boolean | null | undefined;
-}
+import Button from "../components/Refunds/Button";
+import { useNavigate } from "react-router-dom";
 
 const columns = [
   { key: "status", header: "Estado" },
@@ -15,32 +12,29 @@ const columns = [
   { key: "title", header: "Viaje" },
   { key: "departureDate", header: "Fecha Salida" },
   { key: "country", header: "Lugar de Salida" },
+  { key: "action", header: "" }
 ];
 
 const Bookings = () => {
+  const navigate = useNavigate();
   const [dataWithActions, setDataWithActions] = useState([]);
 
   // Fetch travel records data from API
   useEffect(() => {
     const fetchTravelRecords = async () => {
       try {
-        // const response = await getRequest("/requests/all");
-        // setDataWithActions(response.map((trip: any) => ({
-        //   ...trip,
-        //   country: trip.destination.city,
-        //   departureDate: formatDate(trip.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
-        //   action: (
-        //     <button
-        //       onClick={() => {
-        //         setExpandedTripId((prev) => (prev === trip.id ? null : trip.id));
-        //       }}
-        //       className="p-2 bg-white rounded-md shadow hover:bg-gray-100"
-        //       aria-label="Ver detalles del viaje"
-        //     >
-        //       {expandedTripId === trip.id ? "Ocultar" : "Ver"}
-        //     </button>
-        //   ),
-        // })));
+        const response = await getRequest("/requests/to-reserve");
+        setDataWithActions(response.map((trip: any) => ({
+          ...trip,
+          country: trip.destination.city,
+          departureDate: formatDate(trip.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
+          action: (
+            <Button
+              label="Reservar"
+              onClickFunction={() => navigate(`/bookings/${trip.id}`)}
+            />
+          )
+        })));
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
@@ -62,7 +56,6 @@ const Bookings = () => {
           columns={columns} 
           data={dataWithActions} 
           itemsPerPage={5}
-          link={"/bookings"}
       />
     </div>
   );

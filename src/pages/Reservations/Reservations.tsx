@@ -1,118 +1,250 @@
-import { useState } from "react";
-import DynamicTable from "../../components/Reservations/DynamicTable";
-import Button from "../../components/Refunds/Button";
-import { TravelAgencyFormData } from "./local/dummyData";
-import { Input } from "../../components/ui/Input";
-import { TextArea } from "../../components/ui/TextArea";
-
-
-const columnsSchema = [
-  { key: "id", header: "ID" },
-  { key: "title", header: "Título del viaje" },
-  { key: "travelDate", header: "Fecha del viaje" },
-  { key: "destination", header: "Destino" },
-  { key: "days", header: "Días" },
-  { key: "passengers", header: "Pasajeros" },
-  { key: "transport", header: "Transporte" },
-  { key: "price", header: "Precio" },
-  { key: "requestDate", header: "Fecha de solicitud" },
-  { key: "status", header: "Estado" },
-  { key: "action", header: "" },
-];
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import Input from "../../components/Refunds/InputField";
+import TextArea from "../../components/Refunds/TextArea";
+import { toast } from "react-toastify";
+import { getRequest } from "../../utils/apiService";
+import formatDate from "../../utils/formatDate";
 
 export const Reservations = () => {
-  const [showPopup, setShowPopup] = useState(false);
-  const [title, setTitle] = useState("");
-  const [comments, setComments] = useState("");
-  const [files, setFiles] = useState<FileList | null>(null);
+  const { id } = useParams();
+  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [request, setRequest] = useState<any>({});
+  const [isFormValid, _setIsFormValid] = useState(false);
 
-  const togglePopup = () => setShowPopup(!showPopup);
+  useEffect(() => {
+    const fetchRequest = async () => {
+      try {
+        // Simulate an API call to fetch data
+        const response = await getRequest(`/requests/${id}`);
+        setRequest({
+          ...response,
+          requests_destinations: response.requests_destinations.map((destination: any) => ({
+            ...destination,
+            origin: response.destination.city + ", " + response.destination.country,
+            origin_city: response.destination.city,
+            origin_country: response.destination.country,
+            destination_full: destination.destination.city + ", " + destination.destination.country,
+            destination_city: destination.destination.city,
+            destination_country: destination.destination.country,
+            departure_date: formatDate(destination.departure_date),
+            arrival_date: formatDate(destination.arrival_date),
+            hotel_required: destination.is_hotel_required ? "Sí" : "No",
+            plane_required: destination.is_plane_required ? "Sí" : "No",
+            stay_days: destination.stay_days,
+            details: destination.details,
+          })),
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Error fetching data");
+      }
+    }
+    fetchRequest();
+  }, []);
 
-  const isFormValid = title.trim() !== "" && comments.trim() !== "" && files?.length;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+    const { name, files } = e.target;
+    const updatedFormData = {
+      ...formData,
+      [id]: {
+        ...formData[id],
+        [name]: files ? files[0] : null,
+      }
+    };
+    setFormData(updatedFormData);
+  };
 
-  const dataWithActions = TravelAgencyFormData.map((record) => ({
-    ...record,
-    action: (
-      <Button
-        label="Asignar reservación"
-        onClickFunction={togglePopup}
-      />
-    ),
-  }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string) => {
+    const { name, value } = e.target;
+    const updatedFormData = {
+      ...formData,
+      [id]: {
+        ...formData[id],
+        [name]: value,
+      }
+    };
+    setFormData(updatedFormData);
+  };
+
+  // const handleSubmit = async (e: React.FormEvent) => {
+
+  // }
+
+
+    const labels: { key: keyof typeof request; label: string }[] = [
+      { key: 'origin', label: 'Origen' },
+      { key: 'destination_full', label: 'Destino' },
+      { key: 'departure_date', label: 'Fecha de Salida' },
+      { key: 'arrival_date', label: 'Fecha de Llegada' },
+      { key: 'details', label: 'Detalles' },
+      { key: 'hotel_required', label: '¿Se necesita hotel?' },
+      { key: 'plane_required', label: '¿Se necesita avión?' },
+      { key: 'stay_days', label: 'Días de estancia' },
+    ];
 
   return (
-    <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-      <h2 className="text-2xl font-bold text-[#0a2c6d] mb-4">
-        Reservaciones pendientes
-      </h2>
-      <DynamicTable columns={columnsSchema} initialData={dataWithActions}/>
+    <div className="bg-gray-200 rounded-md mb-10 max-w-5xl mx-auto">
+      <div className="p-10 mx-auto">
+        <h2 className="text-2xl font-bold text-[var(--blue)] mb-4">
+          Asignar reservaciones
+        </h2>
+        <form className="space-y-6">
+            <div 
+              className=""
+            >
+              {request?.requests_destinations?.map((destination: any) => (
+                <div 
+                    key={destination.id}
+                    className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm"
+                >
+                  <h3>Destino #{destination.destination_order}</h3>
+                  <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                    {labels.map(({ key, label }) => (
+                      <div key={key as string}>
+                        <label
+                          htmlFor={key as string}
+                          className="block text-xs font-semibold text-gray-500 mb-1"
+                        >
+                          {label}
+                        </label>
+                        <input
+                          id={key as string}
+                          type="text"
+                          readOnly
+                          value={destination[key] || ""}
+                          className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                        />
+                      </div>
+                    ))}
+                  </section>
+                  <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                    {destination.is_hotel_required && (
+                    <div className="flex flex-col gap-y-4">
+                    <h3 className="text-[var(--blue)] mb-4 font-bold">Información del hotel</h3>
+                      <div>
+                      <label 
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor={`hotel_title_${destination.id}`}
+                      >
+                        Título
+                      </label>
+                      <Input
+                        placeholder="Ingresa el título de la reservación"
+                        value={formData[destination.id]?.hotel_title || ""}
+                        onChange={(e) => handleChange(e, destination.id)}
+                        name="hotel_title"
+                        id={`hotel_title_${destination.id}`}
+                      />
+                    </div>
 
-      {showPopup && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-6">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl overflow-y-auto max-h-[90vh] relative border border-gray-300">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="text-lg font-semibold">Asignar reservación</h3>
+                    <div>
+                      <label 
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor={`hotel_comments_${destination.id}`}
+                      >
+                        Comentarios
+                      </label>
+                      <TextArea
+                        placeholder="Escribe tus comentarios"
+                        value={formData[destination.id]?.hotel_comments || ""}
+                        onChange={(e) => handleChange(e, destination.id)}
+                        name="hotel_comments"
+                        id={`hotel_comments_${destination.id}`}
+                      />
+                    </div>
+
+                    <div>
+                      <label 
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor={`hotel_file_${destination.id}`}
+                      >
+                        Subir archivos de hotel
+                      </label>
+                      <Input
+                        type="file"
+                        value={""}
+                        onChange={(e) => handleFileChange(e, destination.id)}
+                        name="hotel_file"
+                        id={`hotel_file_${destination.id}`}
+                      />
+                    </div>
+                  </div>
+                  )
+                  }
+                  {destination.is_plane_required && (
+                    <div className="flex flex-col gap-y-4">
+                    <h3 className="text-[var(--blue)] mb-4 font-bold">Información del vuelo</h3>
+                      <div>
+                      <label 
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor={`plane_title_${destination.id}`}
+                      >
+                        Título
+                      </label>
+                      <Input
+                        placeholder="Ingresa el título de la reservación"
+                        value={formData[destination.id]?.plane_title || ""}
+                        onChange={(e) => handleChange(e, destination.id)}
+                        name="plane_title"
+                        id={`plane_title_${destination.id}`}
+                      />
+                    </div>
+
+                    <div>
+                      <label 
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor={`plane_comments_${destination.id}`}
+                      >
+                        Comentarios
+                      </label>
+                      <TextArea
+                        placeholder="Escribe tus comentarios"
+                        value={formData[destination.id]?.plane_comments || ""}
+                        onChange={(e) => handleChange(e, destination.id)}
+                        name="plane_comments"
+                        id={`plane_comments_${destination.id}`}
+                      />
+                    </div>
+
+                    <div>
+                      <label 
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor={`plane_file_${destination.id}`}
+                      >
+                        Subir archivos de avión
+                      </label>
+                      <Input
+                        type="file"
+                        value={""}
+                        onChange={(e) => handleFileChange(e, destination.id)}
+                        name="plane_file"
+                        id={`plane_file_${destination.id}`}
+                      />
+                    </div>
+                  </div>
+                  )
+                  }
+                  </section>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-4 flex justify-end">
               <button
-                onClick={togglePopup}
-                className="text-gray-500 hover:text-red-500 text-xl font-bold"
+                type="submit"
+                disabled={!isFormValid}
+                className={` px-4 py-2 rounded-md transition-colors ${
+                  isFormValid
+                    ? "bg-[#0a2c6d] text-white hover:bg-[#0d3d94]"
+                    : "bg-gray-400 text-white cursor-not-allowed"
+                }`}
               >
-                &times;
+                Enviar reservaciones
               </button>
             </div>
-            <div className="p-6 bg-gray-100">
-              <form className="space-y-6">
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-900">
-                    Título
-                  </label>
-                  <Input
-                    placeholder="Ingresa el título de la reservación"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-900">
-                    Comentarios
-                  </label>
-                  <TextArea
-                    rows={4}
-                    placeholder="Escribe tus comentarios"
-                    value={comments}
-                    onChange={(e) => setComments(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-900">
-                    Subir archivos
-                  </label>
-                  <Input
-                    type="file"
-                    multiple
-                    onChange={(e) => setFiles(e.target.files)}
-                  />
-                </div>
-
-                <div className="pt-4">
-                  <button
-                    type="submit"
-                    disabled={!isFormValid}
-                    className={`px-4 py-2 rounded-md transition-colors ${
-                      isFormValid
-                        ? "bg-[#0a2c6d] text-white hover:bg-[#0d3d94]"
-                        : "bg-gray-400 text-white cursor-not-allowed"
-                    }`}
-                  >
-                    Guardar
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+        </form>
+      </div>
     </div>
   );
 };

@@ -178,8 +178,8 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   };
 
   return (
-    <section className="bg-gray-200 rounded-md mb-20">
-      <div className="py-8 px-4 mx-auto max-w-4xl lg:py-16">
+    <section className="bg-gray-200 rounded-md mb-10 max-w-5xl mx-auto">
+      <div className="p-10 mx-auto">
         <h2 className="text-2xl font-bold text-[var(--blue)] mb-4">
           {isEditing ? "Editar Viaje" : "Datos del Viaje"}
         </h2>
