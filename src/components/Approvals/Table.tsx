@@ -9,14 +9,19 @@ interface Column {
 interface TableProps {
   columns: Array<Column>;
   data: Array<{
-    id: number; // Asegúrate que tus datos tengan id para manejar la expansión
+    id: number;
     [key: string]: string | number | boolean | null | undefined | ReactNode;
   }>;
   itemsPerPage?: number;
   link: string;
 }
 
-const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, link }) => {
+const Table: React.FC<TableProps> = ({
+  columns,
+  data,
+  itemsPerPage = 5,
+  link,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRowId, setExpandedRowId] = useState<number | null>(null);
   const [localData, setLocalData] = useState(data);
@@ -91,7 +96,12 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, link }) 
                   ))}
 
                   <td className="text-sm">
-                    <Link to={`${link}/${row.id}`} className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm">Ver detalles</Link>
+                    <Link
+                      to={`${link}/${row.id}`}
+                      className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
+                    >
+                      Ver detalles
+                    </Link>
                   </td>
 
                   {/* Celda Detalles: borde izquierdo sólido, borde derecho redondeado */}
@@ -114,13 +124,16 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, link }) 
                     >
                       <div className="grid grid-cols-3 gap-6">
                         <div>
-                          <strong>Solicitante:</strong> {`${row?.user?.name} ${row?.user?.last_name}`}
+                          <strong>Solicitante:</strong>{" "}
+                          {`${row?.user?.name} ${row?.user?.last_name}`}
                         </div>
                         <div>
-                          <strong>Correo Electrónico:</strong> {row?.user?.email}
+                          <strong>Correo Electrónico:</strong>{" "}
+                          {row?.user?.email}
                         </div>
                         <div>
-                          <strong>Aprobador:</strong> {`${row?.admin?.name} ${row?.admin?.last_name}`}
+                          <strong>Aprobador:</strong>{" "}
+                          {`${row?.admin?.name} ${row?.admin?.last_name}`}
                         </div>
                         <div>
                           <strong>Estatus:</strong> {row?.status}
