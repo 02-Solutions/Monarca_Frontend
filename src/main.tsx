@@ -1,10 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CreateTravelRequest from "./pages/CreateTravelRequest.tsx";
@@ -30,11 +27,11 @@ import { Refunds } from "./pages/Refunds/Refunds.tsx";
 import { Vouchers } from "./pages/Refunds/Vouchers.tsx";
 import Reservations from "./pages/Reservations/Reservations.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
-import { RefundsAcceptance } from "./pages/Refunds/RefundsAcceptance.tsx";
+import RefundsAcceptance from "./pages/Refunds/RefundsAcceptance.tsx";
 import { Unauthorized } from "./pages/Unauthorized.tsx";
-import RequestInfo from "./pages/RequestInfo.tsx"
-import {Approvals} from "./pages/Approvals/Approvals.tsx";
-
+import RequestInfo from "./pages/RequestInfo.tsx";
+import { Approvals } from "./pages/Approvals/Approvals.tsx";
+import { RefundsReview } from "./pages/Refunds/RefundsReview.tsx";
 
 export const router = createBrowserRouter([
   // Public routes (no authentication required)
@@ -54,9 +51,14 @@ export const router = createBrowserRouter([
     path: "*",
     element: <Error />,
   },
-
-
-
+  {
+    path: "/refunds-review",
+    element: <RefundsReview />,
+  },
+  {
+    path: "/refunds-review/:id",
+    element: <RefundsAcceptance />,
+  },
 
   // Basic protected routes (requires only authentication)
   {
@@ -77,7 +79,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/requests/create",
-        element: <CreateTravelRequest />
+        element: <CreateTravelRequest />,
       },
       {
         path: "/requests/:id/edit",
@@ -102,16 +104,6 @@ export const router = createBrowserRouter([
       {
         path: "/bookings/:id",
         element: <Reservations />,
-      },
-      
-      
-      
-      
-      
-      
-      {
-        path: "/refunds-acceptance",
-        element: <RefundsAcceptance />,
       },
       {
         path: "/approval",
