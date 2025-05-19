@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Input from "../../components/Refunds/InputField";
 import TextArea from "../../components/Refunds/TextArea";
 import { toast } from "react-toastify";
-import { getRequest } from "../../utils/apiService";
+import { getRequest, patchRequest } from "../../utils/apiService";
 import formatDate from "../../utils/formatDate";
 import { postRequest } from "../../utils/apiService";
 
 export const Reservations = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [request, setRequest] = useState<any>({});
@@ -160,6 +161,8 @@ export const Reservations = () => {
       if (responses) {
         toast.success("Reservaciones enviadas correctamente.");
         setFormData({});
+        await patchRequest(`/requests/finished-reservations/${id}`, {});
+        navigate("/dashboard");
       } else {
         toast.error("Error al enviar las reservaciones.");
       }

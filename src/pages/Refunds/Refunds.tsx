@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import RefreshButton from "../../components/RefreshButton";
 import formatDate from "../../utils/formatDate";
 import formatMoney from "../../utils/formatMoney";
+import GoBack from "../../components/GoBack";
 
 interface Trip {
   id: number | string;
@@ -87,20 +88,23 @@ export const Refunds = () => {
   }));
 
   return (
-    <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-[var(--blue)]">
-            Solicitudes de reembolso
-        </h2>
-        <RefreshButton />
-      </div>
+      <>
+        <GoBack />
+        <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-[var(--blue)]">
+                Solicitudes de reembolso
+            </h2>
+            <RefreshButton />
+          </div>
 
-      <Table
-        columns={columnsSchemaTrips}
-        data={dataWithActions}
-        itemsPerPage={7}
-      />
-    </div>
+          <Table
+            columns={columnsSchemaTrips}
+            data={dataWithActions}
+            itemsPerPage={7}
+          />
+        </div>
+      </>
   );
 };
 

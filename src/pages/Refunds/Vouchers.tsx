@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import InputField from "../../components/Refunds/InputField";
 import Dropdown from "../../components/Refunds/DropDown";
 import { spendOptions, taxIndicatorOptions } from "./local/dummyData";
-import { getRequest, postRequest } from "../../utils/apiService";
+import { getRequest, patchRequest, postRequest } from "../../utils/apiService";
 import { useParams } from "react-router-dom";
 import formatMoney from "../../utils/formatMoney";
 import { toast } from "react-toastify";
@@ -84,9 +84,10 @@ export const Vouchers = () => {
         }
 
         await postRequest("/vouchers/upload", formDataToSend);
-        navigate("/refunds");
         toast.success("Solicitud de reembolso enviada con éxito.");
       }
+      await patchRequest(`/requests/finished-uploading-vouchers/${id}`, {});
+      navigate("/refunds");
     } catch (err) {
       console.error(
         "Error al enviar la solicitud de reembolso: ",

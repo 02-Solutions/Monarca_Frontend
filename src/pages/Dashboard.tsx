@@ -35,13 +35,13 @@ export const Dashboard = ({title}:DashboardProps) => {
         <Mosaic title="Historial de viajes aprobados" iconPath="/assets/historial_de_viajes_aprobados.png" link="/history"/>
       )}
       {authState.userPermissions.includes("approve_vouchers" as Permission) && (
-        <Mosaic title="Comprobantes de gastos por aprobar" iconPath="/assets/comprobantes_de_gastos_por_aprobar.png" link=""/>
+        <Mosaic title="Comprobantes de gastos por aprobar" iconPath="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review"/>
       )}
       {authState.userPermissions.includes("approve_vouchers" as Permission) && (
         <Mosaic title="Reembolsos por aprobar" iconPath="/assets/reembolsos_por_aprobar.png" link=""/>
       )}
       {authState.userPermissions.includes("request_history" as Permission) && (
-        <Mosaic title="Historial de reembolsos aprobados" iconPath="/assets/historial_de_reembolsos_aprobados.png" link=""/>
+        <Mosaic title="Viajes por registrar" iconPath="/assets/historial_de_reembolsos_aprobados.png" link=""/>
       )}
       {authState.userPermissions.includes("submit_reservations" as Permission) && (
         <Mosaic title="Viajes por reservar" iconPath="/assets/viajes_por_reservar.png" link="/bookings"/>

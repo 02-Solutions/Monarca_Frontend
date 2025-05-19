@@ -49,7 +49,7 @@ function Sidebar({ user }: { user: AuthState }) {
               <SidebarOption label="Reembolsos por aprobar" pathIcon="/assets/reembolsos_por_aprobar.png" link=""/>
             )}
             {user.userPermissions.includes("request_history" as Permission) && (
-              <SidebarOption label="Historial de reembolsos aprobados" pathIcon="/assets/historial_de_reembolsos_aprobados.png" link=""/>
+              <SidebarOption label="Viajes por registrar" pathIcon="/assets/historial_de_reembolsos_aprobados.png" link=""/>
             )}
             {user.userPermissions.includes("submit_reservations" as Permission) && (
               <SidebarOption label="Viajes por reservar" pathIcon="/assets/viajes_por_reservar.png" link="/bookings"/>

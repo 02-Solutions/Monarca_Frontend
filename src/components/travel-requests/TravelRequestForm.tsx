@@ -19,6 +19,7 @@ import { useCreateTravelRequest } from "../../hooks/requests/useCreateRequest";
 import { useUpdateTravelRequest } from "../../hooks/requests/useUpdateRequest";
 import { useDestinations } from "../../hooks/destinations/useDestinations";
 import { CreateRequest } from "../../types/requests";
+import GoBack from "../GoBack";
 
 type Option = { id: number | string; name: string };
 
@@ -178,9 +179,11 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   };
 
   return (
-    <section className="bg-gray-200 rounded-md mb-10 max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto">
+      <GoBack />
+    <section className="bg-gray-200 rounded-md mb-10">
       <div className="p-10 mx-auto">
-        <h2 className="text-2xl font-bold text-[var(--blue)] mb-4">
+        <h2 className="text-2xl font-bold text-[var(--blue)] mt-0 mb-4">
           {isEditing ? "Editar Viaje" : "Datos del Viaje"}
         </h2>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -470,6 +473,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
         </form>
       </div>
     </section>
+    </div>
   );
 }
 export default TravelRequestForm;
