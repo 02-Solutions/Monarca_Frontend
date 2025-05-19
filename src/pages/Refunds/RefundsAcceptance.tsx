@@ -1,297 +1,247 @@
-/*
- * Refunds page component, which displays a list of trips and allows users to request refunds.
- * The component includes a table of trips with an action button to request a refund.
- * When a refund is requested, a form is displayed with fields for entering details about the refund request.
- */
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { getRequest } from "../../utils/apiService";
+import formatMoney from "../../utils/formatMoney";
+import formatDate from "../../utils/formatDate";
+import GoBack from "../../components/GoBack";
 
-import { useState } from "react";
-import Table from "../../components/Refunds/Table";
-import Button from "../../components/Refunds/Button";
-//import InputField from "../../components/Refunds/InputField";
-//import Dropdown from "../../components/Refunds/DropDown";
-import { tripData} from "./local/dummyData";
+interface RequestData {
+  id?: string;
+  admin?: string;
+  id_origin_city?: string;
+  destinations?: string;
+  motive?: string;
+  advance_money?: string | number;
+  status?: string;
+  requirements?: string;
+  priority?: string;
+  createdAt?: string;
+  destination?: {
+    city: string;
+  };
+  requests_destinations?: Array<{
+    destination: {
+      city: string;
+    };
+  }>;
+}
 
-export const RefundsAcceptance = () => {
-  /*
-   * State to manage the visibility of the request form and the current trip
-   * for which the refund is being requested.
-   */
-  const [visibleRequestForm] = useState(false);
+interface Dest {
+  destination: {
+    city: string;
+  };
+}
 
-  /*
-   * State to manage the current trip for which the refund is being requested.
-   * This is set when the user clicks the action button in the table.
-   */
-  interface Trip {
-    id: number | string;
-    tripName: string;
-    amount: number;
-    status: string;
-    date: string;
-    destination: string;
-    duration: number;
-    passengers: number;
-    transportation: string;
-    requestDate: string;
-  }
+interface FileUrlPair {
+  pdfUrl: string;
+  xmlUrl: string;
+}
 
-  const [currentRefundTrip ] = useState<Trip | null>(null);
+const RefundsAcceptance: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [data, setData] = useState<RequestData>({});
+  const [loading, setLoading] = useState(true);
+  const [fileUrls, setFileUrls] = useState<FileUrlPair[]>([
+    {
+      pdfUrl:
+        "http://localhost:3000/files/vouchers/334_LRA960318EK1_22-Nov-23.pdf",
+      xmlUrl:
+        "http://localhost:3000/files/vouchers/334_LRA960318EK1_22-Nov-23.xml",
+    },
+    {
+      pdfUrl:
+        "http://localhost:3000/files/vouchers/333_LRA960318EK1_21-Nov-23.pdf",
+      xmlUrl:
+        "http://localhost:3000/files/vouchers/334_LRA960318EK1_22-Nov-23.xml",
+    },
+    {
+      pdfUrl:
+        "http://localhost:3000/files/vouchers/333_LRA960318EK1_21-Nov-23.pdf",
+      xmlUrl:
+        "http://localhost:3000/files/vouchers/334_LRA960318EK1_22-Nov-23.xml",
+    },
+  ]);
 
-  /*
-   * State to manage the form data for the refund request.
-   * This is an array of objects, each object represents a row in the dynamic table
-   * for entering expenses related to the refund request.
-   */
-  //interface FormDataRow {
-    //spentClass: string;
-    //amount: number;
-    //taxIndicator: string;
-    //date: string;
-    //XML: string;
-    //PDF: string;
-    //[key: string]: string | number | null | undefined | ReactNode;
-  //}
+  const [currentFileIndex, setCurrentFileIndex] = useState(0);
 
+  // Get the current file based on the index
+  const currentFile = fileUrls[currentFileIndex] || {
+    pdfUrl: "",
+    xmlUrl: "",
+  };
 
-  /* Array of trip data with an action button to request a refund.
-   * This is created by mapping over the tripData array and adding an action property
-   * to each trip object. The action property contains a Button component that
-   * calls the handleRequestRefund function when clicked.
-   * The button passes the trip ID to the function, allowing it to identify
-   * which trip the user is requesting a refund for.
-   * The tripData array is imported from the local/dummyData file.
-   */
-  const dataWithActions = tripData.map((trip) => ({
-    ...trip,
-    action: (
-      <Button
-        label="Ver Comprobante"
-        onClickFunction={() => void(trip.id)}
-      />
-    ),
-  }));
+  useEffect(() => {
+    const fetchFileUrls = async () => {
+      try {
+        // Example implementation:
+        // const response = await getRequest(`/requests/${id}/files`);
+        // setFileUrls(response.fileUrls);
+        console.log("File URLs would be fetched here");
+      } catch (error) {
+        console.error("Error fetching file URLs:", error);
+      }
+    };
 
-  /*
-   * Column schema for the trips table for Table component.
-   * This defines the structure of each column in the table.
-   * The key property is used to access the data in the trip object,
-   * and the header property is used to display the column header.
-   *
-   * This is the STEP ONE to understand how the table works, the key property is used to access
-   * the data in the trip object, so with this form we can access the data dynamically in our object
-   * data and show it in the table.
-   *
-   * This is passed as a prop to the Table component, which renders the table based on this schema.
-   *
-   */
-  const columnsSchemaTrips = [
-    { key: "id", header: "ID" },
-    { key: "tripName", header: "Nombre del viaje" },
-    { key: "date", header: "Fecha viaje" },
-    { key: "destination", header: "Destino" },
-    { key: "duration", header: "Días" },
-    { key: "passengers", header: "Pasajeros" },
-    { key: "transportation", header: "Transporte" },
-    { key: "amount", header: "Monto" },
-    { key: "requestDate", header: "Fecha solicitud" },
-    { key: "status", header: "Estado" },
-    { key: "action", header: "" },
+    fetchFileUrls();
+  }, [id]);
+
+  const changeFile = (index: number) => {
+    if (index < 0) {
+      setCurrentFileIndex(0);
+    } else if (index >= fileUrls.length) {
+      setCurrentFileIndex(fileUrls.length - 1);
+    } else {
+      setCurrentFileIndex(index);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await getRequest(`/requests/${id}`);
+        setData({
+          ...response,
+          createdAt: formatDate(response.createdAt),
+          advance_money: formatMoney(response.advance_money),
+          admin: response.admin.name + " " + response.admin.last_name,
+          id_origin_city: response.destination.city,
+          destinations: response.requests_destinations
+            .map((dest: Dest) => dest.destination.city)
+            .join(", "),
+        });
+      } catch (error) {
+        console.error("Error fetching request data:", error);
+      } finally {
+        setLoading(false);
+        console.log("Data fetched successfully");
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  const labels: { key: keyof RequestData; label: string }[] = [
+    { key: "id", label: "ID solicitud" },
+    { key: "admin", label: "Aprobador" },
+    { key: "id_origin_city", label: "Ciudad de Origen" },
+    { key: "destinations", label: "Destinos" },
+    { key: "motive", label: "Motivo" },
+    { key: "advance_money", label: "Anticipo" },
+    { key: "status", label: "Estado" },
+    { key: "requirements", label: "Requerimientos" },
+    { key: "priority", label: "Prioridad" },
+    { key: "createdAt", label: "Fecha de creación" },
   ];
 
-  /*
-   * Column schema for the dynamic table of expenses for the Refunds component.
-   * This defines the structure of each column in the table.
-   * The key property is used to access the data in the trip object,
-   * and the header property is used to display the column header.
-   *
-   * This is passed as a prop to the DynamicTable component, which renders the table based on this schema.
-   *
-   * Look at the renderCell property, this is a function that helps to render custom components
-   * inside the cell, this function receives a value to show in the component and a
-   * function to handle the change of that component, this function is used to update
-   * the component from CHILD to PARENT. Note that returns an object of type ReactNode,
-   * so it should be used to render components like InputField, Dropdown, etc.
-   */
-  //const columnsSchemaVauchers = [
-    //{
-      //key: "spentClass",
-      //header: "Clase de gasto",
-      //defaultValue: "",
-      ///*
-       //* An fast example of how the renderCell function works:
-       //* 1. When change the option in the dropdown, the native OnChange function of the dropdown is called.
-       //* 2. OnChangeComponentFunction is acually the function passed as a prop to the renderCell function,
-       //*    in this case (newValue) => handleFieldChange(rowIndex, column.key, newValue) in the DynamicTable component.
-       //* 3. This function is used to update the component from child to parent, so it will update the value of the
-       //*   column in the row with the new value selected in the dropdown.
-       //*
-       //*/
-      //renderCell: (
-        //value: ReactNode,
-        //onChangeComponentFunction: (newValue: ReactNode) => void
-      //) => (
-        //<Dropdown
-          //required={true}
-          //options={spendOptions}
-          //value={value as string}
-          //onChange={(e) => onChangeComponentFunction(e.target.value)}
-          //placeholder="Seleccione el tipo de gasto"
-        ///>
-      //),
-    //},
-    //{
-      //key: "amount",
-      //header: "Monto MXN",
-      //defaultValue: 0,
-      //renderCell: (
-        //value: ReactNode,
-        //onChangeComponentFunction: (newValue: ReactNode) => void
-      //) => (
-        //<InputField
-          //required={true}
-          //type="number"
-          //value={value as string}
-          //onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
-          //placeholder="Ingrese monto del comprobante"
-        ///>
-      //),
-    //},
-    //{
-      //key: "taxIndicator",
-      //header: "Indicador de impuesto",
-      //defaultValue: "",
-      //renderCell: (
-        //value: ReactNode,
-        //onChangeComponentFunction: (newValue: ReactNode) => void
-      //) => (
-        //<Dropdown
-          //required={true}
-          //options={taxIndicatorOptions}
-          //value={value as string}
-          //onChange={(e) => onChangeComponentFunction(e.target.value)}
-          //placeholder="Seleccione el indicador de impuesto"
-        ///>
-      //),
-    //},
-    //{
-      //key: "date",
-      //header: "Fecha del comprobante",
-      //defaultValue: "",
-      //renderCell: (
-        //value: ReactNode,
-        //onChangeComponentFunction: (newValue: ReactNode) => void
-      //) => (
-        //<InputField
-          //required={true}
-          //type="date"
-          //value={value as string}
-          //onChange={(e) => onChangeComponentFunction(e.target.value)}
-          //placeholder="Fecha del comprobante"
-        ///>
-      //),
-    //},
-    //{
-      //key: "XML",
-      //header: "Archivo XML",
-      //defaultValue: "",
-      //renderCell: (
-        //value: ReactNode,
-        //onChangeComponentFunction: (newValue: ReactNode) => void
-      //) => (
-        //<InputField
-          //required={true}
-          //type="file"
-          //value={value as string}
-          //onChange={(e) => onChangeComponentFunction(e.target.value)}
-          //placeholder="Subir archivo XML"
-        ///>
-      //),
-    //},
-    //{
-      //key: "PDF",
-      //header: "Archivo PDF",
-      //defaultValue: "",
-      //renderCell: (
-        //value: ReactNode,
-        //onChangeComponentFunction: (newValue: ReactNode) => void
-      //) => (
-        //<InputField
-          //required={true}
-          //type="file"
-          //value={value as string}
-          //onChange={(e) => onChangeComponentFunction(e.target.value)}
-          //placeholder="Subir archivo PDF"
-        ///>
-      //),
-    //},
-  //];
-
-  // Import the TableRow type or define it locally if not already imported
-  //interface TableRow {
-    //[key: string]: string | number | null | undefined | ReactNode;
-  //}
-
   return (
-    <>
-      {
-        /*
-         * Render the table of history trips, if the request form is not visible.
-         * The table is created with the dataWithActions array, which contains
-         * the trip data and the action button to request a refund.
-         */
-
-        !visibleRequestForm && (
-          <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-            <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
-              Historial de viajes
-            </h2>
-            <Table
-              columns={columnsSchemaTrips}
-              data={dataWithActions}
-              itemsPerPage={5}
-            />
+    <div className="pb-10">
+      <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
+        <div className="px-8 py-10 flex flex-col">
+          <GoBack />
+          <div className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6">
+            Información de Solicitud: <span>{id}</span>
           </div>
-        )
-      }
+          <p className="mb-6 text-gray-700 font-medium">
+            Empleado:{" "}
+            <span className="text-[var(--blue)]">
+              Aquí va el ID del usuario
+            </span>
+          </p>
 
-      {
-        /*
-         * Render the request form, if the button to request a refund is clicked.
-         * The form contains the trip information and a dynamic table
-         * to add the expenses, and a obligatory comment field.
-         * The dynamic table is created with the columnsSchemaVauchers array, which contains
-         * the columns of the table.
-         */
+          <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+            {labels.map(({ key, label }) => (
+              <div key={key}>
+                <label
+                  htmlFor={key}
+                  className="block text-xs font-semibold text-gray-500 mb-1"
+                >
+                  {label}
+                </label>
+                <input
+                  id={key}
+                  type="text"
+                  readOnly
+                  value={data[key] !== undefined ? String(data[key]) : ""}
+                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                />
+              </div>
+            ))}
+          </section>
 
-        visibleRequestForm && currentRefundTrip && (
-          <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-            <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
-              Formato de solicitud de reembolso
-            </h2>
-            <div className="mb-4">
-              {/*
-               * Display general information about the trip, such as ID, name, destination,
-               */}
-              <h3 className="text-lg font-bold text-[#0a2c6d] mb-2">
-                Información del viaje
-              </h3>
-              <p>
-                <strong>ID del viaje:</strong> {currentRefundTrip.id}
-              </p>
-              <p>
-                <strong>Nombre del viaje:</strong> {currentRefundTrip.tripName}
-              </p>
-              <p>
-                <strong>Destino:</strong> {currentRefundTrip.destination}
-              </p>
-              <p>
-                <strong>Monto total:</strong> ${currentRefundTrip.amount}
-              </p>
-            </div>     
+          <div className="mb-4">
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                Comprobante de Solicitud {currentFileIndex + 1} de{" "}
+                {fileUrls.length}
+              </h2>
+              {/* Display the existing PDF using an iframe */}
+              <div className="w-full h-96 mb-4">
+                <iframe
+                  src={currentFile.pdfUrl}
+                  width="100%"
+                  height="100%"
+                  title={`Comprobante de Solicitud ${currentFileIndex + 1}`}
+                  className="border-0"
+                />
+              </div>
+
+              <div className="mt-4 flex justify-between items-center">
+                <div className="flex space-x-4">
+                  <a
+                    href={currentFile.xmlUrl}
+                    download={`comprobante${currentFileIndex + 1}.xml`}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover:cursor-pointer"
+                  >
+                    Descargar XML
+                  </a>
+                  <a
+                    href={currentFile.pdfUrl}
+                    download={`comprobante${currentFileIndex + 1}.pdf`}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 hover:cursor-pointer"
+                  >
+                    Descargar PDF
+                  </a>
+                </div>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => changeFile(currentFileIndex - 1)}
+                    disabled={currentFileIndex === 0}
+                    className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                      currentFileIndex === 0
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                    }`}
+                  >
+                    Anterior
+                  </button>
+                  <button
+                    onClick={() => changeFile(currentFileIndex + 1)}
+                    disabled={currentFileIndex === fileUrls.length - 1}
+                    className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                      currentFileIndex === fileUrls.length - 1
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                    }`}
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        )
-      }
-    </>
+
+          <div className="flex space-x-4 justify-end mt-6">
+            <button className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 hover:cursor-pointer">
+              Denegar
+            </button>
+            <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 hover:cursor-pointer">
+              Aprobar
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
   );
 };
 
