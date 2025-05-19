@@ -29,7 +29,7 @@ function Layout({ children }: LayoutProps) {
       <ToastContainer />
       <div className="flex flex-col min-h-screen">
         <div className="flex flex-1">
-          <Sidebar />
+          <Sidebar user={authState} />
           <div className="px-16 pt-32 flex-1">{children}</div>
         </div>
         <Footer />

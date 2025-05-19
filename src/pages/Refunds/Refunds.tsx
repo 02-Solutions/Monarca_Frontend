@@ -35,7 +35,7 @@ export const Refunds = () => {
         setLoading(true);
 
         const response = await getRequest("/requests/all");
-        setTrips(response.filter((trip: Trip) => trip.status === "In Progres").map((trip: any) => ({
+        setTrips(response.filter((trip: Trip) => trip.status === "In Progress").map((trip: any) => ({
           ...trip,
           date: formatDate(trip.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
           advance_money: formatMoney(trip.advance_money),
