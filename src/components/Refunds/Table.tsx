@@ -114,7 +114,13 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
              * in the colums array, we create a new cell in the current row, finally
              * access the data by colum.key in the row data, to display in the correct place.
              */}
-            {currentItems.map((row, rowIndex) => (
+            {currentItems.length <= 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="text-center pt-10">
+                  No hay datos disponibles
+                </td>
+              </tr>
+            ) : currentItems.map((row, rowIndex) => (
               <tr
                 key={rowIndex}
                 className="bg-[#4C6997] text-white text-center"

@@ -76,7 +76,13 @@ const Table: React.FC<TableProps> = ({
           </thead>
 
           <tbody>
-            {currentItems.map((row: any) => (
+            {currentItems.length <= 0 ? (
+              <tr>
+                <td colSpan={columns.length + 2} className="text-center pt-10">
+                  No hay datos disponibles
+                </td>
+              </tr>
+            ) : currentItems.map((row: any) => (
               <React.Fragment key={row.id}>
                 <tr className="bg-[#4C6997] text-white text-center">
                   {columns.map((column, cidx) => (

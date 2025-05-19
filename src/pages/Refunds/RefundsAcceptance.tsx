@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { getRequest } from "../../utils/apiService";
 import formatMoney from "../../utils/formatMoney";
 import formatDate from "../../utils/formatDate";
 import GoBack from "../../components/GoBack";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import FilePreviewer from "../../components/Refunds/FilePreviewer";
+import { patchRequest } from "../../utils/apiService";
+
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import { toast } from "react-toastify";
 
 interface RequestData {
   id?: string;
@@ -16,6 +25,7 @@ interface RequestData {
   requirements?: string;
   priority?: string;
   createdAt?: string;
+  advance_money_str?: string;
   destination?: {
     city: string;
   };
@@ -23,6 +33,15 @@ interface RequestData {
     destination: {
       city: string;
     };
+  }>;
+  vouchers?: Array<{
+    id: string;
+    file_url_pdf: string;
+    file_url_xml: string;
+    status: string;
+    class: string;
+    amount: number;
+    date: string;
   }>;
 }
 
@@ -32,78 +51,27 @@ interface Dest {
   };
 }
 
-interface FileUrlPair {
-  pdfUrl: string;
-  xmlUrl: string;
-}
-
 const RefundsAcceptance: React.FC = () => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [data, setData] = useState<RequestData>({});
-  const [loading, setLoading] = useState(true);
-  const [fileUrls, setFileUrls] = useState<FileUrlPair[]>([
-    {
-      pdfUrl:
-        "http://localhost:3000/files/vouchers/334_LRA960318EK1_22-Nov-23.pdf",
-      xmlUrl:
-        "http://localhost:3000/files/vouchers/334_LRA960318EK1_22-Nov-23.xml",
-    },
-    {
-      pdfUrl:
-        "http://localhost:3000/files/vouchers/333_LRA960318EK1_21-Nov-23.pdf",
-      xmlUrl:
-        "http://localhost:3000/files/vouchers/334_LRA960318EK1_22-Nov-23.xml",
-    },
-    {
-      pdfUrl:
-        "http://localhost:3000/files/vouchers/333_LRA960318EK1_21-Nov-23.pdf",
-      xmlUrl:
-        "http://localhost:3000/files/vouchers/334_LRA960318EK1_22-Nov-23.xml",
-    },
-  ]);
+  const [_loading, setLoading] = useState(true);
 
-  const [currentFileIndex, setCurrentFileIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Get the current file based on the index
-  const currentFile = fileUrls[currentFileIndex] || {
-    pdfUrl: "",
-    xmlUrl: "",
-  };
-
-  useEffect(() => {
-    const fetchFileUrls = async () => {
-      try {
-        // Example implementation:
-        // const response = await getRequest(`/requests/${id}/files`);
-        // setFileUrls(response.fileUrls);
-        console.log("File URLs would be fetched here");
-      } catch (error) {
-        console.error("Error fetching file URLs:", error);
-      }
-    };
-
-    fetchFileUrls();
-  }, [id]);
-
-  const changeFile = (index: number) => {
-    if (index < 0) {
-      setCurrentFileIndex(0);
-    } else if (index >= fileUrls.length) {
-      setCurrentFileIndex(fileUrls.length - 1);
-    } else {
-      setCurrentFileIndex(index);
-    }
-  };
+  const prevRef = useRef<HTMLButtonElement | null>(null);
+  const nextRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         const response = await getRequest(`/requests/${id}`);
+        console.log("Response from API:", response);
         setData({
           ...response,
           createdAt: formatDate(response.createdAt),
-          advance_money: formatMoney(response.advance_money),
+          advance_money_str: formatMoney(response.advance_money),
           admin: response.admin.name + " " + response.admin.last_name,
           id_origin_city: response.destination.city,
           destinations: response.requests_destinations
@@ -127,18 +95,59 @@ const RefundsAcceptance: React.FC = () => {
     { key: "id_origin_city", label: "Ciudad de Origen" },
     { key: "destinations", label: "Destinos" },
     { key: "motive", label: "Motivo" },
-    { key: "advance_money", label: "Anticipo" },
+    { key: "advance_money_str", label: "Anticipo" },
     { key: "status", label: "Estado" },
     { key: "requirements", label: "Requerimientos" },
     { key: "priority", label: "Prioridad" },
     { key: "createdAt", label: "Fecha de creación" },
   ];
 
+  const approveVoucher = async (id: string) => {
+    try {
+      await patchRequest(`/vouchers/${id}/approve`, {});
+      const updatedVouchers = data?.vouchers?.map((voucher) => {
+        if (voucher.id === id) {
+          return { ...voucher, status: "comprobante_aprobado" };
+        }
+        return voucher;
+      });
+      setData({ ...data, vouchers: updatedVouchers });
+    }
+    catch (error) { 
+      console.error("Error approving voucher:", error);
+    }
+  }
+
+  const denyVoucher = async (id: string) => {
+    try {
+      await patchRequest(`/vouchers/${id}/deny`, {});
+      const updatedVouchers = data?.vouchers?.map((voucher) => {
+        if (voucher.id === id) {
+          return { ...voucher, status: "comprobante_rechazado" };
+        }
+        return voucher;
+      });
+      setData({ ...data, vouchers: updatedVouchers });
+    } catch (error) {
+      console.error("Error denying voucher:", error);
+    }
+  } 
+
+  const completeRequest = async () => {
+    try {
+      await patchRequest(`/requests/finished-approving-vouchers/${id}`, {});
+      toast.success("Comprobación de solicitud completada");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error completing request:", error);
+    }
+  };
+
   return (
     <div className="pb-10">
+      <GoBack />
       <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
         <div className="px-8 py-10 flex flex-col">
-          <GoBack />
           <div className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6">
             Información de Solicitud: <span>{id}</span>
           </div>
@@ -170,45 +179,64 @@ const RefundsAcceptance: React.FC = () => {
           </section>
 
           <div className="mb-4">
-            <div className="bg-white p-4 rounded-lg shadow-md">
+            <div className="bg-white p-4 rounded-lg shadow-md relative">
               <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                Comprobante de Solicitud {currentFileIndex + 1} de{" "}
-                {fileUrls.length}
+                Comprobante de Solicitud {currentIndex + 1} de{" "}
+                {data?.vouchers?.length}
               </h2>
               {/* Display the existing PDF using an iframe */}
-              <div className="w-full h-96 mb-4">
-                <iframe
-                  src={currentFile.pdfUrl}
-                  width="100%"
-                  height="100%"
-                  title={`Comprobante de Solicitud ${currentFileIndex + 1}`}
-                  className="border-0"
-                />
-              </div>
-
-              <div className="mt-4 flex justify-between items-center">
-                <div className="flex space-x-4">
-                  <a
-                    href={currentFile.xmlUrl}
-                    download={`comprobante${currentFileIndex + 1}.xml`}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover:cursor-pointer"
-                  >
-                    Descargar XML
-                  </a>
-                  <a
-                    href={currentFile.pdfUrl}
-                    download={`comprobante${currentFileIndex + 1}.pdf`}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 hover:cursor-pointer"
-                  >
-                    Descargar PDF
-                  </a>
-                </div>
-                <div className="flex space-x-4">
+              <Swiper
+                  modules={[Navigation, Pagination]}
+                  spaceBetween={50}
+                  slidesPerView={1}
+                  pagination={{ clickable: true }}
+                  onBeforeInit={(swiper: any) => {
+                    if (typeof swiper.params.navigation !== 'boolean') {
+                      swiper.params.navigation.prevEl = prevRef.current;
+                      swiper.params.navigation.nextEl = nextRef.current;
+                    }
+                  }}
+                  onSlideChange={(swiper: any) => setCurrentIndex(swiper.activeIndex)}
+              >
+                {data?.vouchers?.map((file, index) => (
+                  <SwiperSlide key={index}>
+                    <FilePreviewer 
+                        file={file} 
+                        fileIndex={index}
+                    />
+                    <div className="flex space-x-4 justify-end mt-6 absolute z-50 bottom-0 right-4">
+                        <button 
+                          disabled={file?.status !== "comprobante_pendiente"}
+                          className={`px-4 py-2 text-white rounded-md  hover:cursor-pointer 
+                            ${file?.status !== "comprobante_pendiente" 
+                              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                              : "bg-red-600 hover:bg-red-700"
+                            }`}
+                            onClick={() => denyVoucher(file?.id)}
+                        >
+                            Denegar
+                        </button>
+                        <button 
+                            disabled={file?.status !== "comprobante_pendiente"}
+                            className={`px-4 py-2  text-white rounded-md  hover:cursor-pointer
+                              ${file?.status !== "comprobante_pendiente"
+                                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                : "bg-green-600 hover:bg-green-700"
+                              }`}
+                            onClick={() => approveVoucher(file?.id)}
+                          >
+                            Aprobar
+                        </button>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
                   <button
-                    onClick={() => changeFile(currentFileIndex - 1)}
-                    disabled={currentFileIndex === 0}
+                    ref={prevRef}
+                    disabled={currentIndex === 0}
                     className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                      currentFileIndex === 0
+                      currentIndex === 0
                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-gray-300 text-gray-700 hover:bg-gray-400"
                     }`}
@@ -216,28 +244,92 @@ const RefundsAcceptance: React.FC = () => {
                     Anterior
                   </button>
                   <button
-                    onClick={() => changeFile(currentFileIndex + 1)}
-                    disabled={currentFileIndex === fileUrls.length - 1}
+                    disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
+                    ref={nextRef} 
                     className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                      currentFileIndex === fileUrls.length - 1
+                      currentIndex === (data?.vouchers?.length ?? 0) - 1
                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-gray-300 text-gray-700 hover:bg-gray-400"
                     }`}
                   >
                     Siguiente
                   </button>
-                </div>
               </div>
             </div>
-          </div>
+            <section className="grid grid-cols-3 gap-5">
+            <div className="my-5">
+              <label
+                htmlFor={"total"}
+                className="block text-xs font-semibold text-gray-500 mb-1"
+              >
+                Total de Comprobantes
+              </label>
+              <input
+                id={"total"}
+                type="text"
+                readOnly
+                value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+                  if (file.status === "Voucher Approved") {
+                    return acc + +file.amount;
+                  }
+                  return acc;
+                }, 0) ?? 0)}
+                className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+              />
+            </div>
+            <div className="my-5">
+              <label
+                htmlFor={"advance_money"}
+                className="block text-xs font-semibold text-gray-500 mb-1"
+              >
+                Anticipo
+              </label>
+              <input
+                id={"advance_money"}
+                type="text"
+                readOnly
+                value={formatMoney(Number(data?.advance_money) || 0)}
+                className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+              />
+            </div>
+            <div className="my-5">
+              <label
+                htmlFor={"total"}
+                className="block text-xs font-semibold text-gray-500 mb-1"
+              >
+                Total
+              </label>
+              <input
+                id={"total"}
+                type="text"
+                readOnly
+                value={formatMoney(
+                  (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+                    if (file.status === "Voucher Approved") {
+                      return acc + Number(file.amount);
+                    }
+                    return acc;
+                  }, 0) ?? 0) + (typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0)
+                )}
+                className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+              />
+            </div>
 
-          <div className="flex space-x-4 justify-end mt-6">
-            <button className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 hover:cursor-pointer">
-              Denegar
-            </button>
-            <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 hover:cursor-pointer">
-              Aprobar
-            </button>
+            </section>
+
+            <div className="flex space-x-4 justify-end mt-6">
+                <button 
+                  className={`px-4 py-2 text-white rounded-md hover:cursor-pointer 
+                    ${data?.vouchers?.some((file) => file.status === "comprobante_pendiente")
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-[var(--blue)] hover:bg-[var(--dark-blue)]"
+                    }`}
+                  disabled={data?.vouchers?.some((file) => file.status === "comprobante_pendiente")}
+                  onClick={completeRequest}
+                >
+                    Completar Comprobación
+                </button>
+            </div>
           </div>
         </div>
       </main>

@@ -3,6 +3,7 @@ import Table from "../../components/Approvals/Table";
 import { getRequest } from "../../utils/apiService";
 import RefreshButton from "../../components/RefreshButton";
 import formatDate from "../../utils/formatDate";
+import GoBack from "../../components/GoBack";
 
 const columns = [
   { key: "status", header: "Estado" },
@@ -40,21 +41,24 @@ export const Approvals: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-[var(--blue)]">
-          Viajes por Aprobar
-        </h2>
-        <RefreshButton />
-      </div>
+    <>
+      <GoBack />
+      <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-[var(--blue)]">
+            Viajes por Aprobar
+          </h2>
+          <RefreshButton />
+        </div>
 
-      <Table
-        columns={columns}
-        data={dataWithActions}
-        itemsPerPage={5}
-        link={"/requests"}
-      />
-    </div>
+        <Table
+          columns={columns}
+          data={dataWithActions}
+          itemsPerPage={5}
+          link={"/requests"}
+        />
+      </div>
+    </>
   );
 };
 

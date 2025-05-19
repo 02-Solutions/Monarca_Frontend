@@ -11,6 +11,7 @@ import formatDate from "../../utils/formatDate";
 import { Permission, useAuth } from "../../hooks/auth/authContext";
 import RefreshButton from "../../components/RefreshButton";
 import { useNavigate } from "react-router-dom";
+import GoBack from "../../components/GoBack";
 
 //Interface for travel records data
 //interface TravelRecord {
@@ -43,13 +44,19 @@ export const Historial = () => {
         const endpoint = 
           authState.userPermissions.includes("create_request" as Permission)
             ? "/requests/user"
-            : "/requests/all";
+            : authState.userPermissions.includes("check_budgets" as Permission)
+            ? "/requests/to-approve-SOI"
+            : "/requests/all"
         let response = await getRequest(endpoint);
         if(authState.userPermissions.includes("approve_request" as Permission)) {
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled"].includes(record.status) && record.id_admin === authState.userId);
         }
         if(authState.userPermissions.includes("submit_reservations" as Permission)) {
-          response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status) && record.id_SOI === authState.userId);
+          const travelAgentsIds = response.map((request: any) => request.travel_agency.users.map((user: any) => user.id)).flat();
+          response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status) && travelAgentsIds.includes(authState.userId));
+        }
+        if(authState.userPermissions.includes("check_budgets" as Permission)) {
+          response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
         }
         // Data with actions (edit buttons)
         setDataWithActions(response?.map((record: any) => ({
@@ -95,17 +102,20 @@ export const Historial = () => {
   ];
 
   return (
-    <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-      <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-[#0a2c6d] mb-4">
-            Historial de viajes
-          </h2>
-          <RefreshButton />
-      </div>
+    <>
+      <GoBack />
+      <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
+        <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-[#0a2c6d] mb-4">
+              Historial de viajes
+            </h2>
+            <RefreshButton />
+        </div>
 
-      {/* Travel history table component */}
-      <Table columns={columnsSchema} data={dataWithActions} itemsPerPage={5} />
-    </div>
+        {/* Travel history table component */}
+        <Table columns={columnsSchema} data={dataWithActions} itemsPerPage={5} />
+      </div>
+    </>
   );
 };
 

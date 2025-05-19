@@ -51,14 +51,6 @@ export const router = createBrowserRouter([
     path: "*",
     element: <Error />,
   },
-  {
-    path: "/refunds-review",
-    element: <RefundsReview />,
-  },
-  {
-    path: "/refunds-review/:id",
-    element: <RefundsAcceptance />,
-  },
 
   // Basic protected routes (requires only authentication)
   {
@@ -104,6 +96,14 @@ export const router = createBrowserRouter([
       {
         path: "/bookings/:id",
         element: <Reservations />,
+      },
+      {
+        path: "/refunds-review",
+        element: <RefundsReview />,
+      },
+      {
+        path: "/refunds-review/:id",
+        element: <RefundsAcceptance />,
       },
       {
         path: "/approval",

@@ -5,6 +5,7 @@ import { getRequest } from "../utils/apiService";
 import formatDate from "../utils/formatDate";
 import Button from "../components/Refunds/Button";
 import { useNavigate } from "react-router-dom";
+import GoBack from "../components/GoBack";
 
 const columns = [
   { key: "status", header: "Estado" },
@@ -44,20 +45,23 @@ const Bookings = () => {
   }, []);
 
   return (
-    <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
-      <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-[#0a2c6d]">
-            Viajes por Reservar
-          </h2> 
-          <RefreshButton />
-      </div>
+    <>
+      <GoBack />
+      <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+        <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-[#0a2c6d]">
+              Viajes por Reservar
+            </h2> 
+            <RefreshButton />
+        </div>
 
-        <Table 
-          columns={columns} 
-          data={dataWithActions} 
-          itemsPerPage={5}
-      />
-    </div>
+          <Table 
+            columns={columns} 
+            data={dataWithActions} 
+            itemsPerPage={5}
+        />
+      </div>
+    </>
   );
 };
 

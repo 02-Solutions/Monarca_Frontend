@@ -65,3 +65,11 @@ a {
   display: none;
   /* Hide scrollbar in WebKit browsers */
 }
+
+.swiper-pagination {
+  width: auto !important;
+  left: 50% !important;
+  transform: translate(-50%, 0) !important;
+  margin: 0 auto;
+  z-index: 10;
+}

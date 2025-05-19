@@ -7,6 +7,7 @@ import Button from "../../components/Refunds/Button";
 import { toast } from "react-toastify";
 import { getRequest } from "../../utils/apiService";
 import { useNavigate } from "react-router-dom";
+import GoBack from "../../components/GoBack";
 
 interface Destination {
   id: string;
@@ -67,7 +68,7 @@ export const RefundsReview = () => {
         const response = await getRequest("/requests/all");
 
         // Process the data to add formatted fields
-        const processedTrips = response.map((trip: Trip) => {
+        const processedTrips = response.filter((trip: Trip) => trip.status === "Pending Vouchers Approval").map((trip: Trip) => {
           // Sort destinations by order
           const sortedDestinations = [...trip.requests_destinations].sort(
             (a, b) => a.destination_order - b.destination_order
@@ -140,20 +141,23 @@ export const RefundsReview = () => {
   }));
 
   return (
-    <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-[var(--blue)]">
-          Solicitudes de Reembolso por Aprobar
-        </h2>
-        <RefreshButton />
-      </div>
+    <>
+      <GoBack />
+      <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-[var(--blue)]">
+            Solicitudes de Reembolso por Aprobar
+          </h2>
+          <RefreshButton />
+        </div>
 
-      <Table
-        columns={columnsSchemaTrips}
-        data={dataWithActions}
-        itemsPerPage={7}
-      />
-    </div>
+        <Table
+          columns={columnsSchemaTrips}
+          data={dataWithActions}
+          itemsPerPage={7}
+        />
+      </div>
+    </>
   );
 };
 

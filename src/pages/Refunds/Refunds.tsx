@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import RefreshButton from "../../components/RefreshButton";
 import formatDate from "../../utils/formatDate";
 import formatMoney from "../../utils/formatMoney";
+import GoBack from "../../components/GoBack";
 
 interface Trip {
   id: number | string;
@@ -35,7 +36,7 @@ export const Refunds = () => {
         setLoading(true);
 
         const response = await getRequest("/requests/all");
-        setTrips(response.filter((trip: Trip) => trip.status === "In Progres").map((trip: any) => ({
+        setTrips(response.filter((trip: Trip) => trip.status === "In Progress").map((trip: any) => ({
           ...trip,
           date: formatDate(trip.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
           advance_money: formatMoney(trip.advance_money),
@@ -87,20 +88,23 @@ export const Refunds = () => {
   }));
 
   return (
-    <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-[var(--blue)]">
-            Solicitudes de reembolso
-        </h2>
-        <RefreshButton />
-      </div>
+      <>
+        <GoBack />
+        <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-[var(--blue)]">
+                Viajes con gastos por comprobar
+            </h2>
+            <RefreshButton />
+          </div>
 
-      <Table
-        columns={columnsSchemaTrips}
-        data={dataWithActions}
-        itemsPerPage={7}
-      />
-    </div>
+          <Table
+            columns={columnsSchemaTrips}
+            data={dataWithActions}
+            itemsPerPage={7}
+          />
+        </div>
+      </>
   );
 };
 
