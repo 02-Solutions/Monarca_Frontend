@@ -1,9 +1,15 @@
+import formatDate from "../../utils/formatDate";
+import formatMoney from "../../utils/formatMoney";
 
 
 interface FilePreviewerProps {
     file: {
         file_url_pdf: string;
         file_url_xml: string;
+        class: string;
+        amount: number;
+        date: string;
+        status: string;
     };
     fileIndex: number;
 }
@@ -13,14 +19,21 @@ interface FilePreviewerProps {
 const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
     return (
         <>
-            <div className="w-full h-96 mb-4">
+            <div className="grid grid-cols-3 w-full h-96 mb-4">
                 <iframe
-                  src={file.file_url_pdf}
+                  src={`${file.file_url_pdf}#navpanes=0&view=FitH`}
                   width="100%"
                   height="100%"
                   title={`Comprobante de Solicitud ${fileIndex + 1}`}
-                  className="border-0"
+                  className="border-0 col-span-2"
                 />
+
+                <div className="flex flex-col bg-white p-6 gap-3 col-span-1">
+                  <p><span className="font-semibold text-[var(--blue)]">Clase: </span>{file.class}</p>
+                  <p><span className="font-semibold text-[var(--blue)]">Cantidad: </span><span className="text-green-700">{formatMoney(file.amount)}</span></p>
+                  <p><span className="font-semibold text-[var(--blue)]">Fecha: </span>{formatDate(file.date)}</p>
+                  <p><span className="font-semibold text-[var(--blue)]">Estado: </span>{file.status}</p>
+                </div>
               </div>
 
               <div className="mt-4 flex justify-between items-center">
@@ -40,35 +53,6 @@ const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
                     Descargar PDF
                   </a>
                 </div>
-
-
-
-                {/* <div className="flex space-x-4">
-                    <button
-                      // onClick={() => changeFile(fileIndex - 1)}
-                      ref={prevRef}
-                      // disabled={fileIndex === 0}
-                      // className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                      //   fileIndex === 0
-                      //     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                      //     : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                      // }`}
-                    >
-                      Anterior
-                    </button>
-                    <button
-                      // onClick={() => changeFile(fileIndex + 1)}
-                      // disabled={fileIndex === fileUrls.length - 1}
-                      ref={nextRef} 
-                      // className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                      //   fileIndex === fileUrls.length - 1
-                      //     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                      //     : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                      // }`}
-                    >
-                      Siguiente
-                    </button>
-                </div> */}
               </div>
         </>
     )

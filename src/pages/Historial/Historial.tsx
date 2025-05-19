@@ -44,7 +44,9 @@ export const Historial = () => {
         const endpoint = 
           authState.userPermissions.includes("create_request" as Permission)
             ? "/requests/user"
-            : "/requests/all";
+            : authState.userPermissions.includes("check_budgets" as Permission)
+            ? "/requests/to-approve-SOI"
+            : "/requests/all"
         let response = await getRequest(endpoint);
         if(authState.userPermissions.includes("approve_request" as Permission)) {
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled"].includes(record.status) && record.id_admin === authState.userId);
@@ -52,6 +54,9 @@ export const Historial = () => {
         if(authState.userPermissions.includes("submit_reservations" as Permission)) {
           const travelAgentsIds = response.map((request: any) => request.travel_agency.users.map((user: any) => user.id)).flat();
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status) && travelAgentsIds.includes(authState.userId));
+        }
+        if(authState.userPermissions.includes("check_budgets" as Permission)) {
+          response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
         }
         // Data with actions (edit buttons)
         setDataWithActions(response?.map((record: any) => ({

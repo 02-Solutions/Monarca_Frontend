@@ -6,9 +6,17 @@ import formatMoney from '../utils/formatMoney';
 import formatDate from '../utils/formatDate';
 import { toast } from 'react-toastify';
 import { getRequest } from '../utils/apiService';
-import { useAuth } from '../hooks/auth/authContext';
+import { Permission, useAuth } from '../hooks/auth/authContext';
 import { useNavigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
+
+import { Navigation, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import FilePreviewer from '../components/Refunds/FilePreviewer';
+
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 const RequestInfo: React.FC = () => {
   const navigate = useNavigate();
@@ -19,14 +27,19 @@ const RequestInfo: React.FC = () => {
   const [agencies, setAgencies] = useState<any[]>([]);
   const [selectedAgency, setSelectedAgency] = useState('');
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const prevRef = React.useRef(null);
+  const nextRef = React.useRef(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await getRequest(`/requests/${id}`);
+        console.log(response);
         setData({
           ...response,
           createdAt: formatDate(response.createdAt),
-          advance_money: formatMoney(response.advance_money),
+          advance_money_str: formatMoney(response.advance_money),
           admin: response.admin.name + ' ' + response.admin.last_name,          
           id_origin_city: response.destination.city,
           destinations: response.requests_destinations.map((dest: any) => dest.destination.city).join(', '),
@@ -58,7 +71,7 @@ const RequestInfo: React.FC = () => {
     { key: 'id_origin_city', label: 'Ciudad de Origen' },
     { key: 'destinations', label: 'Destinos' },
     { key: 'motive', label: 'Motivo' },
-    { key: 'advance_money', label: 'Anticipo' },
+    { key: 'advance_money_str', label: 'Anticipo' },
     { key: 'status', label: 'Estado' },
     { key: 'requirements', label: 'Requerimientos' },
     { key: 'priority', label: 'Prioridad' },
@@ -155,6 +168,24 @@ const RequestInfo: React.FC = () => {
       return;
     }
   };
+
+  const register = async () => {
+    try {
+      await patchRequest(`/requests/SOI-approve/${id}`, {});
+      toast.success('Solicitud marcada como registrada', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      navigate('/history');
+    } catch (error) {
+      console.error('Error registering request:', error);
+      toast.error('Error al marcar la solicitud como registrada', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      return;
+    }
+  }
 
   return (
     <div className="pb-10">
@@ -266,30 +297,170 @@ const RequestInfo: React.FC = () => {
 
           {data?.revisions?.length > 0 && <section>
               <p
-                className="block text-sm font-medium text-gray-700 mb-4"
+                className="block text-sm font-medium text-gray-700 mb-2"
               >
                 Revisiones anteriores
               </p>
+              <div className="grid grid-cols-1 gap-2 mb-6">
               {data?.revisions?.map((revision: any) => (
-                  <div className="grid grid-cols-1 gap-3 mb-8" key={revision.id}>
-                    <div>
-                      <label
-                        className="block text-xs font-semibold text-gray-500 mb-1"
-                      >
-                        Comentario
-                      </label>
-                      <input
-                        type="text"
-                        readOnly
-                        value={revision.comment}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-                      />
-                    </div>
+                  <div key={revision.id}>
+                    <label
+                      className="block text-xs font-semibold text-gray-500 mb-1"
+                    >
+                      Comentario
+                    </label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={revision.comment}
+                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    />
                   </div>
               ))}
+              </div>
           </section>}
 
-          { authState.userRole=="Aprobador" && <section className="mb-10">
+          {data?.vouchers?.length > 0 && 
+            <>
+            <p
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Comprobantes de la solicitud
+              </p>
+              <div className="mb-4">
+            <div className="bg-white p-4 relative">
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                Comprobante {currentIndex + 1} de{" "}
+                {data?.vouchers?.length}
+              </h2>
+              {/* Display the existing PDF using an iframe */}
+              <Swiper
+                  modules={[Navigation, Pagination]}
+                  spaceBetween={50}
+                  slidesPerView={1}
+                  pagination={{ clickable: true }}
+                  onBeforeInit={(swiper: any) => {
+                    if (typeof swiper.params.navigation !== 'boolean') {
+                      swiper.params.navigation.prevEl = prevRef.current;
+                      swiper.params.navigation.nextEl = nextRef.current;
+                    }
+                  }}
+                  onSlideChange={(swiper: any) => setCurrentIndex(swiper.activeIndex)}
+              >
+                {data?.vouchers?.map((file: any, index: number) => (
+                  <SwiperSlide key={index}>
+                    <FilePreviewer 
+                        file={file} 
+                        fileIndex={index}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
+                  <button
+                    ref={prevRef}
+                    disabled={currentIndex === 0}
+                    className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                      currentIndex === 0
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                    }`}
+                  >
+                    Anterior
+                  </button>
+                  <button
+                    disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
+                    ref={nextRef} 
+                    className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                      currentIndex === (data?.vouchers?.length ?? 0) - 1
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                    }`}
+                  >
+                    Siguiente
+                  </button>
+              </div>
+            </div>
+            <section className="grid grid-cols-3 gap-5">
+            <div className="my-5">
+              <label
+                htmlFor={"total"}
+                className="block text-xs font-semibold text-gray-500 mb-1"
+              >
+                Total de Comprobantes
+              </label>
+              <input
+                id={"total"}
+                type="text"
+                readOnly
+                value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+                  if (file.status === "Voucher Approved") {
+                    return acc + +file.amount;
+                  }
+                  return acc;
+                }, 0) ?? 0)}
+                className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+              />
+            </div>
+            <div className="my-5">
+              <label
+                htmlFor={"advance_money"}
+                className="block text-xs font-semibold text-gray-500 mb-1"
+              >
+                Anticipo
+              </label>
+              <input
+                id={"advance_money"}
+                type="text"
+                readOnly
+                value={formatMoney(Number(data?.advance_money) || 0)}
+                className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+              />
+            </div>
+            <div className="my-5">
+              <label
+                htmlFor={"total"}
+                className="block text-xs font-semibold text-gray-500 mb-1"
+              >
+                Saldo {(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
+                  (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+                    if (file.status === "Voucher Approved") {
+                      return acc + Number(file.amount);
+                    }
+                    return acc;
+                  }, 0) ?? 0) < 0 ? "a favor" : "en contra"} 
+              </label>
+              <input
+                id={"total"}
+                type="text"
+                readOnly
+                value={formatMoney(
+                  Math.abs((typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
+                  (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+                    if (file.status === "Voucher Approved") {
+                      return acc + Number(file.amount);
+                    }
+                    return acc;
+                  }, 0) ?? 0))
+                )}
+                className={`w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200
+                    ${(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
+                  (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+                    if (file.status === "Voucher Approved") {
+                      return acc + Number(file.amount);
+                    }
+                    return acc;
+                  }, 0) ?? 0) > 0 ? "text-red-500" : "text-green-600"
+                }`}
+              />
+            </div>
+
+            </section>
+          </div>
+            </>
+          }
+
+          {authState.userPermissions.includes("approve_request" as Permission) && <section className="mb-10">
             <label
               htmlFor="agency"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -312,7 +483,7 @@ const RequestInfo: React.FC = () => {
           </section>}
 
 
-          {authState.userRole=="Aprobador" && <section className="mb-8">
+          {authState.userPermissions.includes("approve_request" as Permission) && <section className="mb-8">
             <label
               htmlFor="comment"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -330,14 +501,14 @@ const RequestInfo: React.FC = () => {
           </section>}
 
           {/* Botones de acción */}
-          {authState.userRole === "Aprobador" &&
+          {authState.userPermissions.includes("approve_request" as Permission) &&
           <footer className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={approve}
-              disabled={!selectedAgency}
+              disabled={!selectedAgency || data.status !== "Pending Review"}
               className={`flex-1 py-3 rounded-lg font-semibold transition
                 ${
-                  selectedAgency
+                  selectedAgency && data.status === "Pending Review"
                     ? 'bg-green-600 hover:bg-green-700 text-white'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
@@ -346,10 +517,9 @@ const RequestInfo: React.FC = () => {
             </button>
             <button
               onClick={requestChanges}
-              disabled={!comment.trim()}
+              disabled={!comment.trim() || data.status !== "Pending Review"}
               className={`flex-1 py-3 rounded-lg font-semibold transition
-                ${
-                  comment.trim()
+                ${comment.trim() && data.status === "Pending Review"
                     ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
@@ -358,13 +528,18 @@ const RequestInfo: React.FC = () => {
             </button>
             <button
               onClick={deny}
-              className="flex-1 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition"
+              disabled={data.status !== "Pending Review"}
+              className={`flex-1 py-3 rounded-lg font-semibold transition
+                ${data.status === "Pending Review"
+                  ? 'bg-red-600 hover:bg-red-700 text-white'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
             >
               Denegar
             </button>
           </footer>}
 
-          {authState.userRole=="Solicitante" &&
+          {authState.userPermissions.includes("create_request" as Permission) &&
           <footer className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={() => navigate(`/requests/${id}/edit`)}
@@ -389,6 +564,21 @@ const RequestInfo: React.FC = () => {
             Cancelar
           </button>
 
+          </footer>}
+
+          {authState.userPermissions.includes("check_budgets" as Permission) &&
+          <footer className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={register}
+            disabled={data.status !== "Pending Accounting Approval"}
+            className={`flex-1 py-3 rounded-lg font-semibold transition ${
+              data.status === "Pending Accounting Approval"
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Marcar como registrado
+          </button>
           </footer>}
         </div>
       </main>

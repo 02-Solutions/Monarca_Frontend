@@ -24,7 +24,7 @@ function Sidebar({ user }: { user: AuthState }) {
         <ul className="space-y-2 font-medium">
             <SidebarOption 
               label="Inicio"
-              pathIcon="/assets/crear_solicitud_de_viaje.png"
+              pathIcon="/assets/dashboard.png"
               link="/dashboard"
             />
             {user.userPermissions.includes("create_request" as Permission) && (

@@ -11,6 +11,7 @@ import { getRequest, patchRequest, postRequest } from "../../utils/apiService";
 import { useParams } from "react-router-dom";
 import formatMoney from "../../utils/formatMoney";
 import { toast } from "react-toastify";
+import GoBack from "../../components/GoBack";
 
 interface FormDataRow extends DynamicTableRow {
   spentClass: string;
@@ -254,71 +255,74 @@ export const Vouchers = () => {
   };
 
   return (
-    <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-      <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
-        Formato de solicitud de reembolso
-      </h2>
-      <div className="mb-4">
+    <>
+      <GoBack />
+      <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
+        <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
+          Formato de solicitud de reembolso
+        </h2>
+        <div className="mb-4">
+          {/*
+          * Display general information about the trip, such as ID, name, destination,
+          */}
+          <h3 className="text-lg font-bold text-[#0a2c6d] mb-2">
+            Información del viaje
+          </h3>
+          <p>
+            <strong>ID del viaje:</strong> {trip.id}
+          </p>
+          <p>
+            <strong>Nombre del viaje:</strong> {trip.title}
+          </p>
+          <p>
+            <strong>Destino:</strong> {trip.destination.city}
+          </p>
+          <p>
+            <strong>Anticipo:</strong> {formatMoney(trip.advance_money)}
+          </p>
+        </div>
         {/*
-         * Display general information about the trip, such as ID, name, destination,
-         */}
-        <h3 className="text-lg font-bold text-[#0a2c6d] mb-2">
-          Información del viaje
-        </h3>
-        <p>
-          <strong>ID del viaje:</strong> {trip.id}
-        </p>
-        <p>
-          <strong>Nombre del viaje:</strong> {trip.title}
-        </p>
-        <p>
-          <strong>Destino:</strong> {trip.destination.city}
-        </p>
-        <p>
-          <strong>Anticipo:</strong> {formatMoney(trip.advance_money)}
-        </p>
+        * which contains the schema of the table.
+        * The table is created initially with initially empty data,
+        * and the user can add new rows to the table.
+        * The formData array is updated with the handleFormDataChange function,
+        * which is passed as a prop to the DynamicTable component.
+        * The handleFormDataChange function updates the formData state with the new data.
+        */}
+        <DynamicTable
+          columns={columnsSchemaVauchers}
+          initialData={formData}
+          onDataChange={handleDynamicTableDataChange}
+        />
+        {/*
+        * Display a field to add a comment to the refund request.
+        * The comment is stored in the commentDescriptionOfSpend state,
+        * and is updated with the setCommentDescriptionOfSpend function.
+        */}
+        <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">Comentario</h3>
+        <InputField
+          type="text"
+          value={""}
+          placeholder="Ingrese un comentario"
+          onChange={() => {}}
+        />
+        <div className="mt-6 flex justify-between">
+          <Link
+            to="/refunds"
+            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors hover:cursor-pointer"
+          >
+            Cancelar
+          </Link>
+          <button
+            className="px-4 py-2 bg-[#0a2c6d] text-white rounded-md hover:bg-[#0d3d94] transition-colors hover:cursor-pointer"
+            onClick={() => {
+              handleSubmitRefund();
+            }}
+          >
+            Enviar Solicitud
+          </button>
+        </div>
       </div>
-      {/*
-       * which contains the schema of the table.
-       * The table is created initially with initially empty data,
-       * and the user can add new rows to the table.
-       * The formData array is updated with the handleFormDataChange function,
-       * which is passed as a prop to the DynamicTable component.
-       * The handleFormDataChange function updates the formData state with the new data.
-       */}
-      <DynamicTable
-        columns={columnsSchemaVauchers}
-        initialData={formData}
-        onDataChange={handleDynamicTableDataChange}
-      />
-      {/*
-       * Display a field to add a comment to the refund request.
-       * The comment is stored in the commentDescriptionOfSpend state,
-       * and is updated with the setCommentDescriptionOfSpend function.
-       */}
-      <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">Comentario</h3>
-      <InputField
-        type="text"
-        value={""}
-        placeholder="Ingrese un comentario"
-        onChange={() => {}}
-      />
-      <div className="mt-6 flex justify-between">
-        <Link
-          to="/refunds"
-          className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors hover:cursor-pointer"
-        >
-          Cancelar
-        </Link>
-        <button
-          className="px-4 py-2 bg-[#0a2c6d] text-white rounded-md hover:bg-[#0d3d94] transition-colors hover:cursor-pointer"
-          onClick={() => {
-            handleSubmitRefund();
-          }}
-        >
-          Enviar Solicitud
-        </button>
-      </div>
-    </div>
+    </>
   );
 };
