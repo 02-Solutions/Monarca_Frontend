@@ -6,8 +6,8 @@ import formatDate from "../../utils/formatDate";
 
 const columns = [
   { key: "status", header: "Estado" },
-  { key: "motive", header: "Motivo" },
-  { key: "title", header: "Viaje" },
+  { key: "motive", header: "Viaje" },
+  { key: "title", header: "Motivo" },
   { key: "departureDate", header: "Fecha Salida" },
   { key: "country", header: "Lugar de Salida" },
 ];
