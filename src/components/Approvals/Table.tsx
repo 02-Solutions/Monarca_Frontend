@@ -150,6 +150,10 @@ const Table: React.FC<TableProps> = ({
                         <div>
                           <strong>Fecha de Salida:</strong> {row?.departureDate}
                         </div>
+                        <div>
+                          <strong>Departamento:</strong> {row?.user?.department?.name ?? "N/A"}
+                        </div>
+                        
                       </div>
                     </td>
                   </tr>

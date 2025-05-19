@@ -59,15 +59,24 @@ export const Historial = () => {
           createdAt: formatDate(record.createdAt),
           country: record.destination.city,
           departureDate: formatDate(record.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
-          action: record.status == "Changes Needed" && (
+          action: (
             <Button
-              label="Editar"
+              label="Ver detalles"
               onClickFunction={() => {
-                navigate(`/requests/${record.id}/edit`);
+                navigate(`/requests/${record.id}`);
               }}
             />
           ),
         })));
+        //   action: record.status == "Changes Needed" && (
+        //     <Button
+        //       label="Editar"
+        //       onClickFunction={() => {
+        //         navigate(`/requests/${record.id}/edit`);
+        //       }}
+        //     />
+        //   ),
+        // })));
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
@@ -78,16 +87,13 @@ export const Historial = () => {
 
   // Columns schema for travel history table
   const columnsSchema = [
-    { key: "status", header: "Estatus" },
-    { key: "title", header: "Título del viaje" },
+    { key: "status", header: "Estado" },
+    { key: "title", header: "Viaje" },
     { key: "motive", header: "Motivo" },
     { key: "departureDate", header: "Fecha del viaje" },
     { key: "country", header: "Lugar de Salida" },
     { key: "createdAt", header: "Fecha de solicitud" },
-    {
-      key: "action",
-      header: "",
-    },
+    { key: "action", header: "Detalles" },
   ];
 
   return (

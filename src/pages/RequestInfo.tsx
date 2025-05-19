@@ -138,6 +138,24 @@ const RequestInfo: React.FC = () => {
     }
   };
 
+  const cancel = async () => {
+    try {
+      await patchRequest(`/requests/cancel/${id}`, {});
+      toast.error('Solicitud cancelada', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      navigate('/history');
+    } catch (error) {
+      console.error('Error cancelling request:', error);
+      toast.error('Error al cancelar la solicitud', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      return;
+    }
+  };
+
   return (
     <div className="pb-10">
       <GoBack />
@@ -195,12 +213,12 @@ const RequestInfo: React.FC = () => {
                       <label
                         className="block text-xs font-semibold text-gray-500 mb-1"
                       >
-                        Fecha de salida
+                        Fecha de llegada
                       </label>
                       <input
                         type="text"
                         readOnly
-                        value={formatDate(dest.departure_date)}
+                        value={formatDate(dest.arrival_date)}
                         className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
                     </div>
@@ -208,12 +226,12 @@ const RequestInfo: React.FC = () => {
                       <label
                         className="block text-xs font-semibold text-gray-500 mb-1"
                       >
-                        Fecha de llegada
+                        Fecha de salida
                       </label>
                       <input
                         type="text"
                         readOnly
-                        value={formatDate(dest.arrival_date)}
+                        value={formatDate(dest.departure_date)}
                         className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
                     </div>
@@ -271,7 +289,7 @@ const RequestInfo: React.FC = () => {
               ))}
           </section>}
 
-          <section className="mb-10">
+          { authState.userRole=="Aprobador" && <section className="mb-10">
             <label
               htmlFor="agency"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -291,10 +309,10 @@ const RequestInfo: React.FC = () => {
                 </option>
               ))}
             </select>
-          </section>
+          </section>}
 
 
-          <section className="mb-8">
+          {authState.userRole=="Aprobador" && <section className="mb-8">
             <label
               htmlFor="comment"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -309,9 +327,10 @@ const RequestInfo: React.FC = () => {
               onChange={(e) => setComment(e.target.value)}
               placeholder="Escribe tus comentarios aquí..."
             />
-          </section>
+          </section>}
 
           {/* Botones de acción */}
+          {authState.userRole === "Aprobador" &&
           <footer className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={approve}
@@ -343,7 +362,34 @@ const RequestInfo: React.FC = () => {
             >
               Denegar
             </button>
-          </footer>
+          </footer>}
+
+          {authState.userRole=="Solicitante" &&
+          <footer className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={() => navigate(`/requests/${id}/edit`)}
+            disabled={data.status !== "Changes Needed"}
+            className={`flex-1 py-3 rounded-lg font-semibold transition ${
+              data.status === "Changes Needed"
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Editar
+          </button>
+          <button
+            onClick={cancel}
+            disabled={data.status !== "Pending Review" && data.status !== "Changes Needed"}
+            className={`flex-1 py-3 rounded-lg font-semibold transition ${
+              data.status !== "Pending Review" && data.status !== "Changes Needed"
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700 text-white"
+            }`}
+          >
+            Cancelar
+          </button>
+
+          </footer>}
         </div>
       </main>
     </div>

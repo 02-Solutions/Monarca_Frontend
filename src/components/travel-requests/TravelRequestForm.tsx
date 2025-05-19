@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,16 +32,14 @@ const priorityOptions: Option[] = [
 const destinationSchema = z.object({
   id_destination: z.string().nullable(),
   arrival_date: z.string().nonempty({ message: "Selecciona fecha de llegada" }),
-  departure_date: z
-    .string()
-    .nonempty({ message: "Selecciona fecha de salida" }),
+  departure_date: z.string().nonempty({ message: "Selecciona fecha de salida" }),
   stay_days: z
     .number()
-    .int()
-    .positive({ message: "El número de días debe ser positivo" }),
+    .int(),
+    // .positive({ message: "El número de días debe ser positivo" }),
   is_hotel_required: z.boolean(),
   is_plane_required: z.boolean(),
-  details: z.string().nonempty({ message: "Selecciona fecha de llegada" }),
+  details: z.string().nonempty({ message: "Agrega detalles" }),
 });
 
 const formSchema = z.object({
@@ -66,6 +64,156 @@ interface TravelRequestFormProps {
   requestId?: string;
 }
 
+// Cambios
+
+import { useEffect } from "react";
+
+
+function DestinationFields({
+  idx,
+  field,
+  control,
+  register,
+  destinationOptions,
+  errors,
+  remove,
+  setValue,
+  isLoadingDestinations,
+}: {
+  idx: number;
+  field: any;
+  control: any;
+  register: any;
+  destinationOptions: { id: string | number; name: string }[];
+  errors: any;
+  remove: (index: number) => void;
+  setValue: any;
+  isLoadingDestinations: boolean;
+}) {
+  const arrivalDate = useWatch({
+    control,
+    name: `requests_destinations.${idx}.arrival_date`,
+  });
+
+  const departureDate = useWatch({
+    control,
+    name: `requests_destinations.${idx}.departure_date`,
+  });
+
+  const stayDays =
+    arrivalDate && departureDate
+      ? dayjs(departureDate).diff(dayjs(arrivalDate), "day")
+      : 0;
+
+  useEffect(() => {
+    setValue(`requests_destinations.${idx}.stay_days`, stayDays);
+  }, [arrivalDate, departureDate]);
+
+  const destinationErrors = errors?.[idx];
+
+  return (
+    <div className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm">
+    <div className="flex justify-between items-center">
+      <span className="font-medium">Destino #{idx + 1}</span>
+      {idx > 0 && (
+        <Button type="button" onClick={() => remove(idx)}>
+          Quitar
+        </Button>
+      )}
+    </div>
+
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900">
+            Destino
+          </label>
+          <Controller
+            control={control}
+            name={`requests_destinations.${idx}.id_destination`}
+            render={({ field }) => (
+              <Select
+                options={destinationOptions}
+                value={
+                  field.value
+                    ? destinationOptions.find((o) => o.id === field.value)
+                    : null
+                }
+                onChange={(opt) => field.onChange(opt.id)}
+                isLoading={isLoadingDestinations}
+                placeholder="Selecciona destino"
+              />
+            )}
+          />
+        </div>
+
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900">
+            Fecha llegada
+          </label>
+          <Input
+            type="date"
+            {...register(`requests_destinations.${idx}.arrival_date`)}
+          />
+        </div>
+
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900">
+            Fecha salida
+          </label>
+          <Input
+            type="date"
+            {...register(`requests_destinations.${idx}.departure_date`)}
+          />
+        </div>
+
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900">
+            No. días estancia
+          </label>
+          <Input type="number" value={stayDays} readOnly />
+        </div>
+
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900">
+            Detalles
+          </label>
+          <Input {...register(`requests_destinations.${idx}.details`)} />
+        </div>
+
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900">
+            ¿Necesita hotel?
+          </label>
+          <Controller
+            control={control}
+            name={`requests_destinations.${idx}.is_hotel_required`}
+            render={({ field }) => (
+              <Switch checked={field.value} onChange={field.onChange} />
+            )}
+          />
+        </div>
+
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900">
+            ¿Necesita vuelo?
+          </label>
+          <Controller
+            control={control}
+            name={`requests_destinations.${idx}.is_plane_required`}
+            render={({ field }) => (
+              <Switch checked={field.value} onChange={field.onChange} />
+            )}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// Cambios
+
 function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const navigate = useNavigate();
   const { destinationOptions, isLoading: isLoadingDestinations } =
@@ -84,6 +232,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<RawFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
@@ -115,6 +264,19 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const onSubmit = async (data: RawFormValues) => {
     if (!data.id_origin_city) {
       toast.error("Selecciona una ciudad de origen");
+      return;
+    }
+  
+    const hasInvalidStay = data.requests_destinations.some((d) => {
+      const diff = dayjs(d.departure_date).diff(dayjs(d.arrival_date), "day");
+      return diff <= 0;
+    });
+  
+    if (hasInvalidStay) {
+      toast.error("Los días de estancia deben ser positivos", {
+        position: "top-right",
+        autoClose: 3000,
+      });
       return;
     }
 
@@ -187,6 +349,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
           {isEditing ? "Editar Viaje" : "Datos del Viaje"}
         </h2>
         <form onSubmit={handleSubmit(onSubmit)}>
+          {/* ...Campos de título, motivo, prioridad, ciudad, dinero, requerimientos... */}
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
             <div className="sm:col-span-2">
               <label
@@ -268,15 +431,13 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-900">
                 Dinero adelantado (MXN)
-              </label>
+              </label>  
               <Input
                 type="number"
                 min={1}
-                {...register(`advance_money` as const, {
-                  valueAsNumber: true,
-                })}
+                {...register("advance_money", { valueAsNumber: true })}
               />
-              <FieldError msg={errors?.advance_money?.message} />
+              <FieldError msg={errors.advance_money?.message} />
             </div>
 
             <div className="sm:col-span-2">
@@ -291,158 +452,23 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               )}
             </div>
           </div>
+
           <h3 className="mt-8 mb-4 text-lg font-semibold">Destinos</h3>
+          {fields.map((field, idx) => (
+            <DestinationFields
+              key={field.id}
+              idx={idx}
+              field={field}
+              control={control}
+              register={register}
+              destinationOptions={destinationOptions}
+              errors={errors.requests_destinations}
+              remove={remove}
+              setValue={setValue}
+              isLoadingDestinations={isLoadingDestinations}
+            />
+          ))}
 
-          {fields.map((field, idx) => {
-            const destinationErrors = errors.requests_destinations?.[idx];
-
-            return (
-              <div
-                key={field.id}
-                className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm"
-              >
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Destino #{idx + 1}</span>
-                  {fields.length > 1 && (
-                    <Button type="button" onClick={() => remove(idx)}>
-                      Quitar
-                    </Button>
-                  )}
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-900">
-                      Destino
-                    </label>
-                    <Controller
-                      control={control}
-                      name={`requests_destinations.${idx}.id_destination`}
-                      render={({ field }) => (
-                        <Select
-                          options={destinationOptions}
-                          value={
-                            field.value
-                              ? destinationOptions.find(
-                                  (o) => o.id === field.value
-                                )
-                              : null
-                          }
-                          onChange={(opt) => field.onChange(opt.id)}
-                          isLoading={isLoadingDestinations}
-                          placeholder="Selecciona destino"
-                        />
-                      )}
-                    />
-                    <FieldError
-                      msg={destinationErrors?.id_destination?.message}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-900">
-                      Fecha llegada
-                    </label>
-                    <Input
-                      type="date"
-                      {...register(
-                        `requests_destinations.${idx}.arrival_date` as const
-                      )}
-                    />
-                    <FieldError
-                      msg={destinationErrors?.arrival_date?.message}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-900">
-                      Fecha salida
-                    </label>
-                    <Input
-                      type="date"
-                      {...register(
-                        `requests_destinations.${idx}.departure_date` as const
-                      )}
-                    />
-                    <FieldError
-                      msg={destinationErrors?.departure_date?.message}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-900">
-                      No. días estancia
-                    </label>
-                    <Input
-                      type="number"
-                      min={1}
-                      {...register(
-                        `requests_destinations.${idx}.stay_days` as const,
-                        {
-                          valueAsNumber: true,
-                        }
-                      )}
-                    />
-                    <FieldError msg={destinationErrors?.stay_days?.message} />
-                  </div>
-
-                  <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-900">
-                      Detalles
-                    </label>
-                    <Input
-                      {...register(
-                        `requests_destinations.${idx}.details` as const
-                      )}
-                    />
-                    <FieldError msg={destinationErrors?.details?.message} />
-                  </div>
-
-                  <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-900">
-                      ¿Necesita hotel?
-                    </label>
-                    <Controller
-                      control={control}
-                      name={
-                        `requests_destinations.${idx}.is_hotel_required` as const
-                      }
-                      render={({ field }) => (
-                        <Switch
-                          checked={field.value}
-                          onChange={field.onChange}
-                        />
-                      )}
-                    />
-                    <FieldError
-                      msg={destinationErrors?.is_hotel_required?.message}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-900">
-                      ¿Necesita vuelo?
-                    </label>
-                    <Controller
-                      control={control}
-                      name={
-                        `requests_destinations.${idx}.is_plane_required` as const
-                      }
-                      render={({ field }) => (
-                        <Switch
-                          checked={field.value}
-                          onChange={field.onChange}
-                        />
-                      )}
-                    />
-                    <FieldError
-                      msg={destinationErrors?.is_plane_required?.message}
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
 
           <Button
             type="button"
@@ -476,4 +502,5 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     </div>
   );
 }
+
 export default TravelRequestForm;
