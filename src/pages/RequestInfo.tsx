@@ -44,6 +44,7 @@ const RequestInfo: React.FC = () => {
           id_origin_city: response.destination.city,
           destinations: response.requests_destinations.map((dest: any) => dest.destination.city).join(', '),
         });
+        setSelectedAgency(response.id_travel_agency || '');
       } catch (error) {
         console.error('Error fetching request data:', error);
       }
@@ -471,6 +472,7 @@ const RequestInfo: React.FC = () => {
               id="agency"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={selectedAgency}
+              disabled={data.status !== "Pending Review"}
               onChange={(e) => setSelectedAgency(e.target.value)}
             >
               <option value="">-- Selecciona una agencia --</option>

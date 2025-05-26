@@ -34,7 +34,7 @@ function Sidebar({ user }: { user: AuthState }) {
               <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes.png" link="/history"/>
             )}
             {user.userPermissions.includes("upload_vouchers" as Permission) && (
-              <SidebarOption label="Solicitud de reembolso" pathIcon="/assets/solicitud_de_reembolso.png" link="/refunds"/>
+              <SidebarOption label="Comprobar Gastos" pathIcon="/assets/solicitud_de_reembolso.png" link="/refunds"/>
             )}
             {user.userPermissions.includes("approve_request" as Permission) && (
               <SidebarOption label="Viajes por aprobar" pathIcon="/assets/viajes_por_aprobar.png" link="/approvals"/>
@@ -45,9 +45,9 @@ function Sidebar({ user }: { user: AuthState }) {
             {user.userPermissions.includes("approve_vouchers" as Permission) && (
               <SidebarOption label="Comprobantes de gastos por aprobar" pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link=""/>
             )}
-            {user.userPermissions.includes("approve_vouchers" as Permission) && (
+            {/* {user.userPermissions.includes("approve_vouchers" as Permission) && (
               <SidebarOption label="Reembolsos por aprobar" pathIcon="/assets/reembolsos_por_aprobar.png" link=""/>
-            )}
+            )} */}
             {user.userPermissions.includes("request_history" as Permission) && (
               <SidebarOption label="Viajes por registrar" pathIcon="/assets/historial_de_reembolsos_aprobados.png" link=""/>
             )}
