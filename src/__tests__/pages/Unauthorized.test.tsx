@@ -17,7 +17,7 @@ describe("Unauthorized component", () => {
     render(
       <MemoryRouter>
         <Unauthorized />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   });
 
@@ -28,15 +28,15 @@ describe("Unauthorized component", () => {
 
   it("muestra el mensaje de permiso denegado", () => {
     expect(
-      screen.getByText("No tienes permiso para acceder a esta página.")
+      screen.getByText("No tienes permiso para acceder a esta página."),
     ).toBeInTheDocument();
   });
 
   it("muestra el mensaje de contacto al administrador", () => {
     expect(
       screen.getByText(
-        "Contacta a un administrador si crees que esto es un error."
-      )
+        "Contacta a un administrador si crees que esto es un error.",
+      ),
     ).toBeInTheDocument();
   });
 
@@ -49,6 +49,6 @@ describe("Unauthorized component", () => {
     const loginLink = screen.getByRole("link", {
       name: /Ir a la Página de Iniciar Sesión/i,
     });
-    expect(loginLink).toHaveAttribute("href", "/login");
+    expect(loginLink).toHaveAttribute("href", "/");
   });
 });

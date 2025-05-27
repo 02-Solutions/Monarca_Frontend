@@ -2,7 +2,7 @@
 describe("Login Page", () => {
   beforeEach(() => {
     // Visit the login page before each test
-    cy.visit("/login");
+    cy.visit("/");
   });
 
   it("displays the login form correctly", () => {
