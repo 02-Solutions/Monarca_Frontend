@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import RefundsAcceptance from "../../pages/Refunds/RefundsAcceptance";
 import React from "react";
@@ -70,7 +70,7 @@ vi.mock("../../utils/formatMoney", () => ({
 }));
 
 vi.mock("../../utils/formatDate", () => ({
-  default: (date: string) => "2024-01-01",
+  default: (_date: string) => "2024-01-01",
 }));
 
 // Mock components
@@ -88,7 +88,7 @@ vi.mock("../../components/Refunds/FilePreviewer", () => ({
 
 // Mock Swiper
 vi.mock("swiper/react", () => ({
-  Swiper: ({ children, onSlideChange, onBeforeInit }: any) => {
+  Swiper: ({ children, onBeforeInit }: any) => {
     React.useEffect(() => {
       if (onBeforeInit) {
         const mockSwiper = {

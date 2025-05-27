@@ -44,7 +44,7 @@ vi.mock("../../utils/apiService", () => ({
 
 // Mock utility functions
 vi.mock("../../utils/formatDate", () => ({
-  default: (date: string) => "2024-01-01",
+  default: (_date: string) => "2024-01-01",
 }));
 
 vi.mock("../../utils/formatMoney", () => ({
