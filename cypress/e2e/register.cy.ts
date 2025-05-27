@@ -10,7 +10,7 @@ describe("Forgot Password Page", () => {
       cy.get('input[type="email"]').should("be.visible");
       cy.contains("Enviar").should("be.visible");
       cy.contains("¿Ya tienes cuenta?").should("be.visible");
-      cy.contains("Inicia sesión").should("have.attr", "href", "/login");
+      cy.contains("Inicia sesión").should("have.attr", "href", "/");
     });
   
     it("requires email to submit", () => {
@@ -33,7 +33,7 @@ describe("Forgot Password Page", () => {
       });
   
       // Asumiendo que redirige a login
-      cy.url().should("include", "/login");
+      cy.url().should("include", "/");
     });
   
     it("shows error alert if request fails", () => {

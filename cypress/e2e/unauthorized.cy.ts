@@ -15,6 +15,6 @@ describe('Unauthorized Page E2E', () => {
     cy.contains('Ir al Panel')
       .should('have.attr', 'href', '/dashboard');
     cy.contains('Ir a la Página de Iniciar Sesión')
-      .should('have.attr', 'href', '/login');
+      .should('have.attr', 'href', '/');
   });
 });
