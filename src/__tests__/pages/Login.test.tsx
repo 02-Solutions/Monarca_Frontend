@@ -19,13 +19,21 @@ vi.mock("../../utils/apiService", () => ({
   postRequest: vi.fn(),
 }));
 
+// Mock react-toastify - declare the spy inside the mock
+vi.mock("react-toastify", () => ({
+  toast: {
+    error: vi.fn(),
+  },
+  ToastContainer: () => null,
+}));
+
 describe("LoginPage", () => {
   describe("Basic Rendering Tests", () => {
     it("renders login form elements", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       expect(screen.getByText("INICIO DE SESIÓN")).toBeInTheDocument();
@@ -38,7 +46,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       expect(screen.getByText("M")).toBeInTheDocument();
@@ -49,7 +57,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const forgotPasswordLink = screen.getByText("¿Olvidaste tu contraseña?");
@@ -61,11 +69,11 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const backgroundDiv = document.querySelector(
-        '[class*="bg-"][class*="imageLogin.png"]'
+        '[class*="bg-"][class*="imageLogin.png"]',
       );
       expect(backgroundDiv).toBeInTheDocument();
     });
@@ -76,7 +84,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const emailInput = screen.getByPlaceholderText("Correo");
@@ -89,7 +97,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const passwordInput = screen.getByPlaceholderText("Contraseña");
@@ -108,7 +116,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       // Fill in email and password
@@ -133,32 +141,31 @@ describe("LoginPage", () => {
     });
 
     it("shows error alert when API returns status: false", async () => {
-      // Setup mock for failed login
       const { postRequest } = await import("../../utils/apiService");
       vi.mocked(postRequest).mockResolvedValueOnce({ status: false });
-      const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
+
+      // Get the mocked toast error function
+      const { toast } = await import("react-toastify");
 
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
-      // Fill in email and password
       const emailInput = screen.getByPlaceholderText("Correo");
       const passwordInput = screen.getByPlaceholderText("Contraseña");
 
       await userEvent.type(emailInput, "wrong@example.com");
       await userEvent.type(passwordInput, "badpass");
 
-      // Submit the form
       const submitButton = screen.getByText("Continuar");
       await userEvent.click(submitButton);
 
-      // Expect the error alert
-      expect(alertSpy).toHaveBeenCalledWith("Error al iniciar sesion");
-
-      alertSpy.mockRestore();
+      expect(toast.error).toHaveBeenCalledWith(
+        "Credenciales incorrectas",
+        expect.any(Object),
+      );
     });
   });
 
@@ -167,7 +174,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const passwordInput = screen.getByPlaceholderText("Contraseña");
@@ -178,7 +185,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const emailInput = screen.getByPlaceholderText("Correo");
@@ -194,7 +201,7 @@ describe("LoginPage", () => {
       render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const submitButton = screen.getByText("Continuar");
@@ -206,7 +213,7 @@ describe("LoginPage", () => {
       const { rerender } = render(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const emailInput = screen.getByPlaceholderText("Correo");
@@ -219,14 +226,14 @@ describe("LoginPage", () => {
       rerender(
         <BrowserRouter>
           <LoginPage />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       expect(screen.getByPlaceholderText("Correo")).toHaveValue(
-        "persist@example.com"
+        "persist@example.com",
       );
       expect(screen.getByPlaceholderText("Contraseña")).toHaveValue(
-        "persistpw"
+        "persistpw",
       );
     });
   });
