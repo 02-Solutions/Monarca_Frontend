@@ -71,7 +71,7 @@ export default function LoginPage() {
       className="flex h-screen"
       style={{ fontFamily: "Montserrat, sans-serif" }}
     >
-      <div className="w-[45%] bg-[url('src/public/imageLogin.png')] bg-center bg-cover bg-no-repeat rounded-[15px] h-[96vh] m-[2vh]"></div>
+      <div className="w-[45%] bg-[url('/imageLogin.png')] bg-center bg-cover bg-no-repeat rounded-[15px] h-[96vh] m-[2vh]"></div>
       <div className="w-[55%] flex flex-col justify-center p-12 relative">
         <p
           className="text-[2.5rem] absolute top-8 right-12"
