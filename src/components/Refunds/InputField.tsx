@@ -25,7 +25,7 @@ interface InputFieldProps {
     | "radio"
     | "range"
     | "hidden";
-  value: string;
+  value?: string; // Hacer value opcional para file inputs
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -35,8 +35,8 @@ interface InputFieldProps {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onBlur?: () => void;
   onFocus?: () => void;
-  // Callback for validation
   validateField?: (value: string) => string | undefined;
+  selectedFileName?: string;
 }
 
 /**
@@ -58,6 +58,7 @@ const InputField: React.FC<InputFieldProps> = ({
   onBlur,
   onFocus,
   validateField,
+  selectedFileName,
 }) => {
   // Set default placeholder for date inputs
   const effectivePlaceholder =
@@ -69,7 +70,12 @@ const InputField: React.FC<InputFieldProps> = ({
   const [wasChanged, setWasChanged] = useState(false);
 
   // Helper function to check if value is empty based on input type
-  const isEmptyValue = (val: string, inputType: string = type): boolean => {
+  const isEmptyValue = (val: string | undefined, inputType: string = type): boolean => {
+    // Para file inputs, verificamos si hay un archivo seleccionado
+    if (inputType === "file") {
+      return !selectedFileName;
+    }
+
     // For checkboxes and radios, we don't use trim()
     if (inputType === "checkbox" || inputType === "radio") {
       // For these types, we might consider "false" or "0" as empty
@@ -79,11 +85,6 @@ const InputField: React.FC<InputFieldProps> = ({
     // For number inputs
     if (inputType === "number") {
       return val === "" || val === null || val === undefined;
-    }
-
-    // For file inputs
-    if (inputType === "file") {
-      return val === "";
     }
 
     // For color inputs (should always have a value)
@@ -108,7 +109,7 @@ const InputField: React.FC<InputFieldProps> = ({
 
   // Determine if the field is in an invalid state - now checks both touched and changed state
   const isInvalid =
-    required && isEmptyValue(value) && (isTouched || wasChanged);
+    required && isEmptyValue(type === "file" ? undefined : value) && (isTouched || wasChanged);
 
   // Base styles for the input - adjusted for different input types
   const baseClass = `p-2 border rounded-md focus:outline-none focus:ring-2 ${
@@ -135,14 +136,14 @@ const InputField: React.FC<InputFieldProps> = ({
   const textClass = "text-[#0a2c6d]";
 
   // Validate the field
-  const validateInput = (inputValue: string) => {
+  const validateInput = (inputValue: string | undefined) => {
     // Check if field is required and empty
-    if (required && isEmptyValue(inputValue)) {
+    if (required && isEmptyValue(inputValue) && isTouched) {
       setLocalError("Este campo es obligatorio");
       return false;
     }
     // Run custom validation if provided
-    else if (validateField) {
+    else if (validateField && inputValue) {
       const validationError = validateField(inputValue);
       setLocalError(validationError);
       return !validationError;
@@ -154,12 +155,10 @@ const InputField: React.FC<InputFieldProps> = ({
     }
   };
 
-  // We don't need the useEffect anymore, validation will be handled by the touch state and event handlers
-
   // Handle validation on blur
   const handleBlur = () => {
     setIsTouched(true);
-    validateInput(value);
+    validateInput(type === "file" ? selectedFileName : value);
 
     // Call original onBlur if provided
     if (onBlur) onBlur();
@@ -174,7 +173,10 @@ const InputField: React.FC<InputFieldProps> = ({
     setWasChanged(true);
 
     // Validate on change
-    validateInput(e.target.value);
+    const valueToValidate = type === "file" 
+      ? e.target.files?.[0]?.name 
+      : e.target.value;
+    validateInput(valueToValidate);
   };
 
   // Handle focus event
@@ -217,6 +219,45 @@ const InputField: React.FC<InputFieldProps> = ({
       );
     }
 
+    // Special case for file inputs
+    if (type === "file") {
+      return (
+        <>
+          {label && (
+            <label
+              htmlFor={id || name}
+              className="mb-1 text-sm font-medium text-[#0a2c6d]"
+            >
+              {label}
+              {required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+          )}
+          <div className="relative">
+            <input
+              id={id || name}
+              name={name}
+              type={type}
+              className={`${baseClass} ${borderClass} ${textClass} ${className}`}
+              disabled={disabled}
+              required={required}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              onFocus={handleFocus}
+              aria-invalid={!!errorMessage}
+              aria-required={required}
+            />
+            {selectedFileName && (
+              <div className="mt-2 text-sm text-gray-600">
+                <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-800">
+                  📁 {selectedFileName}
+                </span>
+              </div>
+            )}
+          </div>
+        </>
+      );
+    }
+
     // Default case for all other input types
     return (
       <>
@@ -234,7 +275,7 @@ const InputField: React.FC<InputFieldProps> = ({
             id={id || name}
             name={name}
             type={type}
-            value={value}
+            value={value || ""}
             placeholder={effectivePlaceholder}
             className={`${baseClass} ${borderClass} ${textClass} ${className}`}
             disabled={disabled}

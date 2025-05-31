@@ -122,7 +122,6 @@ export const Vouchers = () => {
         onChangeComponentFunction: (newValue: CellValueType) => void
       ) => (
         <Dropdown
-          required={true}
           options={spendOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
@@ -139,7 +138,6 @@ export const Vouchers = () => {
         onChangeComponentFunction: (newValue: CellValueType) => void
       ) => (
         <InputField
-          required={true}
           type="number"
           value={value as string}
           onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
@@ -156,7 +154,6 @@ export const Vouchers = () => {
         onChangeComponentFunction: (newValue: CellValueType) => void
       ) => (
         <Dropdown
-          required={true}
           options={taxIndicatorOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
@@ -173,7 +170,6 @@ export const Vouchers = () => {
         onChangeComponentFunction: (newValue: CellValueType) => void
       ) => (
         <InputField
-          required={true}
           type="date"
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
@@ -190,9 +186,8 @@ export const Vouchers = () => {
         rowIndex?: number
       ) => (
         <InputField
-          required={true}
+          selectedFileName={formData[rowIndex || 0]?.XMLFile?.name || ""}
           type="file"
-          value={"" as string}
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
@@ -221,9 +216,8 @@ export const Vouchers = () => {
         rowIndex?: number
       ) => (
         <InputField
-          required={true}
+          selectedFileName={formData[rowIndex || 0]?.PDFFile?.name || ""}
           type="file"
-          value={"" as string}
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
