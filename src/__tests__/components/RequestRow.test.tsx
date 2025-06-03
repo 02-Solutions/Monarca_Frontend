@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import RequestRow from "../../components/RequestRow.tsx";
 
 describe("RequestRow", () => {
@@ -105,9 +105,12 @@ describe("RequestRow", () => {
     // Verify they are date type inputs
     expect(dateInputs[0]).toHaveAttribute("type", "date");
 
-    // Change a date
-    fireEvent.change(dateInputs[0], { target: { value: "2025-01-15" } });
-    expect(dateInputs[0]).toHaveValue("2025-01-15");
+    // Change a date - ensure the element exists before using it
+    const firstDateInput = dateInputs[0];
+    if (firstDateInput) {
+      fireEvent.change(firstDateInput, { target: { value: "2025-01-15" } });
+      expect(firstDateInput).toHaveValue("2025-01-15");
+    }
   });
 
   it("renders dropdown options correctly", () => {
