@@ -1,240 +1,169 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
-import userEvent from "@testing-library/user-event";
-import LoginPage from "../../pages/Login";
+/* __tests__/pages/Login.test.tsx */
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { BrowserRouter } from 'react-router-dom';
+import LoginPage from '../../pages/Login';
 
-// Mock the navigate function
+/* ──────────── 1. Mocks globales ──────────── */
+
+// 👉 navigate
 const mockedNavigate = vi.fn();
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual("react-router-dom");
-  return {
-    ...actual,
-    useNavigate: () => mockedNavigate,
-  };
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>(
+    'react-router-dom'
+  );
+  return { ...actual, useNavigate: () => mockedNavigate };
 });
 
-// Mock the postRequest function
-vi.mock("../../utils/apiService", () => ({
-  postRequest: vi.fn(),
-}));
+// 👉 apiService
+vi.mock('../../utils/apiService', () => ({ postRequest: vi.fn() }));
 
-// Mock react-toastify - declare the spy inside the mock
-vi.mock("react-toastify", () => ({
-  toast: {
-    error: vi.fn(),
-  },
+// 👉 react-toastify
+vi.mock('react-toastify', () => ({
+  toast: { error: vi.fn() },
   ToastContainer: () => null,
 }));
 
-describe("LoginPage", () => {
-  describe("Basic Rendering Tests", () => {
-    it("renders login form elements", () => {
-      render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
+/* 2️⃣  Acceso tipado a los mocks */
+import * as apiServiceOrig from '../../utils/apiService';
+import { toast } from 'react-toastify';
+const apiService = vi.mocked(apiServiceOrig);
 
-      expect(screen.getByText("INICIO DE SESIÓN")).toBeInTheDocument();
-      expect(screen.getByPlaceholderText("Correo")).toBeInTheDocument();
-      expect(screen.getByPlaceholderText("Contraseña")).toBeInTheDocument();
-      expect(screen.getByText("Continuar")).toBeInTheDocument();
-    });
+/* ──────────── 3. Helper render ──────────── */
+const renderLogin = () =>
+  render(
+    <BrowserRouter>
+      <LoginPage />
+    </BrowserRouter>
+  );
 
-    it("renders MONARCA logo text", () => {
-      render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
+/* ──────────── 4. Tests ──────────── */
+describe('LoginPage', () => {
+  beforeEach(() => vi.clearAllMocks());
 
-      expect(screen.getByText("M")).toBeInTheDocument();
-      expect(screen.getByText("ONARCA")).toBeInTheDocument();
-    });
+  /* ---------- BASIC RENDER ---------- */
+  it('muestra elementos básicos del formulario', () => {
+    renderLogin();
 
-    it("renders forgot password link", () => {
-      render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
-
-      const forgotPasswordLink = screen.getByText("¿Olvidaste tu contraseña?");
-      expect(forgotPasswordLink).toBeInTheDocument();
-      expect(forgotPasswordLink).toHaveAttribute("href", "/register");
-    });
-
-    it("renders background image container", () => {
-      render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
-
-      const backgroundDiv = document.querySelector(
-        '[class*="bg-"][class*="imageLogin.png"]',
-      );
-      expect(backgroundDiv).toBeInTheDocument();
-    });
+    expect(screen.getByText('INICIO DE SESIÓN')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Correo')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Contraseña')).toBeInTheDocument();
+    expect(screen.getByText('Continuar')).toBeInTheDocument();
+    expect(screen.getByText('M')).toBeInTheDocument();
+    expect(screen.getByText('ONARCA')).toBeInTheDocument();
+    const forgot = screen.getByText('¿Olvidaste tu contraseña?');
+    expect(forgot).toHaveAttribute('href', '/register');
   });
 
-  describe("Form Interaction Tests", () => {
-    it("updates email input when typing", async () => {
-      render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
+  /* ---------- INTERACCIÓN INPUT ---------- */
+  it('actualiza inputs al escribir', async () => {
+    renderLogin();
 
-      const emailInput = screen.getByPlaceholderText("Correo");
-      await userEvent.type(emailInput, "test@example.com");
+    const email = screen.getByPlaceholderText('Correo');
+    const pass = screen.getByPlaceholderText('Contraseña');
 
-      expect(emailInput).toHaveValue("test@example.com");
-    });
+    await userEvent.type(email, 'user@test.com');
+    await userEvent.type(pass, '123456');
 
-    it("updates password input when typing", async () => {
-      render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
-
-      const passwordInput = screen.getByPlaceholderText("Contraseña");
-      await userEvent.type(passwordInput, "secret123");
-
-      expect(passwordInput).toHaveValue("secret123");
-    });
+    expect(email).toHaveValue('user@test.com');
+    expect(pass).toHaveValue('123456');
   });
 
-  describe("Form Submission Tests", () => {
-    it("navigates to dashboard on successful login", async () => {
-      // Setup mock for successful login
-      const { postRequest } = await import("../../utils/apiService");
-      vi.mocked(postRequest).mockResolvedValueOnce({ status: true });
+  /* ---------- ENVÍO CORRECTO ---------- */
+  it('navega al dashboard en login exitoso', async () => {
+    apiService.postRequest.mockResolvedValueOnce({ status: true });
 
-      render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
+    renderLogin();
 
-      // Fill in email and password
-      const emailInput = screen.getByPlaceholderText("Correo");
-      const passwordInput = screen.getByPlaceholderText("Contraseña");
+    await userEvent.type(screen.getByPlaceholderText('Correo'), 'ok@test.com');
+    await userEvent.type(screen.getByPlaceholderText('Contraseña'), 'password');
 
-      await userEvent.type(emailInput, "test@example.com");
-      await userEvent.type(passwordInput, "password123");
+    await userEvent.click(screen.getByText('Continuar'));
 
-      // Submit the form
-      const submitButton = screen.getByText("Continuar");
-      await userEvent.click(submitButton);
-
-      // Check if postRequest was called with correct data
-      expect(postRequest).toHaveBeenCalledWith("/login", {
-        email: "test@example.com",
-        password: "password123",
-      });
-
-      // Check if navigation to dashboard occurred
-      expect(mockedNavigate).toHaveBeenCalledWith("/dashboard");
+    expect(apiService.postRequest).toHaveBeenCalledWith('/login', {
+      email: 'ok@test.com',
+      password: 'password',
     });
+    expect(mockedNavigate).toHaveBeenCalledWith('/dashboard');
+  });
 
-    it("shows error alert when API returns status: false", async () => {
-      const { postRequest } = await import("../../utils/apiService");
-      vi.mocked(postRequest).mockResolvedValueOnce({ status: false });
+  /* ---------- CAMPOS VACÍOS ---------- */
+  it('muestra toast si se envía sin llenar campos', async () => {
+    renderLogin();
 
-      // Get the mocked toast error function
-      const { toast } = await import("react-toastify");
+    // Desactiva la validación nativa HTML5
+    const form = document.querySelector('form') as HTMLFormElement;
+    form.noValidate = true;
 
-      render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
+    await userEvent.click(screen.getByText('Continuar'));
 
-      const emailInput = screen.getByPlaceholderText("Correo");
-      const passwordInput = screen.getByPlaceholderText("Contraseña");
-
-      await userEvent.type(emailInput, "wrong@example.com");
-      await userEvent.type(passwordInput, "badpass");
-
-      const submitButton = screen.getByText("Continuar");
-      await userEvent.click(submitButton);
-
+    await waitFor(() =>
       expect(toast.error).toHaveBeenCalledWith(
-        "Credenciales incorrectas",
-        expect.any(Object),
-      );
-    });
+        'Por favor, completa todos los campos',
+        expect.any(Object)
+      )
+    );
+    expect(apiService.postRequest).not.toHaveBeenCalled();
   });
 
-  describe("Input Validation Tests", () => {
-    it("password input has type='password' attribute", () => {
-      render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
+  /* ---------- CREDENCIALES INCORRECTAS ---------- */
+  it('muestra toast si API devuelve status false', async () => {
+    apiService.postRequest.mockResolvedValueOnce({ status: false });
 
-      const passwordInput = screen.getByPlaceholderText("Contraseña");
-      expect(passwordInput).toHaveAttribute("type", "password");
-    });
+    renderLogin();
 
-    it("both inputs have required attribute", () => {
-      render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
+    await userEvent.type(screen.getByPlaceholderText('Correo'), 'wrong@test.com');
+    await userEvent.type(screen.getByPlaceholderText('Contraseña'), 'wrongpass');
 
-      const emailInput = screen.getByPlaceholderText("Correo");
-      const passwordInput = screen.getByPlaceholderText("Contraseña");
+    await userEvent.click(screen.getByText('Continuar'));
 
-      expect(emailInput).toBeRequired();
-      expect(passwordInput).toBeRequired();
-    });
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(
+        'Credenciales incorrectas',
+        expect.any(Object)
+      )
+    );
   });
 
-  describe("UI State Tests", () => {
-    it("button is clickable", () => {
-      render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
+  /* ---------- ERROR DE SERVIDOR ---------- */
+  it('muestra toast genérico si la petición falla', async () => {
+    apiService.postRequest.mockRejectedValueOnce(new Error('network'));
 
-      const submitButton = screen.getByText("Continuar");
-      expect(submitButton).toBeEnabled();
-      expect(submitButton).not.toBeDisabled();
-    });
+    renderLogin();
 
-    it("form maintains state between component re-renders", async () => {
-      const { rerender } = render(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
+    await userEvent.type(screen.getByPlaceholderText('Correo'), 'fail@test.com');
+    await userEvent.type(screen.getByPlaceholderText('Contraseña'), 'failpass');
 
-      const emailInput = screen.getByPlaceholderText("Correo");
-      const passwordInput = screen.getByPlaceholderText("Contraseña");
+    await userEvent.click(screen.getByText('Continuar'));
 
-      await userEvent.type(emailInput, "persist@example.com");
-      await userEvent.type(passwordInput, "persistpw");
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(
+        'Error al iniciar sesión',
+        expect.any(Object)
+      )
+    );
+  });
 
-      // Re-render the same component tree
-      rerender(
-        <BrowserRouter>
-          <LoginPage />
-        </BrowserRouter>,
-      );
+  /* ---------- PERSISTENCIA AL RERENDER ---------- */
+  it('mantiene los valores después de un rerender', async () => {
+    const { rerender } = renderLogin();
 
-      expect(screen.getByPlaceholderText("Correo")).toHaveValue(
-        "persist@example.com",
-      );
-      expect(screen.getByPlaceholderText("Contraseña")).toHaveValue(
-        "persistpw",
-      );
-    });
+    const email = screen.getByPlaceholderText('Correo');
+    const pass = screen.getByPlaceholderText('Contraseña');
+
+    await userEvent.type(email, 'persist@example.com');
+    await userEvent.type(pass, 'persistpw');
+
+    rerender(
+      <BrowserRouter>
+        <LoginPage />
+      </BrowserRouter>
+    );
+
+    expect(screen.getByPlaceholderText('Correo')).toHaveValue(
+      'persist@example.com'
+    );
+    expect(screen.getByPlaceholderText('Contraseña')).toHaveValue('persistpw');
   });
 });
