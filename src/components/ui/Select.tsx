@@ -19,6 +19,7 @@ type SelectProps = {
   isLoading?: boolean;
   isDisabled?: boolean;
   placeholder?: string;
+  id?: string;
 };
 
 export default function Select({
@@ -29,11 +30,13 @@ export default function Select({
   isLoading = false,
   isDisabled = false,
   placeholder = "Selecciona una opción",
+  id,
 }: SelectProps) {
   return (
     <Listbox value={value || null} onChange={onChange} disabled={isDisabled}>
       <div className="relative">
         <ListboxButton
+          id={id}
           className={`relative w-full cursor-default rounded-md p-2.5 pr-10 text-left text-gray-900 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 ${
             isDisabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"
           }`}
