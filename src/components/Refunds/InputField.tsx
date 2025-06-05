@@ -135,10 +135,10 @@ const InputField: React.FC<InputFieldProps> = ({
   // Text color
   const textClass = "text-[#0a2c6d]";
 
-  // Validate the field
-  const validateInput = (inputValue: string | undefined) => {
+  // Validate the field - modified to accept a touched parameter
+  const validateInput = (inputValue: string | undefined, touched: boolean = isTouched) => {
     // Check if field is required and empty
-    if (required && isEmptyValue(inputValue) && isTouched) {
+    if (required && isEmptyValue(inputValue) && touched) {
       setLocalError("Este campo es obligatorio");
       return false;
     }
@@ -158,7 +158,8 @@ const InputField: React.FC<InputFieldProps> = ({
   // Handle validation on blur
   const handleBlur = () => {
     setIsTouched(true);
-    validateInput(type === "file" ? selectedFileName : value);
+    // Pass true as touched parameter since we're setting it to true
+    validateInput(type === "file" ? selectedFileName : value, true);
 
     // Call original onBlur if provided
     if (onBlur) onBlur();
