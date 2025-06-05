@@ -18,6 +18,38 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+const renderStatus = (status: string) => {
+  switch (status) {
+    case "Pending Review":
+      return "En revisión";
+    case "Denied":
+      return "Denegado";
+    case "Cancelled":
+      return "Cancelado";
+      break;
+    case "Changes Needed":
+      return "Cambios necesarios";
+      break;
+    case "Pending Reservations":
+      return "Reservas pendientes";
+      break;
+    case "Pending Accounting Approval":
+      return "Contabilidad pendiente";
+      break;
+    case "Pending Vouchers Approval":
+      return "Comprobantes pendientes";
+      break;
+    case "In Progress":
+      return "En progreso";
+      break;
+    case "Completed": 
+      return "Completado";
+      break;
+    default:
+      return status;
+    }
+}
+
 const RequestInfo: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -38,6 +70,7 @@ const RequestInfo: React.FC = () => {
         console.log(response);
         setData({
           ...response,
+          status: renderStatus(response.status),
           createdAt: formatDate(response.createdAt),
           advance_money_str: formatMoney(response.advance_money),
           admin: response.admin.name + ' ' + response.admin.last_name,          
@@ -197,7 +230,7 @@ const RequestInfo: React.FC = () => {
             Información de Solicitud: <span>{id}</span>
           </div>
           <p className="mb-6 text-gray-700 font-medium">
-            Empleado: <span className="text-[var(--blue)]">{authState.userId}</span>
+            Solicitante: <span className="text-[var(--blue)]">{data?.user?.name} {data?.user?.last_name}</span>
           </p>
 
           <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
@@ -466,26 +499,35 @@ const RequestInfo: React.FC = () => {
               htmlFor="agency"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Agencias de viaje
+              {data.status !== "Pending Review" ? "Agencia de viaje" : "Agencias de viaje"}
             </label>
-            <select
-              id="agency"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={selectedAgency}
-              disabled={data.status !== "Pending Review"}
-              onChange={(e) => setSelectedAgency(e.target.value)}
-            >
-              <option value="">-- Selecciona una agencia --</option>
-              {agencies.map((agency) => (
-                <option key={agency.id} value={agency.id}>
-                  {agency.name}
-                </option>
-              ))}
-            </select>
+            {data.status === "Pending Review" ? (
+              <select
+                id="agency"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={selectedAgency}
+                disabled={data.status !== "Pending Review"}
+                onChange={(e) => setSelectedAgency(e.target.value)}
+              >
+                <option value="">-- Selecciona una agencia --</option>
+                {agencies.map((agency) => (
+                  <option key={agency.id} value={agency.id}>
+                    {agency.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                readOnly
+                value={agencies?.find(agency => agency.id === data.id_travel_agency)?.name}
+                className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+              />
+            )}
           </section>}
 
 
-          {authState.userPermissions.includes("approve_request" as Permission) && <section className="mb-8">
+          {authState.userPermissions.includes("approve_request" as Permission) && data.status === "Pending Review" && <section className="mb-8">
             <label
               htmlFor="comment"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -504,42 +546,61 @@ const RequestInfo: React.FC = () => {
 
           {/* Botones de acción */}
           {authState.userPermissions.includes("approve_request" as Permission) &&
-          <footer className="flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={approve}
-              disabled={!selectedAgency || data.status !== "Pending Review"}
-              className={`flex-1 py-3 rounded-lg font-semibold transition
-                ${
-                  selectedAgency && data.status === "Pending Review"
-                    ? 'bg-green-600 hover:bg-green-700 text-white'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-            >
-              Aprobar
-            </button>
-            <button
-              onClick={requestChanges}
-              disabled={!comment.trim() || data.status !== "Pending Review"}
-              className={`flex-1 py-3 rounded-lg font-semibold transition
-                ${comment.trim() && data.status === "Pending Review"
-                    ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-            >
-              Solicitar cambios
-            </button>
-            <button
-              onClick={deny}
-              disabled={data.status !== "Pending Review"}
-              className={`flex-1 py-3 rounded-lg font-semibold transition
-                ${data.status === "Pending Review"
-                  ? 'bg-red-600 hover:bg-red-700 text-white'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-            >
-              Denegar
-            </button>
-          </footer>}
+          <>
+              {data.status === "Pending Review" &&
+                <section className="mb-10">
+                  <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                    Información importante
+                  </h1>
+                  <p className="text-sm text-gray-600">
+                    - Para aprobar esta solicitud, debes seleccionar una agencia de viaje y proporcionar un comentario si es necesario.
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    - Si la solicitud requiere cambios, puedes solicitarlo escribiendo un comentario.
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    - Si deseas denegar la solicitud, puedes hacerlo directamente.
+                  </p>
+                </section>
+              }
+              <footer className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={approve}
+                  disabled={!selectedAgency || data.status !== "Pending Review"}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition
+                    ${
+                      selectedAgency && data.status === "Pending Review"
+                        ? 'bg-green-600 hover:bg-green-700 text-white'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                >
+                  Aprobar
+                </button>
+                <button
+                  onClick={requestChanges}
+                  disabled={!comment.trim() || data.status !== "Pending Review"}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition
+                    ${comment.trim() && data.status === "Pending Review"
+                        ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                >
+                  Solicitar cambios
+                </button>
+                <button
+                  onClick={deny}
+                  disabled={data.status !== "Pending Review"}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition
+                    ${data.status === "Pending Review"
+                      ? 'bg-red-600 hover:bg-red-700 text-white'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                >
+                  Denegar
+                </button>
+              </footer>
+          </>
+          }
 
           {authState.userPermissions.includes("create_request" as Permission) &&
           <footer className="flex flex-col sm:flex-row gap-4">

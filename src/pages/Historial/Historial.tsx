@@ -4,13 +4,12 @@
  */
 
 import Table from "../../components/Refunds/Table";
-import Button from "../../components/Refunds/Button";
 import { useState, useEffect } from "react";
 import { getRequest } from "../../utils/apiService";
 import formatDate from "../../utils/formatDate";
 import { Permission, useAuth } from "../../hooks/auth/authContext";
 import RefreshButton from "../../components/RefreshButton";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import GoBack from "../../components/GoBack";
 
 //Interface for travel records data
@@ -30,12 +29,63 @@ import GoBack from "../../components/GoBack";
 //   requestDate: string;
 // }
 
+
+const renderStatus = (status: string) => {
+  let statusText = "";
+  let styles = "";
+  switch (status) {
+    case "Pending Review":
+      statusText = "En revisión";
+      styles = "text-[#55447a] bg-[#bea8ef]";
+      break;
+    case "Denied":
+      statusText = "Denegado";
+      styles = "text-[#680909] bg-[#eca6a6]";
+      break;
+    case "Cancelled":
+      statusText = "Cancelado";
+      styles = "text-[#680909] bg-[#eca6a6]";
+      break;
+    case "Changes Needed":
+      statusText = "Cambios necesarios";
+      styles = "text-[#755619] bg-[#f1dbb1]";
+      break;
+    case "Pending Reservations":
+      statusText = "Reservas pendientes";
+      styles = "text-[#8c5308] bg-[#f1c180]";
+      break;
+    case "Pending Accounting Approval":
+      statusText = "Contabilidad pendiente";
+      styles = "text-[var(--dark-blue)] bg-[#99b5e3]";
+      break;
+    case "Pending Vouchers Approval":
+      statusText = "Comprobantes pendientes";
+      styles = "text-[var(--dark-blue)] bg-[#c6c4fb]";
+      break;
+    case "In Progress":
+      statusText = "En progreso";
+      styles = "text-[var(--dark-blue)] bg-[#b7f1f1]";
+      break;
+    case "Completed": 
+      statusText = "Completado";
+      styles = "text-[#24390d] bg-[#c7e6ab]";
+      break;
+    default:
+      statusText = status;
+      styles = "text-white bg-[#6c757d]";
+    }
+    return (
+      <span className={`text-xs p-1 rounded-sm ${styles}`}>
+        {statusText}
+      </span>
+    )
+}
+
 export const Historial = () => {
   // State to store selected travel record details
   // const [selectedTravel, setSelectedTravel] = useState<TravelRecord | null>(null);
   const [dataWithActions, setDataWithActions] = useState([]);
   const { authState } = useAuth();
-  const navigate = useNavigate();
 
   // Fetch travel records data from API
   useEffect(() => {
@@ -61,16 +111,17 @@ export const Historial = () => {
         // Data with actions (edit buttons)
         setDataWithActions(response?.map((record: any) => ({
           ...record,
+          status: renderStatus(record.status),
           createdAt: formatDate(record.createdAt),
           country: record.destination.city,
           departureDate: formatDate(record.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
           action: (
-            <Button
-              label="Ver detalles"
-              onClickFunction={() => {
-                navigate(`/requests/${record.id}`);
-              }}
-            />
+            <Link
+              to={`/requests/${record.id}`}
+              className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
+            >
+              Detalles
+            </Link>
           ),
         })));
         //   action: record.status == "Changes Needed" && (
