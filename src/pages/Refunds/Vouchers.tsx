@@ -73,6 +73,7 @@ export const Vouchers = () => {
         formDataToSend.append("date", new Date().toISOString());
         formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());
+        formDataToSend.append("tax_type", rowData.taxIndicator);
         formDataToSend.append("status", "comprobante_pendiente");
         formDataToSend.append("currency", "MXN");
         formDataToSend.append("id_approver", "");
