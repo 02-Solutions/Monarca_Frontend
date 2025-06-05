@@ -7,6 +7,7 @@ export interface SwitchProps {
   disabled?: boolean;
   className?: string;
   srLabel?: string;
+  id?: string;
 }
 
 export default function Switch({
@@ -15,9 +16,11 @@ export default function Switch({
   disabled = false,
   className,
   srLabel = "toggle",
+  id,
 }: SwitchProps) {
   return (
     <HSwitch
+      id={id}
       checked={checked}
       onChange={onChange}
       disabled={disabled}

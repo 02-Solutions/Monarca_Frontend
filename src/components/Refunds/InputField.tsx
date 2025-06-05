@@ -244,6 +244,7 @@ const InputField: React.FC<InputFieldProps> = ({
             onFocus={handleFocus}
             aria-invalid={!!errorMessage}
             aria-required={required}
+            role={type === "date" ? "spinbutton" : undefined}
           />
         </div>
       </>

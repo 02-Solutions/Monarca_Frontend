@@ -122,7 +122,10 @@ function DestinationFields({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900">
+          <label
+            htmlFor={`destination-${idx}`}
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
             Destino
           </label>
           <Controller
@@ -130,6 +133,7 @@ function DestinationFields({
             name={`requests_destinations.${idx}.id_destination`}
             render={({ field }) => (
               <Select
+                id={`destination-${idx}`}
                 options={destinationOptions}
                 value={
                   field.value
@@ -146,18 +150,28 @@ function DestinationFields({
         </div>
 
         <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900">
+          <label
+            htmlFor={`details-${idx}`}
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
             Detalles
           </label>
-          <Input {...register(`requests_destinations.${idx}.details`)} />
+          <Input
+            id={`details-${idx}`}
+            {...register(`requests_destinations.${idx}.details`)}
+          />
           <FieldError msg={destinationErrors?.details?.message} />
         </div>
 
         <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900">
+          <label
+            htmlFor={`departure-${idx}`}
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
             Fecha salida
           </label>
           <Input
+            id={`departure-${idx}`}
             type="date"
             {...register(`requests_destinations.${idx}.departure_date`)}
           />
@@ -165,10 +179,14 @@ function DestinationFields({
         </div>
 
         <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900">
+          <label
+            htmlFor={`arrival-${idx}`}
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
             Fecha llegada
           </label>
           <Input
+            id={`arrival-${idx}`}
             type="date"
             {...register(`requests_destinations.${idx}.arrival_date`)}
           />
@@ -176,34 +194,56 @@ function DestinationFields({
         </div>
 
         <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900">
+          <label
+            htmlFor={`stay-days-${idx}`}
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
             No. días estancia
           </label>
-          <Input type="number" value={stayDays} readOnly />
+          <Input
+            id={`stay-days-${idx}`}
+            type="number"
+            value={stayDays}
+            readOnly
+          />
         </div>
 
         <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900">
+          <label
+            htmlFor={`hotel-${idx}`}
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
             ¿Necesita hotel?
           </label>
           <Controller
             control={control}
             name={`requests_destinations.${idx}.is_hotel_required`}
             render={({ field }) => (
-              <Switch checked={field.value} onChange={field.onChange} />
+              <Switch
+                id={`hotel-${idx}`}
+                checked={field.value}
+                onChange={field.onChange}
+              />
             )}
           />
         </div>
 
         <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900">
+          <label
+            htmlFor={`plane-${idx}`}
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
             ¿Necesita vuelo?
           </label>
           <Controller
             control={control}
             name={`requests_destinations.${idx}.is_plane_required`}
             render={({ field }) => (
-              <Switch checked={field.value} onChange={field.onChange} />
+              <Switch
+                id={`plane-${idx}`}
+                checked={field.value}
+                onChange={field.onChange}
+              />
             )}
           />
         </div>
@@ -347,40 +387,42 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
             {isEditing ? "Editar Viaje" : "Datos del Viaje"}
           </h2>
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* ...Campos de título, motivo, prioridad, ciudad, dinero, requerimientos... */}
             <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
               <div className="sm:col-span-2">
                 <label
                   htmlFor="motive"
-                  className="block mb-2 text-sm font-medium text-gray-900 "
+                  className="block mb-2 text-sm font-medium text-gray-900"
                 >
                   Motivo
                 </label>
                 <Input
+                  id="motive"
                   {...register("motive")}
                   placeholder="Viaje de Negocios"
                 />
-                {errors.motive && (
-                  <p className="text-sm text-red-600 mt-1">
-                    {errors.motive.message}
-                  </p>
-                )}
+                <FieldError msg={errors.motive?.message} />
               </div>
 
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-900">
+                <label
+                  htmlFor="title"
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                >
                   Título
                 </label>
-                <Input {...register("title")} placeholder="Viaje a CDMX" />
-                {errors.title && (
-                  <p className="text-sm text-red-600 mt-1">
-                    {errors.title.message}
-                  </p>
-                )}
+                <Input
+                  id="title"
+                  {...register("title")}
+                  placeholder="Viaje a CDMX"
+                />
+                <FieldError msg={errors.title?.message} />
               </div>
 
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-900">
+                <label
+                  htmlFor="id_origin_city"
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                >
                   Ciudad Origen
                 </label>
                 <Controller
@@ -388,6 +430,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                   name="id_origin_city"
                   render={({ field }) => (
                     <Select
+                      id="id_origin_city"
                       options={destinationOptions}
                       value={
                         field.value
@@ -400,15 +443,14 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                     />
                   )}
                 />
-                {errors.id_origin_city && (
-                  <p className="text-sm text-red-600 mt-1">
-                    {errors.id_origin_city.message}
-                  </p>
-                )}
+                <FieldError msg={errors.id_origin_city?.message} />
               </div>
 
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-900">
+                <label
+                  htmlFor="priority"
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                >
                   Prioridad
                 </label>
                 <Controller
@@ -416,41 +458,44 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                   name="priority"
                   render={({ field }) => (
                     <Select
+                      id="priority"
                       options={priorityOptions}
                       value={priorityOptions.find((o) => o.id === field.value)}
                       onChange={(opt) => field.onChange(opt.id)}
+                      placeholder="Selecciona prioridad"
                     />
                   )}
                 />
-                {errors.priority && (
-                  <p className="text-sm text-red-600 mt-1">
-                    {errors.priority.message}
-                  </p>
-                )}
+                <FieldError msg={errors.priority?.message} />
               </div>
 
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-900">
-                  Dinero adelantado (MXN)
+                <label
+                  htmlFor="advance_money"
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                >
+                  Dinero adelantado
                 </label>
                 <Input
+                  id="advance_money"
                   type="number"
-                  min={1}
                   {...register("advance_money", { valueAsNumber: true })}
                 />
                 <FieldError msg={errors.advance_money?.message} />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block mb-2 text-sm font-medium text-gray-900">
-                  Requerimientos
+                <label
+                  htmlFor="requirements"
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                >
+                  Requisitos adicionales
                 </label>
-                <TextArea rows={4} {...register("requirements")} />
-                {errors.requirements && (
-                  <p className="text-sm text-red-600 mt-1">
-                    {errors.requirements.message}
-                  </p>
-                )}
+                <TextArea
+                  id="requirements"
+                  {...register("requirements")}
+                  placeholder="Requisitos adicionales del viaje"
+                />
               </div>
             </div>
 
