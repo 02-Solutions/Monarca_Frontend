@@ -226,7 +226,7 @@ const RequestInfo: React.FC = () => {
               >
                 Detalles de los destinos
               </p>
-              {data?.requests_destinations?.map((dest: any) => (
+              {data?.requests_destinations?.map((dest: any, index: number) => (
                   <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-8" key={dest.id}>
                     <div>
                       <label
@@ -235,6 +235,7 @@ const RequestInfo: React.FC = () => {
                         Lugar
                       </label>
                       <input
+                        id={`destination-${index}`}
                         type="text"
                         readOnly
                         value={dest.destination.city}
@@ -248,6 +249,7 @@ const RequestInfo: React.FC = () => {
                         Fecha de llegada
                       </label>
                       <input
+                        id={`arrival-${index}`}
                         type="text"
                         readOnly
                         value={formatDate(dest.arrival_date)}
@@ -261,6 +263,7 @@ const RequestInfo: React.FC = () => {
                         Fecha de salida
                       </label>
                       <input
+                        id={`departure-${index}`}
                         type="text"
                         readOnly
                         value={formatDate(dest.departure_date)}
@@ -274,6 +277,7 @@ const RequestInfo: React.FC = () => {
                         Detalles
                       </label>
                       <input
+                        id={`details-${index}`}
                         type="text"
                         readOnly
                         value={dest.details}
@@ -282,13 +286,13 @@ const RequestInfo: React.FC = () => {
                     </div>
                     <div className="flex items-center justify-start gap-1">
                         {dest.is_hotel_required && (
-                          <p className='text-sm bg-[var(--yellow)] rounded-full px-2 py-1 w-fit'>Hotel</p>
+                          <p id={`hotel-${index}`} className='text-sm bg-[var(--yellow)] rounded-full px-2 py-1 w-fit'>Hotel</p>
                         )}
                         {dest.is_plane_required && (
-                          <p className='text-sm bg-[var(--blue)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>Avión</p>
+                          <p id={`plane-${index}`} className='text-sm bg-[var(--blue)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>Avión</p>
                         )}
                         {dest.stay_days && (
-                          <p className='text-sm bg-[var(--green)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>{dest.stay_days} días</p>
+                          <p id={`stay-days-${index}`} className='text-sm bg-[var(--green)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>{dest.stay_days} días</p>
                         )}
                       
                     </div>
@@ -303,7 +307,7 @@ const RequestInfo: React.FC = () => {
                 Revisiones anteriores
               </p>
               <div className="grid grid-cols-1 gap-2 mb-6">
-              {data?.revisions?.map((revision: any) => (
+              {data?.revisions?.map((revision: any, index: number) => (
                   <div key={revision.id}>
                     <label
                       className="block text-xs font-semibold text-gray-500 mb-1"
@@ -311,6 +315,7 @@ const RequestInfo: React.FC = () => {
                       Comentario
                     </label>
                     <input
+                      id={`revision-comment-${index}`}
                       type="text"
                       readOnly
                       value={revision.comment}
@@ -391,7 +396,7 @@ const RequestInfo: React.FC = () => {
                 Total de Comprobantes
               </label>
               <input
-                id={"total"}
+                id="total_vouchers"
                 type="text"
                 readOnly
                 value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
@@ -411,7 +416,7 @@ const RequestInfo: React.FC = () => {
                 Anticipo
               </label>
               <input
-                id={"advance_money"}
+                id="advance_money"
                 type="text"
                 readOnly
                 value={formatMoney(Number(data?.advance_money) || 0)}
@@ -432,7 +437,7 @@ const RequestInfo: React.FC = () => {
                   }, 0) ?? 0) < 0 ? "a favor" : "en contra"} 
               </label>
               <input
-                id={"total"}
+                id="balance"
                 type="text"
                 readOnly
                 value={formatMoney(

@@ -29,16 +29,17 @@ const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
                 />
 
                 <div className="flex flex-col bg-white p-6 gap-3 col-span-1">
-                  <p><span className="font-semibold text-[var(--blue)]">Clase: </span>{file.class}</p>
-                  <p><span className="font-semibold text-[var(--blue)]">Cantidad: </span><span className="text-green-700">{formatMoney(file.amount)}</span></p>
-                  <p><span className="font-semibold text-[var(--blue)]">Fecha: </span>{formatDate(file.date)}</p>
-                  <p><span className="font-semibold text-[var(--blue)]">Estado: </span>{file.status}</p>
+                  <p id={`class-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Clase: </span>{file.class}</p>
+                  <p id={`amount-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Cantidad: </span><span className="text-green-700">{formatMoney(file.amount)}</span></p>
+                  <p id={`date-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Fecha: </span>{formatDate(file.date)}</p>
+                  <p id={`status-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Estado: </span>{file.status}</p>
                 </div>
               </div>
 
               <div className="mt-4 flex justify-between items-center">
                 <div className="flex space-x-4">
                   <a
+                    id={`download-file-xml-${fileIndex}`}
                     href={file.file_url_xml}
                     download={`comprobante${fileIndex + 1}.xml`}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover:cursor-pointer"
@@ -46,6 +47,7 @@ const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
                     Descargar XML
                   </a>
                   <a
+                    id={`download-file-pdf-${fileIndex}`}
                     href={file.file_url_pdf}
                     download={`comprobante${fileIndex + 1}.pdf`}
                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 hover:cursor-pointer"
