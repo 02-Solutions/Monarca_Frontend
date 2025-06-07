@@ -576,6 +576,7 @@ const RequestInfo: React.FC = () => {
           {authState.userPermissions.includes("check_budgets" as Permission) &&
           <footer className="flex flex-col sm:flex-row gap-4">
           <button
+            id="register-spend"
             onClick={register}
             disabled={data.status !== "Pending Accounting Approval"}
             className={`flex-1 py-3 rounded-lg font-semibold transition ${
