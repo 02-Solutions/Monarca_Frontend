@@ -1,3 +1,4 @@
+// This test assumes that you have at least one travel request in the history for the requester user.
 describe("Travel History as Requester", () => {
     before("Login as a requester", () => {
         cy.visit("/");
