@@ -131,8 +131,7 @@ describe('RefundsReview page', () => {
 
     // Click simulado → navega
     // Busca el Link y simula click
-    const link = screen.getByRole('a', { name: /Ver Comprobantes/i });
-    link.click();
+    data[0].action.props.onClickFunction();
     expect(navigateSpy).toHaveBeenCalledWith('/refunds-review/A1');
   });
 });

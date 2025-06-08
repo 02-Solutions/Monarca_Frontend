@@ -7,12 +7,13 @@
 import { useState, useEffect } from "react";
 import Table from "../../components/Refunds/Table";
 import { getRequest } from "../../utils/apiService";
-import { Link } from "react-router-dom";
+import Button from "../../components/Refunds/Button";
 import { toast } from "react-toastify";
 import RefreshButton from "../../components/RefreshButton";
 import formatDate from "../../utils/formatDate";
 import formatMoney from "../../utils/formatMoney";
 import GoBack from "../../components/GoBack";
+import { useNavigate } from "react-router-dom";
 
 interface Trip {
   id: number | string;
@@ -76,6 +77,7 @@ const renderStatus = (status: string) => {
 }
 
 export const Refunds = () => {
+  const navigate = useNavigate();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -130,12 +132,11 @@ export const Refunds = () => {
   const dataWithActions = trips.map((trip) => ({
     ...trip,
     action: (
-      <Link
-        to={`/refunds/${trip.id}`}
+      <Button
         className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
-      >
-        Comprobar
-      </Link>
+        label="Comprobar"
+        onClickFunction={() => navigate(`/refunds/${trip.id}`)}
+      />
     ),
   }));
 

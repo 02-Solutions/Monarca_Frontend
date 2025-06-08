@@ -5,8 +5,9 @@ import formatDate from "../../utils/formatDate";
 import formatMoney from "../../utils/formatMoney";
 import { toast } from "react-toastify";
 import { getRequest } from "../../utils/apiService";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import GoBack from "../../components/GoBack";
+import Button from "../../components/Refunds/Button";
 
 interface Destination {
   id: string;
@@ -105,6 +106,7 @@ const renderStatus = (status: string) => {
 }
 
 export const RefundsReview = () => {
+  const navigate = useNavigate();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -183,12 +185,11 @@ export const RefundsReview = () => {
     formattedAdvance: trip.formattedAdvance,
     formattedCreatedAt: trip.formattedCreatedAt,
     action: (
-      <Link
-        to={`/refunds-review/${trip.id}`}
+      <Button
         className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
-      >
-        Ver comprobantes
-      </Link>
+        label="Ver comprobantes"
+        onClickFunction={() => navigate(`/refunds-review/${trip.id}`)}
+      />
     ),
   }));
 

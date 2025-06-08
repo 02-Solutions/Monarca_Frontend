@@ -9,7 +9,8 @@ import { getRequest } from "../../utils/apiService";
 import formatDate from "../../utils/formatDate";
 import { Permission, useAuth } from "../../hooks/auth/authContext";
 import RefreshButton from "../../components/RefreshButton";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Button from "../../components/Refunds/Button";
 import GoBack from "../../components/GoBack";
 
 //Interface for travel records data
@@ -86,6 +87,7 @@ export const Historial = () => {
   // const [selectedTravel, setSelectedTravel] = useState<TravelRecord | null>(null);
   const [dataWithActions, setDataWithActions] = useState([]);
   const { authState } = useAuth();
+  const navigate = useNavigate();
 
   // Fetch travel records data from API
   useEffect(() => {
@@ -116,12 +118,11 @@ export const Historial = () => {
           country: record.destination.city,
           departureDate: formatDate(record.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
           action: (
-            <Link
-              to={`/requests/${record.id}`}
+            <Button
               className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
-            >
-              Detalles
-            </Link>
+              label="Detalles"
+              onClickFunction={() => navigate(`/requests/${record.id}`)}
+            />
           ),
         })));
         //   action: record.status == "Changes Needed" && (

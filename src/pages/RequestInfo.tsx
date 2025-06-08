@@ -70,7 +70,7 @@ const RequestInfo: React.FC = () => {
         console.log(response);
         setData({
           ...response,
-          status: renderStatus(response.status),
+          formatted_status: renderStatus(response.status),
           createdAt: formatDate(response.createdAt),
           advance_money_str: formatMoney(response.advance_money),
           admin: response.admin.name + ' ' + response.admin.last_name,          
@@ -106,7 +106,7 @@ const RequestInfo: React.FC = () => {
     { key: 'destinations', label: 'Destinos' },
     { key: 'motive', label: 'Motivo' },
     { key: 'advance_money_str', label: 'Anticipo' },
-    { key: 'status', label: 'Estado' },
+    { key: 'formatted_status', label: 'Estado' },
     { key: 'requirements', label: 'Requerimientos' },
     { key: 'priority', label: 'Prioridad' },
     { key: 'createdAt', label: 'Fecha de creación' },
@@ -604,45 +604,46 @@ const RequestInfo: React.FC = () => {
 
           {authState.userPermissions.includes("create_request" as Permission) &&
           <footer className="flex flex-col sm:flex-row gap-4">
-          <button
-            onClick={() => navigate(`/requests/${id}/edit`)}
-            disabled={data.status !== "Changes Needed"}
-            className={`flex-1 py-3 rounded-lg font-semibold transition ${
-              data.status === "Changes Needed"
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Editar
-          </button>
-          <button
-            onClick={cancel}
-            disabled={data.status !== "Pending Review" && data.status !== "Changes Needed"}
-            className={`flex-1 py-3 rounded-lg font-semibold transition ${
-              data.status !== "Pending Review" && data.status !== "Changes Needed"
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-red-600 hover:bg-red-700 text-white"
-            }`}
-          >
-            Cancelar
-          </button>
+            <button
+              onClick={() => navigate(`/requests/${id}/edit`)}
+              disabled={data.status !== "Changes Needed"}
+              className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                data.status === "Changes Needed"
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Editar
+            </button>
+            <button
+              onClick={cancel}
+              disabled={data.status !== "Pending Review" && data.status !== "Changes Needed"}
+              className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                data.status !== "Pending Review" && data.status !== "Changes Needed"
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-red-600 hover:bg-red-700 text-white"
+              }`}
+            >
+              Cancelar
+            </button>
 
           </footer>}
 
           {authState.userPermissions.includes("check_budgets" as Permission) &&
-          <footer className="flex flex-col sm:flex-row gap-4">
-          <button
-            onClick={register}
-            disabled={data.status !== "Pending Accounting Approval"}
-            className={`flex-1 py-3 rounded-lg font-semibold transition ${
-              data.status === "Pending Accounting Approval"
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Marcar como registrado
-          </button>
-          </footer>}
+            <footer className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={register}
+                disabled={data.status !== "Pending Accounting Approval"}
+                className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                  data.status === "Pending Accounting Approval"
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Marcar como registrado
+              </button>
+            </footer>
+          }
         </div>
       </main>
     </div>
