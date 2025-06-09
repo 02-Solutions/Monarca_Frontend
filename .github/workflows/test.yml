@@ -55,6 +55,15 @@ jobs:
           path: Monarca_Backend
           token: ${{ secrets.GITHUB_TOKEN }}
       
+      # Switch to develop branch
+      - name: Switch to develop branch
+        run: |
+          cd Monarca_Backend
+          git switch develop
+          echo "Switched to develop branch"
+          git branch --show-current
+          git log --oneline -1
+      
       # Setup Backend Environment
       - name: Create Backend .env
         run: |
