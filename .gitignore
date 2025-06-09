@@ -27,3 +27,5 @@ dist-ssr
 
 # Test coverage
 coverage/
+cypress/e2e/files/
+cypress/screenshots/
