@@ -3,11 +3,11 @@ import Table from "../../components/Refunds/Table";
 import RefreshButton from "../../components/RefreshButton";
 import formatDate from "../../utils/formatDate";
 import formatMoney from "../../utils/formatMoney";
-import Button from "../../components/Refunds/Button";
 import { toast } from "react-toastify";
 import { getRequest } from "../../utils/apiService";
 import { useNavigate } from "react-router-dom";
 import GoBack from "../../components/GoBack";
+import Button from "../../components/Refunds/Button";
 
 interface Destination {
   id: string;
@@ -54,6 +54,57 @@ interface Trip {
   action?: React.ReactNode;
 }
 
+const renderStatus = (status: string) => {
+  let statusText = "";
+  let styles = "";
+  switch (status) {
+    case "Pending Review":
+      statusText = "En revisión";
+      styles = "text-[#55447a] bg-[#bea8ef]";
+      break;
+    case "Denied":
+      statusText = "Denegado";
+      styles = "text-[#680909] bg-[#eca6a6]";
+      break;
+    case "Cancelled":
+      statusText = "Cancelado";
+      styles = "text-[#680909] bg-[#eca6a6]";
+      break;
+    case "Changes Needed":
+      statusText = "Cambios necesarios";
+      styles = "text-[#755619] bg-[#f1dbb1]";
+      break;
+    case "Pending Reservations":
+      statusText = "Reservas pendientes";
+      styles = "text-[#8c5308] bg-[#f1c180]";
+      break;
+    case "Pending Accounting Approval":
+      statusText = "Contabilidad pendiente";
+      styles = "text-[var(--dark-blue)] bg-[#99b5e3]";
+      break;
+    case "Pending Vouchers Approval":
+      statusText = "Comprobantes pendientes";
+      styles = "text-[var(--dark-blue)] bg-[#c6c4fb]";
+      break;
+    case "In Progress":
+      statusText = "En progreso";
+      styles = "text-[var(--dark-blue)] bg-[#b7f1f1]";
+      break;
+    case "Completed": 
+      statusText = "Completado";
+      styles = "text-[#24390d] bg-[#c7e6ab]";
+      break;
+    default:
+      statusText = status;
+      styles = "text-white bg-[#6c757d]";
+    }
+    return (
+      <span className={`text-xs p-1 rounded-sm ${styles}`}>
+        {statusText}
+      </span>
+    )
+}
+
 export const RefundsReview = () => {
   const navigate = useNavigate();
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -80,6 +131,7 @@ export const RefundsReview = () => {
 
           return {
             ...trip,
+            status: renderStatus(trip.status),
             date: firstDestination
               ? formatDate(firstDestination.departure_date)
               : "N/A",
@@ -107,8 +159,8 @@ export const RefundsReview = () => {
   }, []);
 
   const columnsSchemaTrips = [
-    { key: "title", header: "Nombre del viaje" },
     { key: "status", header: "Estatus" },
+    { key: "title", header: "Nombre del viaje" },
     { key: "date", header: "Fecha viaje" },
     { key: "origin", header: "Lugar de Salida" },
     { key: "formattedAdvance", header: "Anticipo" },
@@ -134,6 +186,7 @@ export const RefundsReview = () => {
     formattedCreatedAt: trip.formattedCreatedAt,
     action: (
       <Button
+        className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
         label="Ver comprobantes"
         onClickFunction={() => navigate(`/refunds-review/${trip.id}`)}
       />

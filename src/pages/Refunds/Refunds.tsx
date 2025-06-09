@@ -8,12 +8,12 @@ import { useState, useEffect } from "react";
 import Table from "../../components/Refunds/Table";
 import { getRequest } from "../../utils/apiService";
 import Button from "../../components/Refunds/Button";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import RefreshButton from "../../components/RefreshButton";
 import formatDate from "../../utils/formatDate";
 import formatMoney from "../../utils/formatMoney";
 import GoBack from "../../components/GoBack";
+import { useNavigate } from "react-router-dom";
 
 interface Trip {
   id: number | string;
@@ -23,6 +23,57 @@ interface Trip {
   destination: string;
   requestDate: string;
   status: string;
+}
+
+const renderStatus = (status: string) => {
+  let statusText = "";
+  let styles = "";
+  switch (status) {
+    case "Pending Review":
+      statusText = "En revisión";
+      styles = "text-[#55447a] bg-[#bea8ef]";
+      break;
+    case "Denied":
+      statusText = "Denegado";
+      styles = "text-[#680909] bg-[#eca6a6]";
+      break;
+    case "Cancelled":
+      statusText = "Cancelado";
+      styles = "text-[#680909] bg-[#eca6a6]";
+      break;
+    case "Changes Needed":
+      statusText = "Cambios necesarios";
+      styles = "text-[#755619] bg-[#f1dbb1]";
+      break;
+    case "Pending Reservations":
+      statusText = "Reservas pendientes";
+      styles = "text-[#8c5308] bg-[#f1c180]";
+      break;
+    case "Pending Accounting Approval":
+      statusText = "Contabilidad pendiente";
+      styles = "text-[var(--dark-blue)] bg-[#99b5e3]";
+      break;
+    case "Pending Vouchers Approval":
+      statusText = "Comprobantes pendientes";
+      styles = "text-[var(--dark-blue)] bg-[#c6c4fb]";
+      break;
+    case "In Progress":
+      statusText = "En progreso";
+      styles = "text-[var(--dark-blue)] bg-[#b7f1f1]";
+      break;
+    case "Completed": 
+      statusText = "Completado";
+      styles = "text-[#24390d] bg-[#c7e6ab]";
+      break;
+    default:
+      statusText = status;
+      styles = "text-white bg-[#6c757d]";
+    }
+    return (
+      <span className={`text-xs p-1 rounded-sm ${styles}`}>
+        {statusText}
+      </span>
+    )
 }
 
 export const Refunds = () => {
@@ -38,6 +89,7 @@ export const Refunds = () => {
         const response = await getRequest("/requests/all");
         setTrips(response.filter((trip: Trip) => trip.status === "In Progress").map((trip: any) => ({
           ...trip,
+          status: renderStatus(trip.status),
           date: formatDate(trip.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
           advance_money: formatMoney(trip.advance_money),
           origin: trip.destination.city,
@@ -60,8 +112,8 @@ export const Refunds = () => {
   }, []);
 
   const columnsSchemaTrips = [
-    { key: "title", header: "Nombre del viaje" },
     { key: "status", header: "Estatus" },
+    { key: "title", header: "Nombre del viaje" },
     { key: "date", header: "Fecha viaje" },
     { key: "origin", header: "Lugar de Salida" },
     { key: "advance_money", header: "Anticipo" },
@@ -82,6 +134,7 @@ export const Refunds = () => {
     action: (
       <Button
         id={`comprobar-${index}`}
+        className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
         label="Comprobar"
         onClickFunction={() => navigate(`/refunds/${trip.id}`)}
       />

@@ -130,6 +130,7 @@ describe('RefundsReview page', () => {
     expect(data[0].id).toBe('A1');
 
     // Click simulado → navega
+    // Busca el Link y simula click
     data[0].action.props.onClickFunction();
     expect(navigateSpy).toHaveBeenCalledWith('/refunds-review/A1');
   });

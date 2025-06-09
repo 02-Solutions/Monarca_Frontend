@@ -88,12 +88,14 @@ const Table: React.FC<TableProps> = ({
                   {columns.map((column, cidx) => (
                     <td
                       key={cidx}
-                      className={`px-4 py-3 ${
+                      className={`py-3 ${
                         cidx === 0 ? "rounded-l-lg" : ""
                       } ${
                         // quitar rounded-r-lg en penúltima columna
                         cidx === columns.length - 1 ? "" : ""
-                      }`}
+                      } ${
+                        column.key === "status" ? "px-0" : "px-4"
+                    }`}
                     >
                       {row[column.key] !== undefined && row[column.key] !== null
                         ? row[column.key]
