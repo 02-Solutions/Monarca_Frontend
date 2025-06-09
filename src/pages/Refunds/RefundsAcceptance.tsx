@@ -180,6 +180,17 @@ const RefundsAcceptance: React.FC = () => {
 
           <div className="mb-4">
             <div className="bg-white p-4 rounded-lg shadow-md relative">
+              <section className="mb-10">
+                <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                  Información importante
+                </h1>
+                <p className="text-sm text-gray-600">
+                  - Se debe aprobar o denegar individualmente cada uno de los comprobantes
+                </p>
+                <p className="text-sm text-gray-600">
+                  - Al finalizar la aprobación de comprobantes, se debe dar click en el botón "Completar Comprobación"
+                </p>
+              </section>
               <h2 className="text-lg font-semibold text-gray-700 mb-4">
                 Comprobante de Solicitud {currentIndex + 1} de{" "}
                 {data?.vouchers?.length}

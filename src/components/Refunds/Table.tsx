@@ -96,7 +96,11 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
                   key={index}
                   className={`px-4 py-2 text-center ${
                     index === 0 ? "rounded-l-lg" : ""
-                  } ${index === columns.length - 1 ? "rounded-r-lg" : ""}`}
+                  } ${index === columns.length - 1 ? "rounded-r-lg" : ""}
+                    ${column.key === "status" ? "min-w-[150px]" : ""
+                  } ${
+                    column.key === "status" ? "px-0" : "px-4"
+                  }`}
                 >
                   {column.header}
                 </th>
@@ -133,10 +137,12 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
                 {columns.map((column, cellIndex) => (
                   <td
                     key={cellIndex}
-                    className={`px-4 py-3 ${
+                    className={`py-3 ${
                       cellIndex === 0 ? "rounded-l-lg" : ""
                     } ${
                       cellIndex === columns.length - 1 ? "rounded-r-lg" : ""
+                    } ${
+                      column.key === "status" ? "px-1" : "px-4"
                     }`}
                   >
                     {/*

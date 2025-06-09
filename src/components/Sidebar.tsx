@@ -17,7 +17,7 @@ function Sidebar({ user }: { user: AuthState }) {
         <div className="flex items-center bg-[var(--dark-blue)] mb-6 w-[120px] mx-auto p-4 rounded-lg">
             <img src={logo} className="invert mx-auto" alt="Monarca Logo" />
         </div>
-        <div className="flex flex-col items-center justify-center mb-6">
+        <div className="flex flex-col items-center justify-center mb-6 text-center">
           <p className="text-[var(--blue)] font-bold">{user.userName} {user.userLastName} </p>
           <p className="text-[var(--blue)] text-sm">{user.userRole}</p>
         </div>
