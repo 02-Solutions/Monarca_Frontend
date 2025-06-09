@@ -155,7 +155,9 @@ const Table: React.FC<TableProps> = ({
                         <div>
                           <strong>Departamento:</strong> {row?.user?.department?.name ?? "N/A"}
                         </div>
-                        
+                        <div>
+                          <strong>Centro de Costos:</strong> {row?.user?.department?.cost_center?.name ?? "N/A"}
+                        </div>
                       </div>
                     </td>
                   </tr>
