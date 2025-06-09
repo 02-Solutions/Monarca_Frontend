@@ -32,6 +32,7 @@ import { Unauthorized } from "./pages/Unauthorized.tsx";
 import RequestInfo from "./pages/RequestInfo.tsx";
 import { Approvals } from "./pages/Approvals/Approvals.tsx";
 import { RefundsReview } from "./pages/Refunds/RefundsReview.tsx";
+import { CheckRefunds } from "./pages/Refunds/CheckRefunds.tsx";
 
 export const router = createBrowserRouter([
   // Public routes (no authentication required)
@@ -88,6 +89,10 @@ export const router = createBrowserRouter([
       {
         path: "/refunds/:id",
         element: <Vouchers />,
+      },
+      {
+        path: "/check-refunds",
+        element: <CheckRefunds />,
       },
       {
         path: "/bookings",

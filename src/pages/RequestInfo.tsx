@@ -221,6 +221,24 @@ const RequestInfo: React.FC = () => {
     }
   }
 
+  const complete = async () => {
+    try {
+      await patchRequest(`/requests/complete-request/${id}`, {});
+      toast.success('Solicitud marcada como completada', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      navigate('/check-refunds');
+    } catch (error) {
+      console.error('Error completing request:', error);
+      toast.error('Error al marcar la solicitud como completada', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      return;
+    }
+  }
+
   return (
     <div className="pb-10">
       <GoBack />
@@ -629,7 +647,7 @@ const RequestInfo: React.FC = () => {
 
           </footer>}
 
-          {authState.userPermissions.includes("check_budgets" as Permission) &&
+          {authState.userPermissions.includes("check_budgets" as Permission) && data.status === "Pending Accounting Approval" &&
             <footer className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={register}
@@ -641,6 +659,22 @@ const RequestInfo: React.FC = () => {
                 }`}
               >
                 Marcar como registrado
+              </button>
+            </footer>
+          }
+          
+          {authState.userPermissions.includes("check_budgets" as Permission) && data.status === "Pending Refund Approval" &&
+            <footer className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={complete}
+                disabled={data.status !== "Pending Refund Approval"}
+                className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                  data.status === "Pending Refund Approval"
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Marcar viaje como completado
               </button>
             </footer>
           }

@@ -43,9 +43,9 @@ export const Dashboard = ({title}:DashboardProps) => {
       {authState.userPermissions.includes("check_budgets" as Permission) && (
         <Mosaic title="Viajes por registrar" iconPath="/assets/historial_de_reembolsos_aprobados.png" link="/history"/>
       )}
-      {/* {authState.userPermissions.includes("check_budgets" as Permission) && (
-        <Mosaic title="Reembolsos por registrar" iconPath="/assets/reembolsos_por_aprobar.png" link=""/>
-      )} */}
+      {authState.userPermissions.includes("check_budgets" as Permission) && (
+        <Mosaic title="Reembolsos por registrar" iconPath="/assets/reembolsos_por_aprobar.png" link="/check-refunds"/>
+      )}
       {authState.userPermissions.includes("submit_reservations" as Permission) && (
         <Mosaic title="Viajes por reservar" iconPath="/assets/viajes_por_reservar.png" link="/bookings"/>
       )}

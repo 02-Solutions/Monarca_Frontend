@@ -43,13 +43,13 @@ function Sidebar({ user }: { user: AuthState }) {
               <SidebarOption label="Historial de viajes aprobados" pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history"/>
             )}
             {user.userPermissions.includes("approve_vouchers" as Permission) && (
-              <SidebarOption label="Comprobantes de gastos por aprobar" pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link=""/>
+              <SidebarOption label="Comprobantes de gastos por aprobar" pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review"/>
             )}
-            {/* {user.userPermissions.includes("approve_vouchers" as Permission) && (
-              <SidebarOption label="Reembolsos por aprobar" pathIcon="/assets/reembolsos_por_aprobar.png" link=""/>
-            )} */}
             {user.userPermissions.includes("request_history" as Permission) && (
-              <SidebarOption label="Viajes por registrar" pathIcon="/assets/historial_de_reembolsos_aprobados.png" link=""/>
+              <SidebarOption label="Viajes por registrar" pathIcon="/assets/historial_de_reembolsos_aprobados.png" link="/history"/>
+            )}
+            {user.userPermissions.includes("check_budgets" as Permission) && (
+              <SidebarOption label="Reembolsos por registrar" pathIcon="/assets/reembolsos_por_aprobar.png" link="/check-refunds"/>
             )}
             {user.userPermissions.includes("submit_reservations" as Permission) && (
               <SidebarOption label="Viajes por reservar" pathIcon="/assets/viajes_por_reservar.png" link="/bookings"/>
