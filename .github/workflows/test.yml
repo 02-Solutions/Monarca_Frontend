@@ -5,9 +5,29 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    
+    # PostgreSQL service
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: MonarcaDB
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
       - uses: actions/checkout@v4
       
@@ -27,11 +47,104 @@ jobs:
           node-version: "22.x"
           cache: "npm"
       
-      - name: Install dependencies
+      # Clone Backend Repository
+      - name: Checkout Backend
+        uses: actions/checkout@v4
+        with:
+          repository: 02-Solutions/Monarca_Backend
+          path: Monarca_Backend
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Setup Backend Environment
+      - name: Create Backend .env
+        run: |
+          cd Monarca_Backend/monarca
+          cat > .env << EOF
+          POSTGRES_HOST=localhost
+          POSTGRES_PORT=5432
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DATABASE=MonarcaDB
+          JWT_SECRET=secret
+          EOF
+          echo "Backend .env created:"
+          cat .env
+      
+      # Install Backend Dependencies
+      - name: Install Backend Dependencies
+        run: |
+          cd Monarca_Backend/monarca
+          npm ci
+      
+      # Wait for PostgreSQL to be ready
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+          echo "PostgreSQL is ready!"
+        env:
+          PGPASSWORD: postgres
+      
+      # Create database and run migrations/seeds
+      - name: Setup Database and Seed
+        run: |
+          cd Monarca_Backend/monarca
+          echo "Running database seed..."
+          npm run db:seed
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DATABASE: MonarcaDB
+      
+      # Start Backend
+      - name: Start Backend
+        run: |
+          cd Monarca_Backend/monarca
+          echo "Starting backend..."
+          npm run start:dev &
+          # Wait for backend to be ready
+          echo "Waiting for backend to start..."
+          sleep 15
+          # Test if backend is responding
+          curl -f http://localhost:3000/health || curl -f http://localhost:3000/ || echo "Backend might be starting..."
+          sleep 5
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DATABASE: MonarcaDB
+          JWT_SECRET: secret
+      
+      # Install Frontend Dependencies
+      - name: Install Frontend Dependencies
         run: npm ci
+      
+      # Create Frontend .env
+      - name: Create Frontend .env
+        run: |
+          echo "VITE_API_URL=http://localhost:3000" > .env
+          echo "Frontend .env created:"
+          cat .env
       
       - name: Run unit tests
         run: npm test
+      
+      - name: Debug services status
+        run: |
+          echo "Checking services status..."
+          echo "PostgreSQL:"
+          pg_isready -h localhost -p 5432 -U postgres && echo "✅ PostgreSQL is ready" || echo "❌ PostgreSQL not ready"
+          echo "Backend API:"
+          curl -f http://localhost:3000/health && echo "✅ Backend is responding" || echo "❌ Backend not responding"
+          echo "Backend processes:"
+          ps aux | grep node || echo "No node processes found"
+        env:
+          PGPASSWORD: postgres
       
       - name: Debug before E2E tests
         run: |
@@ -40,15 +153,50 @@ jobs:
           echo "NPM version: $(npm --version)"
           echo "Package.json scripts:"
           cat package.json | grep -A 10 '"scripts"'
+          echo "Environment variables:"
+          echo "VITE_API_URL: $VITE_API_URL"
+        env:
+          VITE_API_URL: http://localhost:3000
       
       - name: Run E2E tests
         uses: cypress-io/github-action@v6
         with:
           start: npm run dev
           wait-on: "http://localhost:5173"
+          wait-on-timeout: 120
+          browser: chrome
+        env:
+          VITE_API_URL: http://localhost:3000
+          CYPRESS_baseUrl: http://localhost:5173
+      
+      - name: List generated screenshots
+        run: |
+          echo "Screenshots generated:"
+          find cypress/screenshots -name "*.png" -type f 2>/dev/null || echo "No screenshots found"
+          echo "Videos generated:"
+          find cypress/videos -name "*.mp4" -type f 2>/dev/null || echo "No videos found"
+        if: always()
+      
+      - name: Upload Cypress screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots/
+          retention-days: 5
+      
+      - name: Upload Cypress videos
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-videos  
+          path: cypress/videos/
+          retention-days: 5
       
       - name: Build application
         run: npm run build
+        env:
+          VITE_API_URL: http://localhost:3000
       
       - name: Upload test coverage
         uses: actions/upload-artifact@v4
