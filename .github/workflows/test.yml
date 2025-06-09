@@ -53,16 +53,17 @@ jobs:
         with:
           repository: 02-Solutions/Monarca_Backend
           path: Monarca_Backend
+          ref: develop
           token: ${{ secrets.GITHUB_TOKEN }}
       
-      # Switch to develop branch
-      - name: Switch to develop branch
+      # Verify branch
+      - name: Verify backend branch
         run: |
           cd Monarca_Backend
-          git switch develop
-          echo "Switched to develop branch"
-          git branch --show-current
-          git log --oneline -1
+          echo "Current branch: $(git branch --show-current)"
+          echo "Available branches:"
+          git branch -a
+          echo "Last commit: $(git log --oneline -1)"
       
       # Setup Backend Environment
       - name: Create Backend .env
