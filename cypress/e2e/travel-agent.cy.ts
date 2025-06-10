@@ -14,32 +14,7 @@ describe("Travel Agent - Full Booking Flow", () => {
     );
   };
 
-  it("1. Reserva solo hotel", () => {
-    cy.contains("Viajes por reservar").click();
-    cy.contains("a", "Reservar").first().click();
-    cy.contains("Asignar reservaciones").should("be.visible");
-
-    cy.get('input[placeholder="Ingresa el título de la reservación"]').type(
-      "Hotel CDMX"
-    );
-    cy.get('textarea[placeholder="Escribe tus comentarios"]').type(
-      "Hotel cerca del centro"
-    );
-
-    cy.fixture("hotel_receipt.pdf", "base64").then((fileContent) => {
-      cy.get('input[type="file"]').first().attachFile({
-        fileContent,
-        fileName: "hotel_receipt.pdf",
-        mimeType: "application/pdf",
-        encoding: "base64",
-      });
-    });
-
-    cy.contains("Enviar reservaciones").click();
-    assertToast();
-  });
-
-  it("2. Reserva solo vuelo", () => {
+  it("1. Reserva solo vuelo", () => {
     cy.contains("Viajes por reservar").click();
     cy.contains("a", "Reservar").first().click();
     cy.contains("Asignar reservaciones").should("be.visible");
@@ -64,7 +39,7 @@ describe("Travel Agent - Full Booking Flow", () => {
     assertToast();
   });
 
-  it("3. Reserva multidestino (vuelo y hotel para dos destinos)", () => {
+  it("2. Reserva multidestino (vuelo y hotel para dos destinos)", () => {
     cy.contains("Viajes por reservar").click();
     cy.contains("a", "Reservar").first().click();
     cy.contains("Asignar reservaciones").should("be.visible");
@@ -106,6 +81,31 @@ describe("Travel Agent - Full Booking Flow", () => {
         });
       });
     }
+
+    cy.contains("Enviar reservaciones").click();
+    assertToast();
+  });
+
+  it("3. Reserva solo hotel", () => {
+    cy.contains("Viajes por reservar").click();
+    cy.contains("a", "Reservar").first().click();
+    cy.contains("Asignar reservaciones").should("be.visible");
+
+    cy.get('input[placeholder="Ingresa el título de la reservación"]').type(
+      "Hotel CDMX"
+    );
+    cy.get('textarea[placeholder="Escribe tus comentarios"]').type(
+      "Hotel cerca del centro"
+    );
+
+    cy.fixture("hotel_receipt.pdf", "base64").then((fileContent) => {
+      cy.get('input[type="file"]').first().attachFile({
+        fileContent,
+        fileName: "hotel_receipt.pdf",
+        mimeType: "application/pdf",
+        encoding: "base64",
+      });
+    });
 
     cy.contains("Enviar reservaciones").click();
     assertToast();
