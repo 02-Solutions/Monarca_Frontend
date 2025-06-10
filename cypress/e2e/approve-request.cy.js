@@ -61,7 +61,7 @@ describe("Aprovador Role - Full End-to-End Flow", () => {
 
     cy.url().should("include", "/history");
     cy.contains("Historial de viajes").should("be.visible");
-    cy.get('button').contains("Detalles").click();
+    cy.get('button[id="details-0"]').click();
     cy.url().should("include", "/requests");
     cy.contains("Solicitante").should("be.visible");
     cy.contains("Información de Solicitud").should("be.visible");

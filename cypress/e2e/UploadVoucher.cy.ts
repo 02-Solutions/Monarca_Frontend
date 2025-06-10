@@ -39,5 +39,8 @@ describe("Upload Voucher as Requester", () => {
         cy.get('input[id="xml_file-0-4"]').selectFile("cypress/files/voucher.xml");
         cy.get('input[id="pdf_file-0-5"]').selectFile("cypress/files/voucher.pdf");
         cy.get('input[id="comment-refund"]').type("Gastos de gasolina para el viaje a Nueva York");
+        cy.get('button[id="submit-refund"]').should("be.visible");
+        cy.get('button[id="submit-refund"]').click();
+        cy.contains("Solicitud de reembolso enviada con éxito.").should("be.visible");
     });
 });
