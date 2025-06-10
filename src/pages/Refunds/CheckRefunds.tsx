@@ -80,7 +80,7 @@ const renderStatus = (status: string) => {
     )
 }
 
-export const Refunds = () => {
+export const CheckRefunds = () => {
   const navigate = useNavigate();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -89,9 +89,8 @@ export const Refunds = () => {
     const fetchTrips = async () => {
       try {
         setLoading(true);
-
-        const response = await getRequest("/requests/all");
-        setTrips(response.filter((trip: Trip) => trip.status === "In Progress").map((trip: any) => ({
+        const response = await getRequest("/requests/refund-to-approve-SOI");
+        setTrips(response.map((trip: any) => ({
           ...trip,
           status: renderStatus(trip.status),
           date: formatDate(trip.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
@@ -133,14 +132,13 @@ export const Refunds = () => {
     );
   }
 
-  const dataWithActions = trips.map((trip, index: number) => ({
+  const dataWithActions = trips.map((trip) => ({
     ...trip,
     action: (
       <Button
-        id={`comprobar-${index}`}
         className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
-        label="Comprobar"
-        onClickFunction={() => navigate(`/refunds/${trip.id}`)}
+        label="Registrar"
+        onClickFunction={() => navigate(`/requests/${trip.id}`)}
       />
     ),
   }));
@@ -151,7 +149,7 @@ export const Refunds = () => {
         <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-[var(--blue)]">
-                Viajes con gastos por comprobar
+                Viajes con reembolsos por revisar
             </h2>
             <RefreshButton />
           </div>
@@ -166,4 +164,4 @@ export const Refunds = () => {
   );
 };
 
-export default Refunds;
+export default CheckRefunds;

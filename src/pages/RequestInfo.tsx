@@ -26,25 +26,20 @@ const renderStatus = (status: string) => {
       return "Denegado";
     case "Cancelled":
       return "Cancelado";
-      break;
     case "Changes Needed":
       return "Cambios necesarios";
-      break;
     case "Pending Reservations":
       return "Reservas pendientes";
-      break;
     case "Pending Accounting Approval":
       return "Contabilidad pendiente";
-      break;
     case "Pending Vouchers Approval":
       return "Comprobantes pendientes";
-      break;
     case "In Progress":
       return "En progreso";
-      break;
+    case "Pending Refund Approval": 
+      return "Reembolso pendiente";
     case "Completed": 
       return "Completado";
-      break;
     default:
       return status;
     }
@@ -214,6 +209,24 @@ const RequestInfo: React.FC = () => {
     } catch (error) {
       console.error('Error registering request:', error);
       toast.error('Error al marcar la solicitud como registrada', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      return;
+    }
+  }
+
+  const complete = async () => {
+    try {
+      await patchRequest(`/requests/complete-request/${id}`, {});
+      toast.success('Solicitud marcada como completada', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      navigate('/check-refunds');
+    } catch (error) {
+      console.error('Error completing request:', error);
+      toast.error('Error al marcar la solicitud como completada', {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -634,21 +647,38 @@ const RequestInfo: React.FC = () => {
 
           </footer>}
 
-          {authState.userPermissions.includes("check_budgets" as Permission) &&
-          <footer className="flex flex-col sm:flex-row gap-4">
-          <button
-            id="register-spend"
-            onClick={register}
-            disabled={data.status !== "Pending Accounting Approval"}
-            className={`flex-1 py-3 rounded-lg font-semibold transition ${
-              data.status === "Pending Accounting Approval"
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Marcar como registrado
-          </button>
-          </footer>}
+          {authState.userPermissions.includes("check_budgets" as Permission) && data.status === "Pending Accounting Approval" &&
+            <footer className="flex flex-col sm:flex-row gap-4">
+              <button
+                id="register-spend"
+                onClick={register}
+                disabled={data.status !== "Pending Accounting Approval"}
+                className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                  data.status === "Pending Accounting Approval"
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Marcar como registrado
+              </button>
+            </footer>
+          }
+          
+          {authState.userPermissions.includes("check_budgets" as Permission) && data.status === "Pending Refund Approval" &&
+            <footer className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={complete}
+                disabled={data.status !== "Pending Refund Approval"}
+                className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                  data.status === "Pending Refund Approval"
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Marcar viaje como completado
+              </button>
+            </footer>
+          }
         </div>
       </main>
     </div>

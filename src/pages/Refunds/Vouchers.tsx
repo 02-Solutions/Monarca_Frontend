@@ -204,6 +204,7 @@ export const Vouchers = () => {
           id={`xml_file-${rowIndex}-${_cellIndex}`}
           selectedFileName={formData[rowIndex || 0]?.XMLFile?.name || ""}
           type="file"
+          accept=".xml"
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
@@ -236,6 +237,7 @@ export const Vouchers = () => {
           id={`pdf_file-${rowIndex}-${_cellIndex}`}
           selectedFileName={formData[rowIndex || 0]?.PDFFile?.name || ""}
           type="file"
+          accept=".pdf"
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
