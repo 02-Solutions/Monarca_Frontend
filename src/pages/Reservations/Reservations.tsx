@@ -177,7 +177,7 @@ export const Reservations = () => {
           onSubmit={handleSubmit}
         >
           <div className="">
-            {request?.requests_destinations?.map((destination: any, index: number) => (
+            {request?.requests_destinations?.map((destination: any) => (
               <div 
                 key={destination.id}
                 className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm"
@@ -218,7 +218,7 @@ export const Reservations = () => {
                           value={formData[destination.id]?.hotel_title || ""}
                           onChange={(e) => handleChange(e, destination.id)}
                           name="hotel_title"
-                          id={`hotel_title_${index}`}
+                          id={`hotel_title_${destination.id}`}
                         />
                       </div>
 
