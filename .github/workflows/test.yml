@@ -41,7 +41,7 @@ jobs:
       - name: Clone Frontend
         run: |
           cd MONARCA
-          git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository }}.git Monarca_Frontend
+          git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository }}.git
           echo "Cloned frontend repository"
           ls -la
       
