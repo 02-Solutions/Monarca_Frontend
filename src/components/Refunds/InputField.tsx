@@ -30,6 +30,7 @@ interface InputFieldProps {
   className?: string;
   disabled?: boolean;
   required?: boolean;
+  accept?: string; // Para inputs de tipo file, especifica los tipos de archivos aceptados
   label?: string;
   error?: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -47,6 +48,7 @@ const InputField: React.FC<InputFieldProps> = ({
   id,
   name,
   type = "text",
+  accept, // Para inputs de tipo file, especifica los tipos de archivos aceptados
   value,
   placeholder = "",
   className = "",
@@ -235,6 +237,7 @@ const InputField: React.FC<InputFieldProps> = ({
           )}
           <div className="relative">
             <input
+              accept={accept || "image/*"}
               id={id || name}
               name={name}
               type={type}

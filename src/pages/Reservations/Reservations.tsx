@@ -248,6 +248,7 @@ export const Reservations = () => {
                         
                         <Input
                           type="file"
+                          accept=".pdf"
                           onChange={(e) => handleFileChange(e, destination.id)}
                           name="hotel_file"
                           id={`hotel_file_${destination.id}`}
@@ -300,6 +301,7 @@ export const Reservations = () => {
                         </label>
                         <Input
                           type="file"
+                          accept=".pdf"
                           onChange={(e) => handleFileChange(e, destination.id)}
                           name="plane_file"
                           id={`plane_file_${destination.id}`}
