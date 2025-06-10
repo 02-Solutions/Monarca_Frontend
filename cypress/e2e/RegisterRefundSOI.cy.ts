@@ -1,20 +1,19 @@
-// This test assumes that you have at least one travel request in the history for the SOI user.
-describe("Register Spend as SOI", () => {
+describe("Register Refund as SOI", () => {
     before("Login as SOI", () => {
-    cy.visit("/");
-    cy.get('input[name="email"]').type("soi1@monarca.com");
-    cy.get('input[name="password"]').type("password");
-    cy.contains("Continuar").click();
-    cy.url().should("include", "/dashboard");
+        cy.visit("/");
+        cy.get('input[name="email"]').type("soi1@monarca.com");
+        cy.get('input[name="password"]').type("password");
+        cy.contains("Continuar").click();
+        cy.url().should("include", "/dashboard");
     });
 
-    it("Register a new spend", () => {
-        cy.get('a[data-cy="mosaic-viajes-por-registrar"]').should("be.visible");
-        cy.get('a[data-cy="mosaic-viajes-por-registrar"]').click();
-        cy.url().should("include", "/history");
-        cy.contains("Historial de viajes").should("be.visible");
-        cy.get('button[id="details-0"]').should("be.visible");
-        cy.get('button[id="details-0"]').click();
+    it("Register a new refund", () => {
+        cy.get('a[data-cy="mosaic-reembolsos-por-registrar"]').should("be.visible");
+        cy.get('a[data-cy="mosaic-reembolsos-por-registrar"]').click();
+        cy.url().should("include", "/check-refunds");
+        cy.contains("Viajes con reembolsos por revisar").should("be.visible");
+        cy.get('button[id="refund-details-0"]').should("be.visible");
+        cy.get('button[id="refund-details-0"]').click();
         cy.get('input[id="id"]').should("be.visible");
         cy.get('input[id="admin"]').should("be.visible");
         cy.get('input[id="id_origin_city"]').should("be.visible");
@@ -32,8 +31,8 @@ describe("Register Spend as SOI", () => {
         cy.get('p[id="hotel-0"]').should("be.visible");
         cy.get('p[id="plane-0"]').should("be.visible");
         cy.get('p[id="stay-days-0"]').should("be.visible");
-        cy.get('button[id="register-spend"]').should("be.visible");
-        cy.get('button[id="register-spend"]').click();
-        cy.contains('Solicitud marcada como registrada').should('be.visible');
+        cy.get('button[id="complete-refund-request"]').should("be.visible");
+        cy.get('button[id="complete-refund-request"]').click();
+        cy.contains('Solicitud marcada como completada').should('be.visible');
     });
 });
