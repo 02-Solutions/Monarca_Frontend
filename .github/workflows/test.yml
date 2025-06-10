@@ -81,6 +81,7 @@ jobs:
           POSTGRES_PASSWORD=postgres
           POSTGRES_DATABASE=MonarcaDB
           JWT_SECRET=secret
+          DOWNLOAD_LINK=http//localhost:3000
           EOF
           echo "Backend .env created:"
           cat .env
