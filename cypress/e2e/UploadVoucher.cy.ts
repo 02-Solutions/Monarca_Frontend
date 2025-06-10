@@ -36,8 +36,8 @@ describe("Upload Voucher as Requester", () => {
         cy.get('input[id="amount-0-1"]').type("500");
         cy.get('select[id="tax_indicator-0-2"]').should("be.visible").select('IVA ACREDITABLE PAGADO 16%');
         cy.get('input[id="date-0-3"]').type("2025-11-01");
-        cy.get('input[id="xml_file-0-4"]').selectFile("cypress/e2e/files/yourfile.xml");
-        cy.get('input[id="pdf_file-0-5"]').selectFile("cypress/e2e/files/yourfile.pdf");
+        cy.get('input[id="xml_file-0-4"]').selectFile("cypress/files/voucher.xml");
+        cy.get('input[id="pdf_file-0-5"]').selectFile("cypress/files/voucher.pdf");
         cy.get('input[id="comment-refund"]').type("Gastos de gasolina para el viaje a Nueva York");
     });
 });

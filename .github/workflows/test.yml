@@ -158,9 +158,9 @@ jobs:
         run: |
           echo "Checking services status..."
           echo "PostgreSQL:"
-          pg_isready -h localhost -p 5432 -U postgres && echo "✅ PostgreSQL is ready" || echo "❌ PostgreSQL not ready"
+          pg_isready -h localhost -p 5432 -U postgres && echo "PostgreSQL is ready" || echo "PostgreSQL not ready"
           echo "Backend API:"
-          curl -f http://localhost:3000/health && echo "✅ Backend is responding" || echo "❌ Backend not responding"
+          curl -f http://localhost:3000/health && echo "Backend is responding" || echo "Backend not responding"
           echo "Backend processes:"
           ps aux | grep node || echo "No node processes found"
         env:

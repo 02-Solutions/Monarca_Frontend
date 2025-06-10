@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice>
+  <InvoiceNumber>INV-1001</InvoiceNumber>
+  <Date>2025-05-23</Date>
+  <BillTo>
+    <Name>Amanda Roberts</Name>
+    <Address>
+      <Street>1234 Elm St</Street>
+      <City>Springfield</City>
+      <State>IL</State>
+      <Zip>62701</Zip>
+    </Address>
+  </BillTo>
+  <Items>
+    <Item>
+      <Description>Web Design Services</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>2500.00</UnitPrice>
+      <Total>2500.00</Total>
+    </Item>
+  </Items>
+  <TotalAmount>2500.00</TotalAmount>
+  <Currency>USD</Currency>
+</Invoice>
