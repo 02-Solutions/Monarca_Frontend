@@ -26,25 +26,20 @@ const renderStatus = (status: string) => {
       return "Denegado";
     case "Cancelled":
       return "Cancelado";
-      break;
     case "Changes Needed":
       return "Cambios necesarios";
-      break;
     case "Pending Reservations":
       return "Reservas pendientes";
-      break;
     case "Pending Accounting Approval":
       return "Contabilidad pendiente";
-      break;
     case "Pending Vouchers Approval":
       return "Comprobantes pendientes";
-      break;
     case "In Progress":
       return "En progreso";
-      break;
+    case "Pending Refund Approval": 
+      return "Reembolso pendiente";
     case "Completed": 
       return "Completado";
-      break;
     default:
       return status;
     }

@@ -45,11 +45,15 @@ const renderStatus = (status: string) => {
       break;
     case "Pending Vouchers Approval":
       statusText = "Comprobantes pendientes";
-      styles = "text-[var(--dark-blue)] bg-[#b7f1f1]";
+      styles = "text-[var(--dark-blue)] bg-[#c6c4fb]";
       break;
     case "In Progress":
       statusText = "En progreso";
-      styles = "text-[var(--dark-blue)] bg-[#5bc0de]";
+      styles = "text-[var(--dark-blue)] bg-[#b7f1f1]";
+      break;
+    case "Pending Refund Approval": 
+      statusText = "Reembolso pendiente";
+      styles = "text-[#575107] bg-[#f0eaa5]";
       break;
     case "Completed": 
       statusText = "Completado";

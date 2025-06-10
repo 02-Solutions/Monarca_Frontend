@@ -49,6 +49,10 @@ const renderStatus = (status: string) => {
       statusText = "En progreso";
       styles = "text-[var(--dark-blue)] bg-[#b7f1f1]";
       break;
+    case "Pending Refund Approval": 
+      statusText = "Reembolso pendiente";
+      styles = "text-[#575107] bg-[#f0eaa5]";
+      break;
     case "Completed": 
       statusText = "Completado";
       styles = "text-[#24390d] bg-[#c7e6ab]";
