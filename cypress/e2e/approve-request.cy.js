@@ -1,5 +1,5 @@
 describe("Aprovador Role - Full End-to-End Flow", () => {
-  // Custom command to login
+  // Función (comando) para hacer el login
   Cypress.Commands.add("loginAsAprovador", () => {
     cy.visit("/");
     cy.get('input[name="email"]').type("approver1@monarca.com");
@@ -7,7 +7,7 @@ describe("Aprovador Role - Full End-to-End Flow", () => {
     cy.contains("Continuar").click();
   });
 
-  // Custom command to login and open the first request
+  // Función (comando) para hacer el login y entrar a la primera request
   Cypress.Commands.add("loginAsAprovadorAndOpenFirstRequest", () => {
     cy.loginAsAprovador();
     cy.contains("Viajes por aprobar").first().click();
