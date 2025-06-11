@@ -30,7 +30,8 @@ export interface Column {
   renderCell?: (
     value: CellValueType,
     handleFieldChange: (newValue: CellValueType) => void,
-    rowIndex?: number
+    rowIndex?: number,
+    cellIndex?: number
   ) => React.ReactNode;
 }
 /*
@@ -169,7 +170,8 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                                   column.key,
                                   newValue
                                 ),
-                              rowIndex
+                              rowIndex,
+                              cellIndex
                             )
                           : renderCellContent(row[column.key])
                       }
@@ -192,6 +194,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       </div>
       <div className="flex items-center justify-center">
         <button
+          id="add-item-button"
           onClick={addItem}
           className="px-4 py-2 bg-[#0a2c6d] text-white rounded-md hover:bg-[#0d3d94] transition-colors hover:cursor-pointer"
         >

@@ -5,44 +5,244 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    
+    # PostgreSQL service
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: MonarcaDB
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
+    steps:
+      # Create MONARCA directory and clone both repos
+      - name: Create MONARCA directory
+        run: |
+          mkdir MONARCA
+          cd MONARCA
+          echo "Created MONARCA directory"
+          pwd
+      
+      # Clone Frontend Repository
+      - name: Clone Frontend
+        run: |
+          cd MONARCA
+          git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository }}.git Monarca_Frontend
+          echo "Cloned frontend repository"
+          ls -la
+      
+      # Clone Backend Repository
+      - name: Clone Backend
+        run: |
+          cd MONARCA
+          git clone -b develop https://github.com/02-Solutions/Monarca_Backend.git
+          echo "Cloned backend repository"
+          ls -la
+      
+      # Verify directory structure
+      - name: Verify directory structure
+        run: |
+          cd MONARCA
+          echo "MONARCA directory contents:"
+          ls -la
+          echo "Frontend branch and commit:"
+          cd Monarca_Frontend && git branch --show-current && git log --oneline -1
+          cd ..
+          echo "Backend branch and commit:"
+          cd Monarca_Backend && git branch --show-current && git log --oneline -1
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
+      
+      # Setup Backend Environment
+      - name: Create Backend .env
+        run: |
+          cd MONARCA/Monarca_Backend/monarca
+          cat > .env << EOF
+          POSTGRES_HOST=localhost
+          POSTGRES_PORT=5432
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DATABASE=MonarcaDB
+          JWT_SECRET=secret
+          DOWNLOAD_LINK=http//localhost:3000
+          EOF
+          echo "Backend .env created:"
+          cat .env
+      
+      # Install Backend Dependencies
+      - name: Install Backend Dependencies
+        run: |
+          cd MONARCA/Monarca_Backend/monarca
+          npm ci
+      
+      # Wait for PostgreSQL to be ready
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+          echo "PostgreSQL is ready!"
+        env:
+          PGPASSWORD: postgres
+      
+      # Create database and run migrations/seeds
+      - name: Setup Database and Seed
+        run: |
+          cd MONARCA/Monarca_Backend/monarca
+          echo "Running database seed..."
+          npm run db:seed
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DATABASE: MonarcaDB
+      
+      # Start Backend
+      - name: Start Backend
+        run: |
+          cd MONARCA/Monarca_Backend/monarca
+          echo "Starting backend..."
+          npm run start:dev &
+          # Wait for backend to be ready
+          echo "Waiting for backend to start..."
+          sleep 15
+          # Test if backend is responding
+          curl -f http://localhost:3000/health || curl -f http://localhost:3000/ || echo "Backend might be starting..."
+          sleep 5
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DATABASE: MonarcaDB
+          JWT_SECRET: secret
+      
+      # Install Frontend Dependencies
+      - name: Install Frontend Dependencies
+        run: |
+          cd MONARCA/Monarca_Frontend
+          npm ci
+      
+      # Create Frontend .env
+      - name: Create Frontend .env
+        run: |
+          cd MONARCA/Monarca_Frontend
+          echo "VITE_API_URL=http://localhost:3000" > .env
+          echo "Frontend .env created:"
+          cat .env
+      
       - name: Run unit tests
-        run: npm test
-
+        run: |
+          cd MONARCA/Monarca_Frontend
+          npm test
+      
+      - name: Debug services status
+        run: |
+          echo "Checking services status..."
+          echo "PostgreSQL:"
+          pg_isready -h localhost -p 5432 -U postgres && echo "PostgreSQL is ready" || echo "PostgreSQL not ready"
+          echo "Backend API:"
+          curl -f http://localhost:3000/health && echo "Backend is responding" || echo "Backend not responding"
+          echo "Backend processes:"
+          ps aux | grep node || echo "No node processes found"
+        env:
+          PGPASSWORD: postgres
+      
+      - name: Debug before E2E tests
+        run: |
+          cd MONARCA/Monarca_Frontend
+          echo "About to start frontend and run E2E tests"
+          echo "Current directory: $(pwd)"
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          echo "Package.json scripts:"
+          cat package.json | grep -A 10 '"scripts"'
+          echo "Environment variables:"
+          echo "VITE_API_URL: $VITE_API_URL"
+        env:
+          VITE_API_URL: http://localhost:3000
+      
+      - name: Start Frontend for E2E
+        run: |
+          cd MONARCA/Monarca_Frontend
+          npm run dev &
+          # Wait for frontend to be ready
+          echo "Waiting for frontend to start..."
+          sleep 10
+          curl -f http://localhost:5173 || echo "Frontend might be starting..."
+        env:
+          VITE_API_URL: http://localhost:3000
+      
       - name: Run E2E tests
-        uses: cypress-io/github-action@v6
+        run: |
+          cd MONARCA/Monarca_Frontend
+          npx cypress run --browser chrome
+        env:
+          VITE_API_URL: http://localhost:3000
+          CYPRESS_baseUrl: http://localhost:5173
+      
+      - name: List generated screenshots
+        run: |
+          cd MONARCA/Monarca_Frontend
+          echo "Screenshots generated:"
+          find cypress/screenshots -name "*.png" -type f 2>/dev/null || echo "No screenshots found"
+          echo "Videos generated:"
+          find cypress/videos -name "*.mp4" -type f 2>/dev/null || echo "No videos found"
+        if: always()
+      
+      - name: Upload Cypress screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          start: npm run dev
-          wait-on: "http://localhost:5173"
-
+          name: cypress-screenshots
+          path: MONARCA/Monarca_Frontend/cypress/screenshots/
+          retention-days: 5
+      
+      - name: Upload Cypress videos
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-videos  
+          path: MONARCA/Monarca_Frontend/cypress/videos/
+          retention-days: 5
+      
       - name: Build application
-        run: npm run build
-
+        run: |
+          cd MONARCA/Monarca_Frontend
+          npm run build
+        env:
+          VITE_API_URL: http://localhost:3000
+      
       - name: Upload test coverage
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: coverage-report
-          path: coverage/
+          path: MONARCA/Monarca_Frontend/coverage/
           retention-days: 5
-
+      
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-output
-          path: dist/
+          path: MONARCA/Monarca_Frontend/dist/
           retention-days: 5

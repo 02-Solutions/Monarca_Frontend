@@ -12,7 +12,7 @@ const columns = [
   { key: "title", header: "Viaje" },
   { key: "departureDate", header: "Fecha Salida" },
   { key: "country", header: "Lugar de Salida" },
-  { key: "action", header: "" }
+  { key: "action", header: "" },
 ];
 
 const renderStatus = (status: string) => {
@@ -51,24 +51,22 @@ const renderStatus = (status: string) => {
       statusText = "En progreso";
       styles = "text-[var(--dark-blue)] bg-[#b7f1f1]";
       break;
-    case "Pending Refund Approval": 
+    case "Pending Refund Approval":
       statusText = "Reembolso pendiente";
       styles = "text-[#575107] bg-[#f0eaa5]";
       break;
-    case "Completed": 
+    case "Completed":
       statusText = "Completado";
       styles = "text-[#24390d] bg-[#c7e6ab]";
       break;
     default:
       statusText = status;
       styles = "text-white bg-[#6c757d]";
-    }
-    return (
-      <span className={`text-xs p-1 rounded-sm ${styles}`}>
-        {statusText}
-      </span>
-    )
-}
+  }
+  return (
+    <span className={`text-xs p-1 rounded-sm ${styles}`}>{statusText}</span>
+  );
+};
 
 const Bookings = () => {
   const [dataWithActions, setDataWithActions] = useState([]);
@@ -78,20 +76,26 @@ const Bookings = () => {
     const fetchTravelRecords = async () => {
       try {
         const response = await getRequest("/requests/to-reserve");
-        setDataWithActions(response.map((trip: any) => ({
-          ...trip,
-          status: renderStatus(trip.status),
-          country: trip.destination.city,
-          departureDate: formatDate(trip.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
-          action: (
-            <Link
-              to={`/bookings/${trip.id}`}
-              className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
-            >
-              Reservar
-            </Link>
-          )
-        })));
+        setDataWithActions(
+          response.map((trip: any) => ({
+            ...trip,
+            status: renderStatus(trip.status),
+            country: trip.destination.city,
+            departureDate: formatDate(
+              trip.requests_destinations.sort(
+                (a: any, b: any) => a.destination_order - b.destination_order
+              )[0].departure_date
+            ),
+            action: (
+              <Link
+                to={`/bookings/${trip.id}`}
+                className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
+              >
+                Reservar
+              </Link>
+            ),
+          }))
+        );
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
@@ -105,17 +109,13 @@ const Bookings = () => {
       <GoBack />
       <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-[#0a2c6d]">
-              Viajes por Reservar
-            </h2> 
-            <RefreshButton />
+          <h2 className="text-2xl font-bold text-[#0a2c6d]">
+            Viajes por Reservar
+          </h2>
+          <RefreshButton />
         </div>
 
-          <Table 
-            columns={columns} 
-            data={dataWithActions} 
-            itemsPerPage={5}
-        />
+        <Table columns={columns} data={dataWithActions} itemsPerPage={5} />
       </div>
     </>
   );

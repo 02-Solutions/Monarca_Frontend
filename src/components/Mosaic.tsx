@@ -10,7 +10,7 @@ const Mosaic = ({ title, iconPath, link}: MosaicProps) => {
 
 
     return (
-        <Link to={link}>
+        <Link to={link} data-cy={`mosaic-${title.toLowerCase().replace(/\s+/g, '-')}`}>
           <div
           className="relative bg-[#F4F6F8] w-64 h-30 rounded-2xl shadow-md flex items-end justify-center pt-12 hover:shadow-lg transition-shadow duration-300 ease-in-out"
         >

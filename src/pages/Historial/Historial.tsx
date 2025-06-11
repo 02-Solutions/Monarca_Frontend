@@ -115,17 +115,21 @@ export const Historial = () => {
           response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
         }
         // Data with actions (edit buttons)
-        setDataWithActions(response?.map((record: any) => ({
+        setDataWithActions(response?.map((record: any, index: number) => ({
           ...record,
           status: renderStatus(record.status),
           createdAt: formatDate(record.createdAt),
           country: record.destination.city,
           departureDate: formatDate(record.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
+          index,
           action: (
             <Button
               className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
-              label="Detalles"
-              onClickFunction={() => navigate(`/requests/${record.id}`)}
+              label="Ver detalles"
+              id={`details-${index}`}
+              onClickFunction={() => {
+                navigate(`/requests/${record.id}`);
+              }}
             />
           ),
         })));

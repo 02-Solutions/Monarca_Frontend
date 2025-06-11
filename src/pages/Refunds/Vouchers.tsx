@@ -42,6 +42,7 @@ export const Vouchers = () => {
       city: "",
     },
   });
+  const [commentValue, setCommentValue] = useState<string>("");
 
   useEffect(() => {
     const fetchTrip = async () => {
@@ -120,9 +121,12 @@ export const Vouchers = () => {
        */
       renderCell: (
         value: CellValueType,
-        onChangeComponentFunction: (newValue: CellValueType) => void
+        onChangeComponentFunction: (newValue: CellValueType) => void,
+        _rowIndex?: number,
+        _cellIndex?: number
       ) => (
         <Dropdown
+          id={`spend_class-${_rowIndex}-${_cellIndex}`}
           options={spendOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
@@ -136,9 +140,12 @@ export const Vouchers = () => {
       defaultValue: 0,
       renderCell: (
         value: CellValueType,
-        onChangeComponentFunction: (newValue: CellValueType) => void
+        onChangeComponentFunction: (newValue: CellValueType) => void,
+        _rowIndex?: number,
+        _cellIndex?: number
       ) => (
         <InputField
+          id={`amount-${_rowIndex}-${_cellIndex}`}
           type="number"
           value={value as string}
           onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
@@ -152,9 +159,12 @@ export const Vouchers = () => {
       defaultValue: "",
       renderCell: (
         value: CellValueType,
-        onChangeComponentFunction: (newValue: CellValueType) => void
+        onChangeComponentFunction: (newValue: CellValueType) => void,
+        _rowIndex?: number,
+        _cellIndex?: number
       ) => (
         <Dropdown
+          id={`tax_indicator-${_rowIndex}-${_cellIndex}`}
           options={taxIndicatorOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
@@ -168,9 +178,12 @@ export const Vouchers = () => {
       defaultValue: "",
       renderCell: (
         value: CellValueType,
-        onChangeComponentFunction: (newValue: CellValueType) => void
+        onChangeComponentFunction: (newValue: CellValueType) => void,
+        _rowIndex?: number,
+        _cellIndex?: number
       ) => (
         <InputField
+          id={`date-${_rowIndex}-${_cellIndex}`}
           type="date"
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
@@ -184,9 +197,11 @@ export const Vouchers = () => {
       renderCell: (
         _value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
-        rowIndex?: number
+        rowIndex?: number,
+        _cellIndex?: number
       ) => (
         <InputField
+          id={`xml_file-${rowIndex}-${_cellIndex}`}
           selectedFileName={formData[rowIndex || 0]?.XMLFile?.name || ""}
           type="file"
           accept=".xml"
@@ -215,9 +230,11 @@ export const Vouchers = () => {
       renderCell: (
         _value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
-        rowIndex?: number
+        rowIndex?: number,
+        _cellIndex?: number
       ) => (
         <InputField
+          id={`pdf_file-${rowIndex}-${_cellIndex}`}
           selectedFileName={formData[rowIndex || 0]?.PDFFile?.name || ""}
           type="file"
           accept=".pdf"
@@ -297,11 +314,12 @@ export const Vouchers = () => {
         * and is updated with the setCommentDescriptionOfSpend function.
         */}
         <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">Comentario</h3>
-        <InputField
+        <InputField 
+          id="comment-refund"
           type="text"
-          value={""}
+          value={commentValue}
           placeholder="Ingrese un comentario"
-          onChange={() => {}}
+          onChange={(e) => setCommentValue(e.target.value)}
         />
         <div className="mt-6 flex justify-between">
           <Link
@@ -311,6 +329,7 @@ export const Vouchers = () => {
             Cancelar
           </Link>
           <button
+            id="submit-refund"
             className="px-4 py-2 bg-[#0a2c6d] text-white rounded-md hover:bg-[#0d3d94] transition-colors hover:cursor-pointer"
             onClick={() => {
               handleSubmitRefund();

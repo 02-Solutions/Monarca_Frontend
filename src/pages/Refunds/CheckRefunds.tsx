@@ -132,10 +132,11 @@ export const CheckRefunds = () => {
     );
   }
 
-  const dataWithActions = trips.map((trip) => ({
+  const dataWithActions = trips.map((trip, index: number) => ({
     ...trip,
     action: (
       <Button
+        id={`refund-details-${index}`}
         className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
         label="Registrar"
         onClickFunction={() => navigate(`/requests/${trip.id}`)}
