@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { getRequest, patchRequest } from "../../utils/apiService";
 import formatDate from "../../utils/formatDate";
 import { postRequest } from "../../utils/apiService";
+import { parse } from "path";
 
 export const Reservations = () => {
   const navigate = useNavigate();
@@ -86,12 +87,14 @@ export const Reservations = () => {
           const hotelReservation = value.hotel_title && {
             title: value.hotel_title,
             comments: value.hotel_comments,
+            price: parseFloat(value.hotel_price),
             file: value.hotel_file,
             id_request_destination: key,
           };
           const planeReservation = value.plane_title && {
             title: value.plane_title,
             comments: value.plane_comments,
+            price: parseFloat(value.plane_price),
             file: value.plane_file,
             id_request_destination: key,
           };
@@ -136,6 +139,7 @@ export const Reservations = () => {
           const formData = new FormData();
           formData.append("title", reservation.title);
           formData.append("comments", reservation.comments);
+          formData.append("price", reservation.price);
           formData.append("file", reservation.file);
           formData.append("id_request_destination", reservation.id_request_destination);
           try {
@@ -241,6 +245,23 @@ export const Reservations = () => {
                       <div>
                         <label 
                           className="block mb-2 text-sm font-medium text-gray-900"
+                          htmlFor={`hotel_price_${destination.id}`}
+                        >
+                          Precio
+                        </label>
+                        <Input
+                          placeholder="Ingresa el precio del hotel"
+                          value={formData[destination.id]?.hotel_price || ""}
+                          onChange={(e) => handleChange(e, destination.id)}
+                          name="hotel_price"
+                          type="number"
+                          id={`hotel_price_${destination.id}`}
+                        />
+                      </div>
+
+                      <div>
+                        <label 
+                          className="block mb-2 text-sm font-medium text-gray-900"
                           htmlFor={`hotel_file_${destination.id}`}
                         >
                           Subir archivos de hotel
@@ -289,6 +310,23 @@ export const Reservations = () => {
                           onChange={(e) => handleChange(e, destination.id)}
                           name="plane_comments"
                           id={`plane_comments_${destination.id}`}
+                        />
+                      </div>
+
+                      <div>
+                        <label 
+                          className="block mb-2 text-sm font-medium text-gray-900"
+                          htmlFor={`plane_price_${destination.id}`}
+                        >
+                          Precio
+                        </label>
+                        <Input
+                          placeholder="Ingresa el precio del vuelo"
+                          value={formData[destination.id]?.plane_price || ""}
+                          onChange={(e) => handleChange(e, destination.id)}
+                          name="plane_price"
+                          type="number"
+                          id={`plane_price_${destination.id}`}
                         />
                       </div>
 
