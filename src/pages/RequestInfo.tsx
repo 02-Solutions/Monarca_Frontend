@@ -9,6 +9,7 @@ import { getRequest } from '../utils/apiService';
 import { Permission, useAuth } from '../hooks/auth/authContext';
 import { useNavigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
+import { Tutorial } from '../components/Tutorial';
 
 import { Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -17,6 +18,7 @@ import FilePreviewer from '../components/Refunds/FilePreviewer';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { useApp } from '../hooks/app/appContext';
 
 const renderStatus = (status: string) => {
   switch (status) {
@@ -58,6 +60,8 @@ const RequestInfo: React.FC = () => {
   const prevRef = React.useRef(null);
   const nextRef = React.useRef(null);
 
+  const { handleVisitPage, tutorial } = useApp();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -79,6 +83,20 @@ const RequestInfo: React.FC = () => {
     };
 
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    // Get the visited pages from localStorage
+    const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
+    // Check if the current page is already in the visited pages
+    const isPageVisited = visitedPages.includes(location.pathname);
+
+    // If the page is not visited, set the tutorial to true
+    if (!isPageVisited) {
+      // setTutorial(true);
+    }
+    // Add the current page to the visited pages
+    handleVisitPage();
   }, []);
 
   useEffect(() => {
@@ -235,6 +253,7 @@ const RequestInfo: React.FC = () => {
   }
 
   return (
+    <Tutorial page ="requestInfo" run={tutorial}>
     <div className="pb-10">
       <GoBack />
       <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
@@ -246,7 +265,7 @@ const RequestInfo: React.FC = () => {
             Solicitante: <span className="text-[var(--blue)]">{data?.user?.name} {data?.user?.last_name}</span>
           </p>
 
-          <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+          <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8" id="request-info">
             {labels.map(({ key, label }) => (
               <div key={key as string}>
                 <label
@@ -266,7 +285,7 @@ const RequestInfo: React.FC = () => {
             ))}
           </section>
 
-          <section>
+          <section id="destinations-info">
               <p
                 className="block text-sm font-medium text-gray-700 mb-4"
               >
@@ -346,7 +365,7 @@ const RequestInfo: React.FC = () => {
               ))}
           </section>
 
-          {data?.revisions?.length > 0 && <section>
+          {data?.revisions?.length > 0 && <section id="revisions-info">
               <p
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
@@ -373,8 +392,8 @@ const RequestInfo: React.FC = () => {
           </section>}
 
           {data?.vouchers?.length > 0 && 
-            <>
-            <p
+            <section id="vouchers-info">
+            <p 
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
                 Comprobantes de la solicitud
@@ -509,10 +528,10 @@ const RequestInfo: React.FC = () => {
 
             </section>
           </div>
-            </>
+            </section>
           }
 
-          {authState.userPermissions.includes("approve_request" as Permission) && <section className="mb-10">
+          {authState.userPermissions.includes("approve_request" as Permission) && <section className="mb-10" id="travel-agency">
             <label
               htmlFor="agency"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -545,7 +564,7 @@ const RequestInfo: React.FC = () => {
           </section>}
 
 
-          {authState.userPermissions.includes("approve_request" as Permission) && data.status === "Pending Review" && <section className="mb-8">
+          {authState.userPermissions.includes("approve_request" as Permission) && data.status === "Pending Review" && <section className="mb-8" id="comment-section">
             <label
               htmlFor="comment"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -591,6 +610,7 @@ const RequestInfo: React.FC = () => {
                         ? 'bg-green-600 hover:bg-green-700 text-white'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
+                id="approve-request-button"
                 >
                   Aprobar
                 </button>
@@ -602,6 +622,8 @@ const RequestInfo: React.FC = () => {
                         ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
+
+                id="changes-request-button"
                 >
                   Solicitar cambios
                 </button>
@@ -613,6 +635,7 @@ const RequestInfo: React.FC = () => {
                       ? 'bg-red-600 hover:bg-red-700 text-white'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
+                id="deny-request-button"
                 >
                   Denegar
                 </button>
@@ -630,6 +653,7 @@ const RequestInfo: React.FC = () => {
                   ? 'bg-blue-600 hover:bg-blue-700 text-white'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
+              id="edit-request-button"
             >
               Editar
             </button>
@@ -641,6 +665,7 @@ const RequestInfo: React.FC = () => {
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-red-600 hover:bg-red-700 text-white"
               }`}
+              id ="cancel-request-button"
             >
               Cancelar
             </button>
@@ -681,8 +706,9 @@ const RequestInfo: React.FC = () => {
             </footer>
           }
         </div>
-      </main>
+      </main> 
     </div>
+    </Tutorial>
   );
 };
 

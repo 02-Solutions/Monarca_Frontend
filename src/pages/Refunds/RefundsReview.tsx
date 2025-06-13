@@ -8,6 +8,8 @@ import { getRequest } from "../../utils/apiService";
 import { useNavigate } from "react-router-dom";
 import GoBack from "../../components/GoBack";
 import Button from "../../components/Refunds/Button";
+import { Tutorial } from "../../components/Tutorial";
+import { useApp } from "../../hooks/app/appContext";
 
 interface Destination {
   id: string;
@@ -113,6 +115,7 @@ export const RefundsReview = () => {
   const navigate = useNavigate();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { handleVisitPage, tutorial, setTutorial } = useApp();
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -162,6 +165,20 @@ export const RefundsReview = () => {
     fetchTrips();
   }, []);
 
+  useEffect(() => {
+      // Get the visited pages from localStorage
+      const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
+      // Check if the current page is already in the visited pages
+      const isPageVisited = visitedPages.includes(location.pathname);
+  
+      // If the page is not visited, set the tutorial to true
+      if (!isPageVisited) {
+        setTutorial(true);
+      }
+      // Add the current page to the visited pages
+      handleVisitPage();
+    }, []);
+
   const columnsSchemaTrips = [
     { key: "status", header: "Estatus" },
     { key: "title", header: "Nombre del viaje" },
@@ -199,6 +216,7 @@ export const RefundsReview = () => {
 
   return (
     <>
+    <Tutorial page="refundsReview" run={tutorial}>
       <GoBack />
       <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
@@ -208,12 +226,15 @@ export const RefundsReview = () => {
           <RefreshButton />
         </div>
 
-        <Table
-          columns={columnsSchemaTrips}
-          data={dataWithActions}
-          itemsPerPage={7}
-        />
+        <div id="list_requests">
+          <Table
+            columns={columnsSchemaTrips}
+            data={dataWithActions}
+            itemsPerPage={7}
+          />
+        </div>
       </div>
+    </Tutorial>
     </>
   );
 };

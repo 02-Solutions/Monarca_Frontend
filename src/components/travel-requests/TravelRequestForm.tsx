@@ -387,7 +387,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
             {isEditing ? "Editar Viaje" : "Datos del Viaje"}
           </h2>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-6" id="travel_request_info">
               <div className="sm:col-span-2">
                 <label
                   htmlFor="motive"
@@ -499,6 +499,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               </div>
             </div>
 
+<div id="destination_info">
             <h3 className="mt-8 mb-4 text-lg font-semibold">Destinos</h3>
             {fields.map((field, idx) => (
               <DestinationFields
@@ -513,8 +514,9 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                 isLoadingDestinations={isLoadingDestinations}
               />
             ))}
-
-            <Button
+</div>
+            <Button 
+            id="new_destination"
               type="button"
               onClick={() =>
                 append({
@@ -531,7 +533,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               + Añadir destino
             </Button>
 
-            <Button type="submit" className="mt-4 sm:mt-6" disabled={isPending}>
+            <Button type="submit" className="mt-4 sm:mt-6" disabled={isPending} id= {isEditing ? "update_travel_request" : "create_travel_request"}>
               {isPending
                 ? isEditing
                   ? "Actualizando..."

@@ -6,7 +6,8 @@ import { toast } from "react-toastify";
 import { getRequest, patchRequest } from "../../utils/apiService";
 import formatDate from "../../utils/formatDate";
 import { postRequest } from "../../utils/apiService";
-import { parse } from "path";
+import { Tutorial } from "../../components/Tutorial";
+import { useApp } from "../../hooks/app/appContext";
 
 export const Reservations = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export const Reservations = () => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [request, setRequest] = useState<any>({});
   const [isFormValid, _setIsFormValid] = useState(true);
+  const { handleVisitPage, tutorial, setTutorial } = useApp();
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -45,6 +47,20 @@ export const Reservations = () => {
     }
     fetchRequest();
   }, []);
+
+  useEffect(() => {
+      // Get the visited pages from localStorage
+      const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
+      // Check if the current page is already in the visited pages
+      const isPageVisited = visitedPages.includes(location.pathname);
+  
+      // If the page is not visited, set the tutorial to true
+      if (!isPageVisited) {
+        setTutorial(true);
+      }
+      // Add the current page to the visited pages
+      handleVisitPage();
+    }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
     const { name, files } = e.target;
@@ -171,203 +187,209 @@ export const Reservations = () => {
   ];
 
   return (
-    <div className="bg-gray-200 rounded-md mb-10 max-w-5xl mx-auto">
-      <div className="p-10 mx-auto">
-        <h2 className="text-2xl font-bold text-[var(--blue)] mb-4">
-          Asignar reservaciones
-        </h2>
-        <form 
-          className="space-y-6"
-          onSubmit={handleSubmit}
-        >
-          <div className="">
-            {request?.requests_destinations?.map((destination: any) => (
-              <div 
-                key={destination.id}
-                className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm"
+    <Tutorial page="reservations" run={tutorial}>
+      <div className="bg-gray-200 rounded-md mb-10 max-w-5xl mx-auto">
+        <div className="p-10 mx-auto">
+          <h2 className="text-2xl font-bold text-[var(--blue)] mb-4">
+            Asignar reservaciones
+          </h2>
+          <form 
+            className="space-y-6"
+            onSubmit={handleSubmit}
+          >
+            <div className="">
+              {request?.requests_destinations?.map((destination: any) => (
+                <div 
+                  key={destination.id}
+                  className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm"
+                >
+                  <h3>Destino #{destination.destination_order}</h3>
+                  <div>
+
+                  </div>
+                  <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8" id="reservation-info">
+                    {labels.map(({ key, label }) => (
+                      <div key={key as string}>
+                        <label
+                          htmlFor={key as string}
+                          className="block text-xs font-semibold text-gray-500 mb-1"
+                        >
+                          {label}
+                        </label>
+                        <input
+                          id={key as string}
+                          type="text"
+                          readOnly
+                          value={destination[key] || ""}
+                          className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                        />
+                      </div>
+                    ))}
+                  </section>
+                  <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                    {destination.is_hotel_required && (
+                      <div className="flex flex-col gap-y-4" id="hotel-reservation">
+                        <h3 className="text-[var(--blue)] mb-4 font-bold">Información del hotel</h3>
+                        <div>
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-900"
+                            htmlFor={`hotel_title_${destination.id}`}
+                          >
+                            Título
+                          </label>
+                          <Input
+                            placeholder="Ingresa el título de la reservación"
+                            value={formData[destination.id]?.hotel_title || ""}
+                            onChange={(e) => handleChange(e, destination.id)}
+                            name="hotel_title"
+                            id={`hotel_title_${destination.id}`}
+                          />
+                        </div>
+
+                        <div>
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-900"
+                            htmlFor={`hotel_comments_${destination.id}`}
+                          >
+                            Comentarios
+                          </label>
+                          <TextArea
+                            placeholder="Escribe tus comentarios"
+                            value={formData[destination.id]?.hotel_comments || ""}
+                            onChange={(e) => handleChange(e, destination.id)}
+                            name="hotel_comments"
+                            id={`hotel_comments_${destination.id}`}
+                          />
+                        </div>
+
+                        <div>
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-900"
+                            htmlFor={`hotel_price_${destination.id}`}
+                          >
+                            Precio
+                          </label>
+                          <Input
+                            placeholder="Ingresa el precio del hotel"
+                            value={formData[destination.id]?.hotel_price || ""}
+                            onChange={(e) => handleChange(e, destination.id)}
+                            name="hotel_price"
+                            type="number"
+                            id={`hotel_price_${destination.id}`}
+                          />
+                        </div>
+
+                        <div>
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-900"
+                            htmlFor={`hotel_file_${destination.id}`}
+                          >
+                            Subir archivos de hotel
+                          </label>
+                          
+                          <Input
+                            type="file"
+                            accept=".pdf"
+                            onChange={(e) => handleFileChange(e, destination.id)}
+                            name="hotel_file"
+                            id={`hotel_file_${destination.id}`}
+                            selectedFileName={formData[destination.id]?.hotel_file_name}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    {destination.is_plane_required && (
+                      <div className="flex flex-col gap-y-4" id="plane-reservation">
+                        <h3 className="text-[var(--blue)] mb-4 font-bold">Información del vuelo</h3>
+                        <div>
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-900"
+                            htmlFor={`plane_title_${destination.id}`}
+                          >
+                            Título
+                          </label>
+                          <Input
+                            placeholder="Ingresa el título de la reservación"
+                            value={formData[destination.id]?.plane_title || ""}
+                            onChange={(e) => handleChange(e, destination.id)}
+                            name="plane_title"
+                            id={`plane_title_${destination.id}`}
+                          />
+                        </div>
+
+                        <div>
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-900"
+                            htmlFor={`plane_comments_${destination.id}`}
+                          >
+                            Comentarios
+                          </label>
+                          <TextArea
+                            placeholder="Escribe tus comentarios"
+                            value={formData[destination.id]?.plane_comments || ""}
+                            onChange={(e) => handleChange(e, destination.id)}
+                            name="plane_comments"
+                            id={`plane_comments_${destination.id}`}
+                          />
+                        </div>
+
+                        <div>
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-900"
+                            htmlFor={`plane_price_${destination.id}`}
+                          >
+                            Precio
+                          </label>
+                          <Input
+                            placeholder="Ingresa el precio del vuelo"
+                            value={formData[destination.id]?.plane_price || ""}
+                            onChange={(e) => handleChange(e, destination.id)}
+                            name="plane_price"
+                            type="number"
+                            id={`plane_price_${destination.id}`}
+                          />
+                        </div>
+
+                        <div>
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-900"
+                            htmlFor={`plane_file_${destination.id}`}
+                          >
+                            Subir archivos de avión
+                          </label>
+                          <Input
+                            type="file"
+                            accept=".pdf"
+                            onChange={(e) => handleFileChange(e, destination.id)}
+                            name="plane_file"
+                            id={`plane_file_${destination.id}`}
+                            selectedFileName={formData[destination.id]?.plane_file_name}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </section>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-4 flex justify-end">
+              <button
+                type="submit"
+                id="assign-reservations"
+                className={`px-4 py-2 rounded-md transition-colors ${
+                  isFormValid
+                    ? "bg-[#0a2c6d] text-white hover:bg-[#0d3d94]"
+                    : "bg-gray-400 text-white cursor-not-allowed"
+                }`}
               >
-                <h3>Destino #{destination.destination_order}</h3>
-                <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                  {labels.map(({ key, label }) => (
-                    <div key={key as string}>
-                      <label
-                        htmlFor={key as string}
-                        className="block text-xs font-semibold text-gray-500 mb-1"
-                      >
-                        {label}
-                      </label>
-                      <input
-                        id={key as string}
-                        type="text"
-                        readOnly
-                        value={destination[key] || ""}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-                      />
-                    </div>
-                  ))}
-                </section>
-                <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-                  {destination.is_hotel_required && (
-                    <div className="flex flex-col gap-y-4">
-                      <h3 className="text-[var(--blue)] mb-4 font-bold">Información del hotel</h3>
-                      <div>
-                        <label 
-                          className="block mb-2 text-sm font-medium text-gray-900"
-                          htmlFor={`hotel_title_${destination.id}`}
-                        >
-                          Título
-                        </label>
-                        <Input
-                          placeholder="Ingresa el título de la reservación"
-                          value={formData[destination.id]?.hotel_title || ""}
-                          onChange={(e) => handleChange(e, destination.id)}
-                          name="hotel_title"
-                          id={`hotel_title_${destination.id}`}
-                        />
-                      </div>
-
-                      <div>
-                        <label 
-                          className="block mb-2 text-sm font-medium text-gray-900"
-                          htmlFor={`hotel_comments_${destination.id}`}
-                        >
-                          Comentarios
-                        </label>
-                        <TextArea
-                          placeholder="Escribe tus comentarios"
-                          value={formData[destination.id]?.hotel_comments || ""}
-                          onChange={(e) => handleChange(e, destination.id)}
-                          name="hotel_comments"
-                          id={`hotel_comments_${destination.id}`}
-                        />
-                      </div>
-
-                      <div>
-                        <label 
-                          className="block mb-2 text-sm font-medium text-gray-900"
-                          htmlFor={`hotel_price_${destination.id}`}
-                        >
-                          Precio
-                        </label>
-                        <Input
-                          placeholder="Ingresa el precio del hotel"
-                          value={formData[destination.id]?.hotel_price || ""}
-                          onChange={(e) => handleChange(e, destination.id)}
-                          name="hotel_price"
-                          type="number"
-                          id={`hotel_price_${destination.id}`}
-                        />
-                      </div>
-
-                      <div>
-                        <label 
-                          className="block mb-2 text-sm font-medium text-gray-900"
-                          htmlFor={`hotel_file_${destination.id}`}
-                        >
-                          Subir archivos de hotel
-                        </label>
-                        
-                        <Input
-                          type="file"
-                          accept=".pdf"
-                          onChange={(e) => handleFileChange(e, destination.id)}
-                          name="hotel_file"
-                          id={`hotel_file_${destination.id}`}
-                          selectedFileName={formData[destination.id]?.hotel_file_name}
-                        />
-                      </div>
-                    </div>
-                  )}
-                  {destination.is_plane_required && (
-                    <div className="flex flex-col gap-y-4">
-                      <h3 className="text-[var(--blue)] mb-4 font-bold">Información del vuelo</h3>
-                      <div>
-                        <label 
-                          className="block mb-2 text-sm font-medium text-gray-900"
-                          htmlFor={`plane_title_${destination.id}`}
-                        >
-                          Título
-                        </label>
-                        <Input
-                          placeholder="Ingresa el título de la reservación"
-                          value={formData[destination.id]?.plane_title || ""}
-                          onChange={(e) => handleChange(e, destination.id)}
-                          name="plane_title"
-                          id={`plane_title_${destination.id}`}
-                        />
-                      </div>
-
-                      <div>
-                        <label 
-                          className="block mb-2 text-sm font-medium text-gray-900"
-                          htmlFor={`plane_comments_${destination.id}`}
-                        >
-                          Comentarios
-                        </label>
-                        <TextArea
-                          placeholder="Escribe tus comentarios"
-                          value={formData[destination.id]?.plane_comments || ""}
-                          onChange={(e) => handleChange(e, destination.id)}
-                          name="plane_comments"
-                          id={`plane_comments_${destination.id}`}
-                        />
-                      </div>
-
-                      <div>
-                        <label 
-                          className="block mb-2 text-sm font-medium text-gray-900"
-                          htmlFor={`plane_price_${destination.id}`}
-                        >
-                          Precio
-                        </label>
-                        <Input
-                          placeholder="Ingresa el precio del vuelo"
-                          value={formData[destination.id]?.plane_price || ""}
-                          onChange={(e) => handleChange(e, destination.id)}
-                          name="plane_price"
-                          type="number"
-                          id={`plane_price_${destination.id}`}
-                        />
-                      </div>
-
-                      <div>
-                        <label 
-                          className="block mb-2 text-sm font-medium text-gray-900"
-                          htmlFor={`plane_file_${destination.id}`}
-                        >
-                          Subir archivos de avión
-                        </label>
-                        <Input
-                          type="file"
-                          accept=".pdf"
-                          onChange={(e) => handleFileChange(e, destination.id)}
-                          name="plane_file"
-                          id={`plane_file_${destination.id}`}
-                          selectedFileName={formData[destination.id]?.plane_file_name}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </section>
-              </div>
-            ))}
-          </div>
-
-          <div className="pt-4 flex justify-end">
-            <button
-              type="submit"
-              className={`px-4 py-2 rounded-md transition-colors ${
-                isFormValid
-                  ? "bg-[#0a2c6d] text-white hover:bg-[#0d3d94]"
-                  : "bg-gray-400 text-white cursor-not-allowed"
-              }`}
-            >
-              Enviar reservaciones
-            </button>
-          </div>
-        </form>
+                Enviar reservaciones
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </Tutorial>
   );
 };
 

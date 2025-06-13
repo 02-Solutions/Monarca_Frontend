@@ -12,6 +12,7 @@ import { useParams } from "react-router-dom";
 import formatMoney from "../../utils/formatMoney";
 import { toast } from "react-toastify";
 import GoBack from "../../components/GoBack";
+import { Tutorial } from "../../components/Tutorial";
 
 interface FormDataRow extends DynamicTableRow {
   spentClass: string;
@@ -270,6 +271,7 @@ export const Vouchers = () => {
 
   return (
     <>
+    <Tutorial page="vouchers">
       <GoBack />
       <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
         <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
@@ -303,11 +305,13 @@ export const Vouchers = () => {
         * which is passed as a prop to the DynamicTable component.
         * The handleFormDataChange function updates the formData state with the new data.
         */}
-        <DynamicTable
-          columns={columnsSchemaVauchers}
-          initialData={formData}
-          onDataChange={handleDynamicTableDataChange}
-        />
+        <div id="vouchers">
+          <DynamicTable
+            columns={columnsSchemaVauchers}
+            initialData={formData}
+            onDataChange={handleDynamicTableDataChange}
+          />
+        </div>
         {/*
         * Display a field to add a comment to the refund request.
         * The comment is stored in the commentDescriptionOfSpend state,
@@ -339,6 +343,7 @@ export const Vouchers = () => {
           </button>
         </div>
       </div>
+    </Tutorial>
     </>
   );
 };

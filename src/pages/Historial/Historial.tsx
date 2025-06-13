@@ -12,6 +12,8 @@ import RefreshButton from "../../components/RefreshButton";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/Refunds/Button";
 import GoBack from "../../components/GoBack";
+import { Tutorial } from "../../components/Tutorial";
+import { useApp } from "../../hooks/app/appContext";
 
 //Interface for travel records data
 //interface TravelRecord {
@@ -92,6 +94,7 @@ export const Historial = () => {
   const [dataWithActions, setDataWithActions] = useState([]);
   const { authState } = useAuth();
   const navigate = useNavigate();
+  const { handleVisitPage, tutorial, setTutorial } = useApp();
 
   // Fetch travel records data from API
   useEffect(() => {
@@ -127,6 +130,7 @@ export const Historial = () => {
               className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
               label="Ver detalles"
               id={`details-${index}`}
+              driver-id="details"
               onClickFunction={() => {
                 navigate(`/requests/${record.id}`);
               }}
@@ -150,6 +154,20 @@ export const Historial = () => {
     fetchTravelRecords();
   }, []);
 
+  useEffect(() => {
+      // Get the visited pages from localStorage
+      const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
+      // Check if the current page is already in the visited pages
+      const isPageVisited = visitedPages.includes(location.pathname);
+  
+      // If the page is not visited, set the tutorial to true
+      if (!isPageVisited) {
+        setTutorial(true);
+      }
+      // Add the current page to the visited pages
+      return () => handleVisitPage();
+    }, []);
+
   // Columns schema for travel history table
   const columnsSchema = [
     { key: "status", header: "Estado" },
@@ -163,18 +181,22 @@ export const Historial = () => {
 
   return (
     <>
-      <GoBack />
-      <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-[#0a2c6d] mb-4">
-              Historial de viajes
-            </h2>
-            <RefreshButton />
-        </div>
+    <Tutorial page="history" run={tutorial}>
+        <GoBack />
+        <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
+          <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-[#0a2c6d] mb-4">
+                Historial de viajes
+              </h2>
+              <RefreshButton />
+          </div>
 
-        {/* Travel history table component */}
-        <Table columns={columnsSchema} data={dataWithActions} itemsPerPage={5} />
-      </div>
+          {/* Travel history table component */}
+          <div id="list_requests">
+            <Table columns={columnsSchema} data={dataWithActions} itemsPerPage={5} />
+          </div>
+        </div>
+      </Tutorial>
     </>
   );
 };
