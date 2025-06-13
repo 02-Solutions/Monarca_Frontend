@@ -51,6 +51,47 @@ interface Dest {
   };
 }
 
+export const renderStatus = (status: string) => {
+  let statusText = "";
+  switch (status) {
+    case "Pending Review":
+      statusText = "En revisión";
+      break;
+    case "Denied":
+      statusText = "Denegado";
+      break;
+    case "Cancelled":
+      statusText = "Cancelado";
+      break;
+    case "Changes Needed":
+      statusText = "Cambios necesarios";
+      break;
+    case "Pending Reservations":
+      statusText = "Reservas pendientes";
+      break;
+    case "Pending Accounting Approval":
+      statusText = "Contabilidad pendiente";
+      break;
+    case "Pending Vouchers Approval":
+      statusText = "Comprobantes pendientes";
+      break;
+    case "In Progress":
+      statusText = "En progreso";
+      break;
+    case "Pending Refund Approval": 
+      statusText = "Reembolso pendiente";
+      break;
+    case "Completed": 
+      statusText = "Completado";
+      break;
+    default:
+      statusText = status;
+    }
+    return (
+      statusText
+    )
+}
+
 const RefundsAcceptance: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -151,12 +192,6 @@ const RefundsAcceptance: React.FC = () => {
           <div className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6">
             Información de Solicitud: <span>{id}</span>
           </div>
-          <p className="mb-6 text-gray-700 font-medium">
-            Empleado:{" "}
-            <span className="text-[var(--blue)]">
-              Aquí va el ID del usuario
-            </span>
-          </p>
 
           <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             {labels.map(({ key, label }) => (
@@ -167,16 +202,29 @@ const RefundsAcceptance: React.FC = () => {
                 >
                   {label}
                 </label>
-                <input
+
+                {key === 'status' ? (
+                  <input
                   id={key}
                   type="text"
                   readOnly
-                  value={data[key] !== undefined ? String(data[key]) : ""}
+                  value={data[key] !== undefined ? String(renderStatus(data.status ?? '')) : ""}
                   className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                 />
+                  
+                ) : (
+                  <input
+                    id={key}
+                    type="text"
+                    readOnly
+                    value={data[key] !== undefined ? String(data[key]) : ""}
+                    className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                  />
+                )}
               </div>
             ))}
           </section>
+
 
           <div className="mb-4">
             <div className="bg-white p-4 rounded-lg shadow-md relative">
