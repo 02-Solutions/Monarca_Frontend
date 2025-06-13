@@ -14,6 +14,7 @@ import { Tutorial } from '../components/Tutorial';
 import { Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import FilePreviewer from '../components/Refunds/FilePreviewer';
+import FilePreviewerReservation from '../components/Refunds/FilePreviewerReservation';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -59,6 +60,10 @@ const RequestInfo: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const prevRef = React.useRef(null);
   const nextRef = React.useRef(null);
+  
+  const [currentIndexRes, setCurrentIndexRes] = useState(0);
+  const prevRefRes = React.useRef(null);
+  const nextRefRes = React.useRef(null);
 
   const { handleVisitPage, tutorial } = useApp();
 
@@ -66,9 +71,11 @@ const RequestInfo: React.FC = () => {
     const fetchData = async () => {
       try {
         const response = await getRequest(`/requests/${id}`);
-        console.log(response);
+        const reservations = response.requests_destinations.map((dest: any) => dest.reservations).flat();
+        console.log('Reservations:', reservations);
         setData({
           ...response,
+          reservations: reservations,
           formatted_status: renderStatus(response.status),
           createdAt: formatDate(response.createdAt),
           advance_money_str: formatMoney(response.advance_money),
@@ -391,145 +398,227 @@ const RequestInfo: React.FC = () => {
               </div>
           </section>}
 
+          {data?.reservations?.length > 0 && 
+            <section id="vouchers-info">
+              <p 
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Reservaciones de la solicitud
+                </p>
+                <div className="mb-4">
+              <div className="bg-white p-4 relative">
+                <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                  Reservaciones {currentIndexRes + 1} de{" "}
+                  {data?.reservations?.length}
+                </h2>
+                {/* Display the existing PDF using an iframe */}
+                <Swiper
+                    modules={[Navigation, Pagination]}
+                    spaceBetween={50}
+                    slidesPerView={1}
+                    pagination={{ clickable: true }}
+                    onBeforeInit={(swiper: any) => {
+                      if (typeof swiper.params.navigation !== 'boolean') {
+                        swiper.params.navigation.prevEl = prevRefRes.current;
+                        swiper.params.navigation.nextEl = nextRefRes.current;
+                      }
+                    }}
+                    onSlideChange={(swiper: any) => setCurrentIndexRes(swiper.activeIndex)}
+                >
+                  {data?.reservations?.map((file: any, index: number) => (
+                    <SwiperSlide key={index}>
+                      <FilePreviewerReservation 
+                          file={file} 
+                          fileIndex={index}
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+                <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
+                    <button
+                      ref={prevRefRes}
+                      disabled={currentIndexRes === 0}
+                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                        currentIndexRes === 0
+                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                      }`}
+                    >
+                      Anterior
+                    </button>
+                    <button
+                      disabled={currentIndexRes === ((data?.reservations?.length ?? 0) - 1)}
+                      ref={nextRefRes} 
+                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                        currentIndexRes === (data?.reservations?.length ?? 0) - 1
+                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                      }`}
+                    >
+                      Siguiente
+                    </button>
+                </div>
+              </div>
+              <section className="grid grid-cols-3 gap-5">
+              <div className="my-5">
+                <label
+                  htmlFor={"total"}
+                  className="block text-xs font-semibold text-gray-500 mb-1"
+                >
+                  Total de Reservaciones
+                </label>
+                <input
+                  id="total_vouchers"
+                  type="text"
+                  readOnly
+                  value={formatMoney(data?.reservations?.reduce((acc: number, file: { price: number }) => {
+                    return acc + +file.price;
+                  }, 0) ?? 0)}
+                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                />
+              </div>
+              </section>
+            </div>
+          </section>}
+
           {data?.vouchers?.length > 0 && 
             <section id="vouchers-info">
-            <p 
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Comprobantes de la solicitud
-              </p>
-              <div className="mb-4">
-            <div className="bg-white p-4 relative">
-              <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                Comprobante {currentIndex + 1} de{" "}
-                {data?.vouchers?.length}
-              </h2>
-              {/* Display the existing PDF using an iframe */}
-              <Swiper
-                  modules={[Navigation, Pagination]}
-                  spaceBetween={50}
-                  slidesPerView={1}
-                  pagination={{ clickable: true }}
-                  onBeforeInit={(swiper: any) => {
-                    if (typeof swiper.params.navigation !== 'boolean') {
-                      swiper.params.navigation.prevEl = prevRef.current;
-                      swiper.params.navigation.nextEl = nextRef.current;
-                    }
-                  }}
-                  onSlideChange={(swiper: any) => setCurrentIndex(swiper.activeIndex)}
-              >
-                {data?.vouchers?.map((file: any, index: number) => (
-                  <SwiperSlide key={index}>
-                    <FilePreviewer 
-                        file={file} 
-                        fileIndex={index}
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
-                  <button
-                    ref={prevRef}
-                    disabled={currentIndex === 0}
-                    className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                      currentIndex === 0
-                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                        : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                    }`}
-                  >
-                    Anterior
-                  </button>
-                  <button
-                    disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
-                    ref={nextRef} 
-                    className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                      currentIndex === (data?.vouchers?.length ?? 0) - 1
-                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                        : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                    }`}
-                  >
-                    Siguiente
-                  </button>
+              <p 
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Comprobantes de la solicitud
+                </p>
+                <div className="mb-4">
+              <div className="bg-white p-4 relative">
+                <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                  Comprobante {currentIndex + 1} de{" "}
+                  {data?.vouchers?.length}
+                </h2>
+                {/* Display the existing PDF using an iframe */}
+                <Swiper
+                    modules={[Navigation, Pagination]}
+                    spaceBetween={50}
+                    slidesPerView={1}
+                    pagination={{ clickable: true }}
+                    onBeforeInit={(swiper: any) => {
+                      if (typeof swiper.params.navigation !== 'boolean') {
+                        swiper.params.navigation.prevEl = prevRef.current;
+                        swiper.params.navigation.nextEl = nextRef.current;
+                      }
+                    }}
+                    onSlideChange={(swiper: any) => setCurrentIndex(swiper.activeIndex)}
+                >
+                  {data?.vouchers?.map((file: any, index: number) => (
+                    <SwiperSlide key={index}>
+                      <FilePreviewer 
+                          file={file} 
+                          fileIndex={index}
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+                <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
+                    <button
+                      ref={prevRef}
+                      disabled={currentIndex === 0}
+                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                        currentIndex === 0
+                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                      }`}
+                    >
+                      Anterior
+                    </button>
+                    <button
+                      disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
+                      ref={nextRef} 
+                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                        currentIndex === (data?.vouchers?.length ?? 0) - 1
+                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                      }`}
+                    >
+                      Siguiente
+                    </button>
+                </div>
               </div>
-            </div>
-            <section className="grid grid-cols-3 gap-5">
-            <div className="my-5">
-              <label
-                htmlFor={"total"}
-                className="block text-xs font-semibold text-gray-500 mb-1"
-              >
-                Total de Comprobantes
-              </label>
-              <input
-                id="total_vouchers"
-                type="text"
-                readOnly
-                value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                  if (file.status === "Voucher Approved") {
-                    return acc + +file.amount;
-                  }
-                  return acc;
-                }, 0) ?? 0)}
-                className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-              />
-            </div>
-            <div className="my-5">
-              <label
-                htmlFor={"advance_money"}
-                className="block text-xs font-semibold text-gray-500 mb-1"
-              >
-                Anticipo
-              </label>
-              <input
-                id="advance_money"
-                type="text"
-                readOnly
-                value={formatMoney(Number(data?.advance_money) || 0)}
-                className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-              />
-            </div>
-            <div className="my-5">
-              <label
-                htmlFor={"total"}
-                className="block text-xs font-semibold text-gray-500 mb-1"
-              >
-                Saldo {(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                  (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+              <section className="grid grid-cols-3 gap-5">
+              <div className="my-5">
+                <label
+                  htmlFor={"total"}
+                  className="block text-xs font-semibold text-gray-500 mb-1"
+                >
+                  Total de Comprobantes
+                </label>
+                <input
+                  id="total_vouchers"
+                  type="text"
+                  readOnly
+                  value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
                     if (file.status === "Voucher Approved") {
-                      return acc + Number(file.amount);
+                      return acc + +file.amount;
                     }
                     return acc;
-                  }, 0) ?? 0) < 0 ? "a favor" : "en contra"} 
-              </label>
-              <input
-                id="balance"
-                type="text"
-                readOnly
-                value={formatMoney(
-                  Math.abs((typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                  (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                    if (file.status === "Voucher Approved") {
-                      return acc + Number(file.amount);
-                    }
-                    return acc;
-                  }, 0) ?? 0))
-                )}
-                className={`w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200
-                    ${(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                  (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                    if (file.status === "Voucher Approved") {
-                      return acc + Number(file.amount);
-                    }
-                    return acc;
-                  }, 0) ?? 0) > 0 ? "text-red-500" : "text-green-600"
-                }`}
-              />
-            </div>
+                  }, 0) ?? 0)}
+                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                />
+              </div>
+              <div className="my-5">
+                <label
+                  htmlFor={"advance_money"}
+                  className="block text-xs font-semibold text-gray-500 mb-1"
+                >
+                  Anticipo
+                </label>
+                <input
+                  id="advance_money"
+                  type="text"
+                  readOnly
+                  value={formatMoney(Number(data?.advance_money) || 0)}
+                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                />
+              </div>
+              <div className="my-5">
+                <label
+                  htmlFor={"total"}
+                  className="block text-xs font-semibold text-gray-500 mb-1"
+                >
+                  Saldo {(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
+                    (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+                      if (file.status === "Voucher Approved") {
+                        return acc + Number(file.amount);
+                      }
+                      return acc;
+                    }, 0) ?? 0) < 0 ? "a favor" : "en contra"} 
+                </label>
+                <input
+                  id="balance"
+                  type="text"
+                  readOnly
+                  value={formatMoney(
+                    Math.abs((typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
+                    (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+                      if (file.status === "Voucher Approved") {
+                        return acc + Number(file.amount);
+                      }
+                      return acc;
+                    }, 0) ?? 0))
+                  )}
+                  className={`w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200
+                      ${(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
+                    (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+                      if (file.status === "Voucher Approved") {
+                        return acc + Number(file.amount);
+                      }
+                      return acc;
+                    }, 0) ?? 0) > 0 ? "text-red-500" : "text-green-600"
+                  }`}
+                />
+              </div>
 
-            </section>
-          </div>
-            </section>
-          }
+              </section>
+            </div>
+          </section>}
 
           {authState.userPermissions.includes("approve_request" as Permission) && <section className="mb-10" id="travel-agency">
             <label
