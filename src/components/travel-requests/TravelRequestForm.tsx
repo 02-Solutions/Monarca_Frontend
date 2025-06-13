@@ -170,10 +170,17 @@ function DestinationFields({
           >
             Fecha salida
           </label>
-          <Input
-            id={`departure-${idx}`}
-            type="date"
-            {...register(`requests_destinations.${idx}.departure_date`)}
+          <Controller
+            control={control}
+            name={`requests_destinations.${idx}.departure_date`}
+            render={({ field }) => (
+              <Input
+                id={`departure-${idx}`}
+                type="date"
+                value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
+                onChange={e => field.onChange(e.target.value)}
+              />
+            )}
           />
           <FieldError msg={destinationErrors?.departure_date?.message} />
         </div>
@@ -185,10 +192,17 @@ function DestinationFields({
           >
             Fecha llegada
           </label>
-          <Input
-            id={`arrival-${idx}`}
-            type="date"
-            {...register(`requests_destinations.${idx}.arrival_date`)}
+          <Controller
+            control={control}
+            name={`requests_destinations.${idx}.arrival_date`}
+            render={({ field }) => (
+              <Input
+                id={`arrival-${idx}`}
+                type="date"
+                value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
+                onChange={e => field.onChange(e.target.value)}
+              />
+            )}
           />
           <FieldError msg={destinationErrors?.arrival_date?.message} />
         </div>
