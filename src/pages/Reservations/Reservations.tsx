@@ -15,7 +15,7 @@ export const Reservations = () => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [request, setRequest] = useState<any>({});
   const [isFormValid, _setIsFormValid] = useState(true);
-  const { handleVisitPage, tutorial, setTutorial } = useApp();
+  const { handleVisitPage, tutorial } = useApp();
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -56,7 +56,7 @@ export const Reservations = () => {
   
       // If the page is not visited, set the tutorial to true
       if (!isPageVisited) {
-        setTutorial(true);
+        // setTutorial(true);
       }
       // Add the current page to the visited pages
       handleVisitPage();

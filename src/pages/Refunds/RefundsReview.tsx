@@ -115,7 +115,7 @@ export const RefundsReview = () => {
   const navigate = useNavigate();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const { handleVisitPage, tutorial, setTutorial } = useApp();
+  const { handleVisitPage, tutorial } = useApp();
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -173,7 +173,7 @@ export const RefundsReview = () => {
   
       // If the page is not visited, set the tutorial to true
       if (!isPageVisited) {
-        setTutorial(true);
+        // setTutorial(true);
       }
       // Add the current page to the visited pages
       handleVisitPage();

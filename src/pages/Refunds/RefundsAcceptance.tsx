@@ -105,7 +105,7 @@ const RefundsAcceptance: React.FC = () => {
   const prevRef = useRef<HTMLButtonElement | null>(null);
   const nextRef = useRef<HTMLButtonElement | null>(null);
 
-  const { handleVisitPage, tutorial, setTutorial } = useApp();
+  const { handleVisitPage, tutorial } = useApp();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -142,7 +142,7 @@ const RefundsAcceptance: React.FC = () => {
   
       // If the page is not visited, set the tutorial to true
       if (!isPageVisited) {
-        setTutorial(true);
+        // setTutorial(true);
       }
       // Add the current page to the visited pages
       handleVisitPage();
@@ -350,7 +350,7 @@ const RefundsAcceptance: React.FC = () => {
                   type="text"
                   readOnly
                   value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                    if (file.status === "Voucher Approved") {
+                    if (file.status === "comprobante_aprobado") {
                       return acc + +file.amount;
                     }
                     return acc;
@@ -386,7 +386,7 @@ const RefundsAcceptance: React.FC = () => {
                   readOnly
                   value={formatMoney(
                     (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                      if (file.status === "Voucher Approved") {
+                      if (file.status === "comprobante_aprobado") {
                         return acc + Number(file.amount);
                       }
                       return acc;

@@ -72,7 +72,7 @@ const RequestInfo: React.FC = () => {
       try {
         const response = await getRequest(`/requests/${id}`);
         const reservations = response.requests_destinations.map((dest: any) => dest.reservations).flat();
-        console.log('Reservations:', reservations);
+        console.log(response);
         setData({
           ...response,
           reservations: reservations,
@@ -615,7 +615,6 @@ const RequestInfo: React.FC = () => {
                   }`}
                 />
               </div>
-
               </section>
             </div>
           </section>}
